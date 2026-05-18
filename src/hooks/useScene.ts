@@ -27,11 +27,11 @@ export function useScene(sceneId?: string) {
     setSaveError(null)
 
     try {
-      const { data, error } = await (supabase as any)
+      const { data, error } = await (supabase
         .from('scenes')
         .select('*')
         .eq('id', id)
-        .single()
+        .single() as any)
 
       if (error) throw error
 
@@ -122,8 +122,8 @@ export function useScene(sceneId?: string) {
   const createScene = useCallback(async (title = 'Untitled Scene') => {
     if (!user) return null
 
-    const { data, error } = await (supabase as any)
-      .from('scenes')
+    const { data, error } = await ((supabase
+      .from('scenes') as any)
       .insert({
         owner_id: user.id,
         title:    sanitizeTitle(title),
@@ -135,7 +135,7 @@ export function useScene(sceneId?: string) {
         },
       })
       .select()
-      .single()
+      .single())
 
     if (error) {
       // DB trigger xətası (Free plan limiti)
@@ -152,23 +152,23 @@ export function useScene(sceneId?: string) {
   const deleteScene = useCallback(async (id: string) => {
     if (!user) return
 
-    const { error } = await (supabase as any)
+    const { error } = await (supabase
       .from('scenes')
       .delete()
       .eq('id', id)
-      .eq('owner_id', user.id)  // Yalnız öz scene-ni silə bilər
+      .eq('owner_id', user.id) as any)
 
     if (error) throw error
   }, [user])
 
   // ── Scene adını dəyişdir ──────────────────────────────────────────────────
   const renameScene = useCallback(async (id: string, newTitle: string) => {
-    const { data, error } = await (supabase as any)
-      .from('scenes')
+    const { data, error } = await ((supabase
+      .from('scenes') as any)
       .update({ title: sanitizeTitle(newTitle) })
       .eq('id', id)
       .select()
-      .single()
+      .single())
 
     if (error) throw error
     if (scene?.id === id) setScene(data)
@@ -179,16 +179,16 @@ export function useScene(sceneId?: string) {
   const duplicateScene = useCallback(async (id: string) => {
     if (!user) return null
 
-    const { data: original, error: fetchError } = await (supabase as any)
+    const { data: original, error: fetchError } = await (supabase
       .from('scenes')
       .select('*')
       .eq('id', id)
-      .single()
+      .single() as any)
 
     if (fetchError || !original) throw new Error('Scene not found')
 
-    const { data, error } = await (supabase as any)
-      .from('scenes')
+    const { data, error } = await ((supabase
+      .from('scenes') as any)
       .insert({
         owner_id:  user.id,
         title:     `${original.title} (Kopya)`,
@@ -196,7 +196,7 @@ export function useScene(sceneId?: string) {
         app_state: original.app_state,
       })
       .select()
-      .single()
+      .single())
 
     if (error) {
       if (error.message.includes('FREE_PLAN_LIMIT')) {

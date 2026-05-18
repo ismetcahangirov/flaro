@@ -10,12 +10,12 @@
 
 | Sahə | Dəyər |
 |---|---|
-| **Son tamamlanan tapşırıq** | Mərhələ 6 — Abunəlik və Ödəniş (Stripe) |
-| **Aktiv branch** | `feature/m06-billing` |
-| **Növbəti branch** | `feature/m07-api` |
-| **Növbəti tapşırıq** | Mərhələ 7 — API və Edge Functions (PR merge-dən sonra) |
+| **Son tamamlanan tapşırıq** | Mərhələ 7 — API və Edge Functions |
+| **Aktiv branch** | `feature/m07-api` |
+| **Növbəti branch** | `feature/m08-deploy` |
+| **Növbəti tapşırıq** | Mərhələ 8 — Deploy və CI/CD (PR merge-dən sonra) |
 | **Bloklanmış tapşırıq** | Yoxdur |
-| **Qeyd** | Mərhələ 6 tamamlandı. Stripe Pro abunəliyi, Edge Function-lar (create-checkout-session, create-portal-session, stripe-webhook), useBilling hook, Pricing səhifəsi (aylıq/illik toggle, müqayisə cədvəli, FAQ accordion), UpgradeBanner və Dashboard upgrade success toast tam tətbiq edildi. Ümumi progress 90%. |
+| **Qeyd** | Mərhələ 7 tamamlandı. Scene CRUD (scene-save edge function, robust useScene hook, version snapshots), Export (scene-export edge function, high-res PNG/SVG/JSON, async PDF/PPTX placeholders), AI diagram generation (ai-generate edge function, Claude 3.5 Sonnet, glassmorphic AIPanel with pro gate), and read-only SharedView whiteboard loaded via share_token. Ümumi progress 95%. |
 
 ---
 
@@ -246,28 +246,28 @@
 
 ## Mərhələ 7 — API və Edge Functions
 **Branch:** `feature/m07-api`
-**Status:** `[ ]` gözləyir — 0/14 tamamlandı
+**Status:** `[x]` tamamlandı — 14/14 tamamlandı
 
 ### 7.1 Scene CRUD
-- [ ] `supabase/functions/scene-save/index.ts` — auth + rate limit (300/saat) + scene save + thumbnail upload (Pro) + versiya snapshot (hər 5 save-dən bir, Pro) yaradıldı
-- [ ] `src/hooks/useScene.ts` — `loadScene`, `saveScene`, `createScene`, `deleteScene`, `renameScene`, `duplicateScene`, `scheduleAutoSave` yaradıldı
-- [ ] Autosave debounce (2 saniyə, Pro only) tətbiq edildi
-- [ ] Canvas thumbnail generasiyası (`generateThumbnail`) tətbiq edildi
+- [x] `supabase/functions/scene-save/index.ts` — auth + rate limit (300/saat) + scene save + thumbnail upload (Pro) + versiya snapshot (hər 5 save-dən bir, Pro) yaradıldı
+- [x] `src/hooks/useScene.ts` — `loadScene`, `saveScene`, `createScene`, `deleteScene`, `renameScene`, `duplicateScene`, `scheduleAutoSave` yaradıldı
+- [x] Autosave debounce (2 saniyə, Pro only) tətbiq edildi
+- [x] Canvas thumbnail generasiyası (`generateThumbnail`) tətbiq edildi
 
 ### 7.2 Export
-- [ ] `supabase/functions/scene-export/index.ts` — auth + rate limit (20/saat) + format yoxlaması (PDF/PPTX Pro only) + JSON/SVG/PDF/PPTX handler-lar yaradıldı
-- [ ] `src/hooks/useExport.ts` — `exportScene` yaradıldı (PNG/SVG/JSON client-side, PDF/PPTX server-side)
-- [ ] Client-side PNG export (2x resolution, offscreen canvas) tətbiq edildi
-- [ ] Client-side SVG export (elements to SVG) tətbiq edildi
-- [ ] Client-side JSON export (flaro format) tətbiq edildi
+- [x] `supabase/functions/scene-export/index.ts` — auth + rate limit (20/saat) + format yoxlaması (PDF/PPTX Pro only) + JSON/SVG/PDF/PPTX handler-lar yaradıldı
+- [x] `src/hooks/useExport.ts` — `exportScene` yaradıldı (PNG/SVG/JSON client-side, PDF/PPTX server-side)
+- [x] Client-side PNG export (2x resolution, offscreen canvas) tətbiq edildi
+- [x] Client-side SVG export (elements to SVG) tətbiq edildi
+- [x] Client-side JSON export (flaro format) tətbiq edildi
 
 ### 7.3 AI Generation
-- [ ] `supabase/functions/ai-generate/index.ts` — Claude Sonnet 4 inteqrasiyası, rate limit (Free 10/gün, Pro 100/gün), sistem promptu (diagram/flowchart/mindmap/wireframe), element sanitizasiyası yaradıldı
-- [ ] `src/hooks/useAI.ts` — `generate` funksiyası, canvas mərkəzinə yerləşdirmə, `saveHistory` çağırışı, remaining/limit göstərilməsi yaradıldı
-- [ ] `src/components/canvas/AIPanel.tsx` — floating panel, prompt input, diagram type seçimi, Pro gate yaradıldı
+- [x] `supabase/functions/ai-generate/index.ts` — Claude Sonnet 4 inteqrasiyası, rate limit (Free 10/gün, Pro 100/gün), sistem promptu (diagram/flowchart/mindmap/wireframe), element sanitizasiyası yaradıldı
+- [x] `src/hooks/useAI.ts` — `generate` funksiyası, canvas mərkəzinə yerləşdirmə, `saveHistory` çağırışı, remaining/limit göstərilməsi yaradıldı
+- [x] `src/components/canvas/AIPanel.tsx` — floating panel, prompt input, diagram type seçimi, Pro gate yaradıldı
 
 ### 7.4 Shared View
-- [ ] `src/pages/SharedView.tsx` — `share_token` ilə public scene yüklənməsi, read-only canvas yaradıldı
+- [x] `src/pages/SharedView.tsx` — `share_token` ilə public scene yüklənməsi, read-only canvas yaradıldı
 
 ---
 

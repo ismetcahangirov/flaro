@@ -1,7 +1,10 @@
 import { create } from 'zustand'
 import { devtools } from 'zustand/middleware'
 import { immer } from 'zustand/middleware/immer'
+import { enableMapSet } from 'immer'
 import type { CollabUser, CollabState } from '@/types/collaboration.types'
+
+enableMapSet()
 
 interface CollabStore extends CollabState {
   // Actions

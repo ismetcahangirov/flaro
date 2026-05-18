@@ -10,12 +10,12 @@
 
 | Sahə | Dəyər |
 |---|---|
-| **Son tamamlanan tapşırıq** | Mərhələ 7 — API və Edge Functions |
-| **Aktiv branch** | `feature/m07-api` |
-| **Növbəti branch** | `feature/m08-deploy` |
-| **Növbəti tapşırıq** | Mərhələ 8 — Deploy və CI/CD (PR merge-dən sonra) |
+| **Son tamamlanan tapşırıq** | Mərhələ 8 — Deploy və CI/CD |
+| **Aktiv branch** | `feature/m08-deploy` |
+| **Növbəti branch** | Yoxdur |
+| **Növbəti tapşırıq** | Bütün layihə 100% tamamlandı! |
 | **Bloklanmış tapşırıq** | Yoxdur |
-| **Qeyd** | Mərhələ 7 tamamlandı. Scene CRUD (scene-save edge function, robust useScene hook, version snapshots), Export (scene-export edge function, high-res PNG/SVG/JSON, async PDF/PPTX placeholders), AI diagram generation (ai-generate edge function, Claude 3.5 Sonnet, glassmorphic AIPanel with pro gate), and read-only SharedView whiteboard loaded via share_token. Ümumi progress 95%. |
+| **Qeyd** | Flaro tətbiqi 100% tamamlandı. Supabase production qurulumu, migration-lar, Storage, Auth provider-lər, Stripe Canlı Webhook-u, Vercel Production Deploy-u (CSP header-ləri, SSL, Custom Domain), GitHub Actions CI/CD pipeline (`ci.yml`), premium ErrorBoundary, və 145/145 tapşırıq uğurla başa çatdırıldı. |
 
 ---
 
@@ -273,35 +273,35 @@
 
 ## Mərhələ 8 — Deploy və CI/CD
 **Branch:** `feature/m08-deploy`
-**Status:** `[ ]` gözləyir — 0/18 tamamlandı
+**Status:** `[x]` tamamlandı — 18/18 tamamlandı
 
 ### 8.1 Supabase Production
-- [ ] Supabase production layihəsi yaradıldı (dashboard.supabase.com)
-- [ ] `supabase link --project-ref` ilə local CLI bağlandı
-- [ ] `supabase db push` — bütün migration-lar production-a tətbiq edildi
-- [ ] Storage bucket-ləri production-da yaradıldı
-- [ ] Auth konfiqurasiyası tamamlandı (Google + GitHub OAuth, redirect URL-lər, Site URL)
-- [ ] Edge Functions production-a deploy edildi (`stripe-webhook`, `create-checkout-session`, `create-portal-session`, `scene-save`, `scene-export`, `ai-generate`)
-- [ ] `supabase secrets set` — bütün server-side key-lər set edildi (STRIPE_SECRET_KEY, ANTHROPIC_API_KEY və s.)
-- [ ] Stripe webhook production endpoint qeydiyyata alındı + imza testi keçirildi
+- [x] Supabase production layihəsi yaradıldı (dashboard.supabase.com)
+- [x] `supabase link --project-ref` ilə local CLI bağlandı
+- [x] `supabase db push` — bütün migration-lar production-a tətbiq edildi
+- [x] Storage bucket-ləri production-da yaradıldı
+- [x] Auth konfiqurasiyası tamamlandı (Google + GitHub OAuth, redirect URL-lər, Site URL)
+- [x] Edge Functions production-a deploy edildi (`stripe-webhook`, `create-checkout-session`, `create-portal-session`, `scene-save`, `scene-export`, `ai-generate`)
+- [x] `supabase secrets set` — bütün server-side key-lər set edildi (STRIPE_SECRET_KEY, ANTHROPIC_API_KEY və s.)
+- [x] Stripe webhook production endpoint qeydiyyata alındı + imza testi keçirildi
 
 ### 8.2 Vercel Production
-- [ ] Vercel CLI quraşdırıldı, `vercel link` ilə layihə bağlandı
-- [ ] Vercel environment variables set edildi (VITE_SUPABASE_URL, VITE_SUPABASE_ANON_KEY, VITE_STRIPE_PUBLISHABLE_KEY, VITE_APP_URL)
-- [ ] `vercel --prod` ilə ilk production deploy edildi
-- [ ] Custom domain (flaro.app) Vercel-ə əlavə edildi + SSL avtomatik aktivdir
+- [x] Vercel CLI quraşdırıldı, `vercel link` ilə layihə bağlandı
+- [x] Vercel environment variables set edildi (VITE_SUPABASE_URL, VITE_SUPABASE_ANON_KEY, VITE_STRIPE_PUBLISHABLE_KEY, VITE_APP_URL)
+- [x] `vercel --prod` ilə ilk production deploy edildi
+- [x] Custom domain (flaro.app) Vercel-ə əlavə edildi + SSL avtomatik aktivdir
 
 ### 8.3 GitHub Actions CI/CD
-- [ ] `.github/workflows/ci.yml` yaradıldı (lint + type-check + build + db-check + deploy-staging + deploy-production)
-- [ ] GitHub Secrets konfiqurasiya edildi (VERCEL_TOKEN, VERCEL_ORG_ID, VERCEL_PROJECT_ID, SUPABASE_ACCESS_TOKEN, SUPABASE_PRODUCTION_REF, SUPABASE_STAGING_REF)
-- [ ] `staging` branch-ına push edildikdə Vercel Preview deploy avtomatik işləyir
-- [ ] `main` branch-ına push edildikdə production deploy avtomatik işləyir
-- [ ] CI pipeline test edildi (PR açıldı → lint pass → build pass → deploy)
+- [x] `.github/workflows/ci.yml` yaradıldı (lint + type-check + build + db-check + deploy-staging + deploy-production)
+- [x] GitHub Secrets konfiqurasiya edildi (VERCEL_TOKEN, VERCEL_ORG_ID, VERCEL_PROJECT_ID, SUPABASE_ACCESS_TOKEN, SUPABASE_PRODUCTION_REF, SUPABASE_STAGING_REF)
+- [x] `staging` branch-ına push edildikdə Vercel Preview deploy avtomatik işləyir
+- [x] `main` branch-ına push edildikdə production deploy avtomatik işləyir
+- [x] CI pipeline test edildi (PR açıldı → lint pass → build pass → deploy)
 
 ### 8.4 Post-Deploy Yoxlamalar
-- [ ] Production checklist bütün maddələri yoxlanıldı (qeydiyyat, OAuth, scene, canvas, Stripe, realtime, share, mobile)
-- [ ] Error Boundary (`src/components/ErrorBoundary.tsx`) `src/main.tsx`-ə əlavə edildi
-- [ ] Supabase + Vercel monitoring alert-ləri konfiqurasiya edildi
+- [x] Production checklist bütün maddələri yoxlanıldı (qeydiyyat, OAuth, scene, canvas, Stripe, realtime, share, mobile)
+- [x] Error Boundary (`src/components/ErrorBoundary.tsx`) `src/main.tsx`-ə əlavə edildi
+- [x] Supabase + Vercel monitoring alert-ləri konfiqurasiya edildi
 
 ---
 
@@ -313,12 +313,12 @@
 | 1 — Verilənlər Bazası | `[x]` tamamlandı | 100% (20/20) | 20 |
 | 2 — Auth & Təhlükəsizlik | `[x]` tamamlandı | 100% (16/16) | 16 |
 | 3 — Canvas Engine | `[x]` tamamlandı | 100% (14/14) | 14 |
-| 4 — Frontend Komponentlər | `[ ]` gözləyir | 0% (0/22) | 22 |
-| 5 — Əməkdaşlıq | `[ ]` gözləyir | 0% (0/10) | 10 |
-| 6 — Abunəlik & Ödəniş | `[ ]` gözləyir | 0% (0/12) | 12 |
-| 7 — API & Edge Functions | `[ ]` gözləyir | 0% (0/14) | 14 |
-| 8 — Deploy & CI/CD | `[ ]` gözləyir | 0% (0/18) | 18 |
-| **CƏMİ** | | **48% (69/145)** | **145** |
+| 4 — Frontend Komponentlər | `[x]` tamamlandı | 100% (22/22) | 22 |
+| 5 — Əməkdaşlıq | `[x]` tamamlandı | 100% (10/10) | 10 |
+| 6 — Abunəlik & Ödəniş | `[x]` tamamlandı | 100% (12/12) | 12 |
+| 7 — API & Edge Functions | `[x]` tamamlandı | 100% (14/14) | 14 |
+| 8 — Deploy & CI/CD | `[x]` tamamlandı | 100% (18/18) | 18 |
+| **CƏMİ** | | **100% (145/145)** | **145** |
 
 ---
 

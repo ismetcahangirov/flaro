@@ -1,24 +1,25 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, ReactNode } from 'react'
 import { useNavigate } from 'react-router-dom'
 import {
   ChevronLeft, Cloud, CloudLightning, Share2,
-  Download, FileImage, Code, FileCode, Check, Copy,
+  Download, FileImage, Code, FileCode,
   Crown
 } from 'lucide-react'
-import { supabase } from '@/lib/supabase'
-import { useExport } from '@/hooks/useExport'
-import { useAuth } from '@/hooks/useAuth'
-import { Tooltip } from '@/components/ui/Tooltip'
-import { Avatar } from '@/components/ui/Avatar'
-import { Badge } from '@/components/ui/Badge'
-import { Button } from '@/components/ui/Button'
+import { supabase }    from '@/lib/supabase'
+import { useExport }   from '@/hooks/useExport'
+import { useAuth }     from '@/hooks/useAuth'
+import { Tooltip }     from '@/components/ui/Tooltip'
+import { Badge }       from '@/components/ui/Badge'
+import { Button }      from '@/components/ui/Button'
 
 interface TopBarProps {
-  sceneId:     string
-  isSaving:    boolean
-  lastSaved:   Date | null
-  onSave:      () => void
-  activeUsers: any[] // Collab users
+  sceneId:      string
+  isSaving:     boolean
+  lastSaved:    Date | null
+  onSave:       () => void
+  onShare?:     () => void
+  activeUsers?: any[]       // kept for compatibility, display handled by collabSlot
+  collabSlot?:  ReactNode   // <ActiveUsers /> component
 }
 
 export function TopBar({
@@ -26,17 +27,16 @@ export function TopBar({
   isSaving,
   lastSaved,
   onSave,
-  activeUsers = []
+  onShare,
+  collabSlot,
 }: TopBarProps) {
   const navigate = useNavigate()
   const { isPro } = useAuth()
   const { exportScene, isExporting } = useExport(sceneId)
 
-  const [title, setTitle] = useState('Untitled Scene')
-  const [isEditing, setIsEditing] = useState(false)
+  const [title, setTitle]           = useState('Untitled Scene')
+  const [isEditing, setIsEditing]   = useState(false)
   const [showExportMenu, setShowExportMenu] = useState(false)
-  const [showShareModal, setShowShareModal] = useState(false)
-  const [isCopied, setIsCopied] = useState(false)
 
   // Fetch title
   useEffect(() => {
@@ -55,31 +55,33 @@ export function TopBar({
   const handleTitleSubmit = async () => {
     setIsEditing(false)
     if (!title.trim() || !sceneId) return
-    
+
     await (supabase as any)
       .from('scenes')
       .update({ title: title.trim() })
       .eq('id', sceneId)
   }
 
-  const handleCopyLink = () => {
-    navigator.clipboard.writeText(window.location.href)
-    setIsCopied(true)
-    setTimeout(() => setIsCopied(false), 2000)
-  }
+  // Close export menu on outside click
+  useEffect(() => {
+    if (!showExportMenu) return
+    const handler = () => setShowExportMenu(false)
+    setTimeout(() => window.addEventListener('click', handler), 0)
+    return () => window.removeEventListener('click', handler)
+  }, [showExportMenu])
 
   return (
-    <header className="h-16 bg-white border-b border-slate-100 px-6 flex items-center justify-between z-20 shadow-sm relative">
+    <header className="h-16 bg-white border-b border-slate-100 px-4 flex items-center justify-between z-20 shadow-sm relative gap-4">
       {/* Sol: Back & Title */}
-      <div className="flex items-center gap-3">
+      <div className="flex items-center gap-3 min-w-0">
         <button
           onClick={() => navigate('/dashboard')}
-          className="w-8 h-8 rounded-full hover:bg-slate-100 flex items-center justify-center text-slate-500 hover:text-slate-800 transition-colors"
+          className="w-8 h-8 rounded-full hover:bg-slate-100 flex items-center justify-center text-slate-500 hover:text-slate-800 transition-colors flex-shrink-0"
         >
           <ChevronLeft size={18} />
         </button>
 
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 min-w-0">
           {isEditing ? (
             <input
               value={title}
@@ -90,20 +92,31 @@ export function TopBar({
                 if (e.key === 'Escape') setIsEditing(false)
               }}
               autoFocus
-              className="text-sm font-semibold text-slate-800 border-b-2 border-orange-500 outline-none px-1"
+              className="text-sm font-semibold text-slate-800 border-b-2 border-orange-500 outline-none px-1 min-w-[120px]"
             />
           ) : (
             <h2
               onClick={() => setIsEditing(true)}
-              className="text-sm font-bold text-slate-800 cursor-pointer hover:bg-slate-50 px-2 py-1 rounded-lg transition-colors truncate max-w-[200px]"
+              className="text-sm font-bold text-slate-800 cursor-pointer hover:bg-slate-50 px-2 py-1 rounded-lg transition-colors truncate max-w-[180px]"
             >
               {title}
             </h2>
           )}
 
           {/* Sync status */}
-          <Tooltip content={isSaving ? 'Yadda saxlanılır...' : lastSaved ? `Son yadda saxlama: ${lastSaved.toLocaleTimeString('az')}. Yadda saxlamaq üçün klikləyin.` : 'Buludda saxlanılıb. Yadda saxlamaq üçün klikləyin.'}>
-            <button onClick={onSave} className="flex items-center gap-1.5 text-slate-400 hover:text-slate-600 transition-colors">
+          <Tooltip
+            content={
+              isSaving
+                ? 'Yadda saxlanılır...'
+                : lastSaved
+                ? `Son yadda saxlama: ${lastSaved.toLocaleTimeString('az')}. Klikləyin.`
+                : 'Buludda saxlanılıb. Klikləyin.'
+            }
+          >
+            <button
+              onClick={onSave}
+              className="flex items-center gap-1.5 text-slate-400 hover:text-slate-600 transition-colors"
+            >
               {isSaving ? (
                 <CloudLightning size={14} className="text-orange-500 animate-pulse-soft" />
               ) : (
@@ -114,28 +127,17 @@ export function TopBar({
         </div>
       </div>
 
-      {/* Orta: Active Users (Presence) */}
-      <div className="flex items-center gap-1">
-        {activeUsers.slice(0, 4).map((user, idx) => (
-          <Tooltip key={user.presence_ref || idx} content={user.name || 'İstifadəçi'}>
-            <div>
-              <Avatar name={user.name || 'U'} size="sm" />
-            </div>
-          </Tooltip>
-        ))}
-        {activeUsers.length > 4 && (
-          <span className="w-7 h-7 rounded-full bg-slate-100 border border-slate-200 text-slate-500 text-[10px] font-bold flex items-center justify-center">
-            +{activeUsers.length - 4}
-          </span>
-        )}
+      {/* Orta: CollabSlot (ActiveUsers) */}
+      <div className="flex items-center gap-2">
+        {collabSlot}
       </div>
 
-      {/* Sağ: Share & Export actions */}
-      <div className="flex items-center gap-2">
+      {/* Sağ: Share & Export */}
+      <div className="flex items-center gap-2 flex-shrink-0">
         <Button
           variant="secondary"
           size="sm"
-          onClick={() => setShowShareModal(true)}
+          onClick={onShare}
           className="flex items-center gap-1.5"
         >
           <Share2 size={14} />
@@ -143,7 +145,7 @@ export function TopBar({
         </Button>
 
         {/* Export dropdown */}
-        <div className="relative">
+        <div className="relative" onClick={e => e.stopPropagation()}>
           <Button
             variant="primary"
             size="sm"
@@ -156,7 +158,7 @@ export function TopBar({
           </Button>
 
           {showExportMenu && (
-            <div className="absolute right-0 top-11 bg-white border border-slate-100 rounded-2xl shadow-2xl py-2 w-48 z-50 animate-slide-down">
+            <div className="absolute right-0 top-11 bg-white border border-slate-100 rounded-2xl shadow-2xl py-2 w-52 z-50 animate-slide-down">
               <ExportMenuItem
                 icon={<FileImage size={14} />}
                 label="PNG Şəkil"
@@ -189,50 +191,12 @@ export function TopBar({
           )}
         </div>
       </div>
-
-      {/* Share Modal */}
-      {showShareModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-          <div className="fixed inset-0 bg-slate-900/40 backdrop-blur-sm" onClick={() => setShowShareModal(false)} />
-          <div className="relative bg-white w-full max-w-md rounded-3xl p-6 border border-slate-100 shadow-2xl animate-slide-up z-10">
-            <h3 className="text-lg font-bold text-slate-900 tracking-tight mb-3">Səhnəni Paylaşın</h3>
-            <p className="text-sm text-slate-500 mb-5 leading-relaxed">
-              Komanda yoldaşlarınızı birlikdə işləməyə dəvət etmək üçün aşağıdakı linki kopyalayın:
-            </p>
-
-            <div className="flex gap-2 bg-slate-50 p-2.5 rounded-2xl border border-slate-200 mb-6">
-              <input
-                readOnly
-                value={window.location.href}
-                className="flex-1 bg-transparent text-xs text-slate-600 outline-none select-all pl-2 font-semibold"
-              />
-              <button
-                onClick={handleCopyLink}
-                className={`px-4 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 ${
-                  isCopied
-                    ? 'bg-emerald-500 text-white'
-                    : 'bg-orange-500 text-white hover:bg-orange-600'
-                }`}
-              >
-                {isCopied ? <Check size={14} /> : <Copy size={14} />}
-                {isCopied ? 'Kopyalandı' : 'Kopyala'}
-              </button>
-            </div>
-
-            <div className="flex justify-end">
-              <Button variant="secondary" onClick={() => setShowShareModal(false)}>
-                Bağla
-              </Button>
-            </div>
-          </div>
-        </div>
-      )}
     </header>
   )
 }
 
 interface ExportMenuItemProps {
-  icon:      React.ReactNode
+  icon:      ReactNode
   label:     string
   onClick:   () => void
   isProOnly?: boolean

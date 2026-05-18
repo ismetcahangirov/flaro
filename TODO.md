@@ -10,12 +10,12 @@
 
 | Sahə | Dəyər |
 |---|---|
-| **Son tamamlanan tapşırıq** | Mərhələ 4 — Frontend Komponentlər |
-| **Aktiv branch** | `feature/m04-frontend` |
-| **Növbəti branch** | `feature/m05-collaboration` |
-| **Növbəti tapşırıq** | Mərhələ 5 — Realtime Collaboration (PR merge-dən sonra) |
+| **Son tamamlanan tapşırıq** | Mərhələ 5 — Əməkdaşlıq (Realtime Collaboration) |
+| **Aktiv branch** | `feature/m05-collaboration` |
+| **Növbəti branch** | `feature/m06-billing` |
+| **Növbəti tapşırıq** | Mərhələ 6 — Abunəlik və Ödəniş / Stripe (PR merge-dən sonra) |
 | **Bloklanmış tapşırıq** | Yoxdur |
-| **Qeyd** | Mərhələ 4 tamamlandı. Bütün UI komponentləri, Landing, Dashboard (həm grid/list view-lar, həm də realtime yenilənmə), və Editor səhifələri (toolbar, topbar, props panel, zoom controls) tam olaraq tətbiq edildi və uğurla build olundu. Ümumi progress 65%. |
+| **Qeyd** | Mərhələ 5 tamamlandı. Supabase Realtime (presence + broadcast), cursor sync (50ms throttle), element sync (LWW, 300ms debounce), CollabStore (Zustand), CursorOverlay, ActiveUsers (avatar stack), CommentsLayer (Pro, canvas pins, realtime resolve), ShareModal (public toggle, link copy, Pro embed). Ümumi progress 80%. |
 
 ---
 
@@ -205,18 +205,18 @@
 
 ## Mərhələ 5 — Əməkdaşlıq (Realtime Collaboration)
 **Branch:** `feature/m05-collaboration`
-**Status:** `[ ]` gözləyir — 0/10 tamamlandı
+**Status:** `[x]` tamamlandı — 10/10 tamamlandı
 
-- [ ] `src/lib/collabColors.ts` — 10 rəng, `getUserColor` (deterministik), `colorWithAlpha` yaradıldı
-- [ ] `src/types/collaboration.types.ts` — `CollabUser`, `CollabEvent`, `CollabPayload` tipləri yaradıldı
-- [ ] `src/store/collabStore.ts` — Zustand collab store yaradıldı (`activeUsers` Map, `isConnected`, `isConnecting`)
-- [ ] `src/hooks/useCollaboration.ts` — Supabase Realtime channel qurulumu yaradıldı (presence + broadcast)
-- [ ] Cursor broadcast (50ms throttle) + element broadcast (300ms debounce) tətbiq edildi
-- [ ] LWW (Last-Write-Wins) conflict resolution — `version` counter ilə tətbiq edildi
-- [ ] `src/components/collaboration/CursorOverlay.tsx` — remote cursor-lar (SVG cursor + ad etiketi, 50ms smooth transition) yaradıldı
-- [ ] `src/components/collaboration/ActiveUsers.tsx` — avatar stack, online count, dropdown siyahı yaradıldı
-- [ ] `src/components/collaboration/Comments.tsx` — Pro plan, canvas pin, Realtime, resolve funksionallığı yaradıldı
-- [ ] `src/components/collaboration/ShareModal.tsx` — public toggle, link kopyala, embed kodu (Pro) yaradıldı
+- [x] `src/lib/collabColors.ts` — 10 rəng, `getUserColor` (deterministik), `colorWithAlpha` yaradıldı
+- [x] `src/types/collaboration.types.ts` — `CollabUser`, `CollabEvent`, `CollabPayload` tipləri yaradıldı
+- [x] `src/store/collabStore.ts` — Zustand collab store yaradıldı (`activeUsers` Map, `isConnected`, `isConnecting`)
+- [x] `src/hooks/useCollaboration.ts` — Supabase Realtime channel qurulumu yaradıldı (presence + broadcast)
+- [x] Cursor broadcast (50ms throttle) + element broadcast (300ms debounce) tətbiq edildi
+- [x] LWW (Last-Write-Wins) conflict resolution — `version` counter ilə tətbiq edildi
+- [x] `src/components/collaboration/CursorOverlay.tsx` — remote cursor-lar (SVG cursor + ad etiketi, 50ms smooth transition) yaradıldı
+- [x] `src/components/collaboration/ActiveUsers.tsx` — avatar stack, online count, dropdown siyahı yaradıldı
+- [x] `src/components/collaboration/Comments.tsx` — Pro plan, canvas pin, Realtime, resolve funksionallığı yaradıldı
+- [x] `src/components/collaboration/ShareModal.tsx` — public toggle, link kopyala, embed kodu (Pro) yaradıldı
 
 ---
 

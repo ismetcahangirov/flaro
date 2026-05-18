@@ -10,7 +10,7 @@ CREATE TABLE public.scenes (
   title         TEXT        NOT NULL DEFAULT 'Untitled Scene',
   thumbnail_url TEXT,
   is_public     BOOLEAN     NOT NULL DEFAULT FALSE,
-  share_token   TEXT        UNIQUE DEFAULT encode(gen_random_bytes(16), 'hex'),
+  share_token   TEXT        UNIQUE DEFAULT md5(random()::text),
   elements      JSONB       NOT NULL DEFAULT '[]'::jsonb,
   app_state     JSONB       NOT NULL DEFAULT '{}'::jsonb,
   version       INT         NOT NULL DEFAULT 1,

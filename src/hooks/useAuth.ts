@@ -1,96 +1,20 @@
-import { useEffect, useCallback } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useCallback } from 'react'
 import type { Provider } from '@supabase/supabase-js'
 import { supabase } from '@/lib/supabase'
 import { useAuthStore } from '@/store/authStore'
 
+/**
+ * useAuth — yalnız Zustand store-u oxuyur + auth aksiyaları qaytarır.
+ * Auth initialization / listener AuthProvider-də tək bir yerdə idarə olunur.
+ */
 export function useAuth() {
-  const navigate  = useNavigate()
-  const store     = useAuthStore()
-
-  // ── Profile yüklə ─────────────────────────────────────────────────────────
-  const fetchProfile = useCallback(async (userId: string) => {
-    const { data, error } = await supabase
-      .from('profiles')
-      .select('*')
-      .eq('id', userId)
-      .single()
-
-    if (error) {
-      console.error('[Auth] Profile fetch error:', error)
-      return
-    }
-
-    store.setProfile(data)
-  }, [store])
-
-  // ── Session-u initialize et ────────────────────────────────────────────────
-  useEffect(() => {
-    let mounted = true
-
-    const initAuth = async () => {
-      store.setLoading(true)
-
-      try {
-        const { data: { session } } = await supabase.auth.getSession()
-
-        if (!mounted) return
-
-        if (session) {
-          store.setSession(session)
-          store.setUser(session.user)
-          await fetchProfile(session.user.id)
-        }
-      } catch (err) {
-        console.error('[Auth] Init error:', err)
-      } finally {
-        if (mounted) {
-          store.setLoading(false)
-          store.setInitialized(true)
-        }
-      }
-    }
-
-    initAuth()
-
-    // Auth state listener
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      async (event, session) => {
-        if (!mounted) return
-
-        if (event === 'SIGNED_IN' && session) {
-          store.setSession(session)
-          store.setUser(session.user)
-          await fetchProfile(session.user.id)
-        }
-
-        if (event === 'SIGNED_OUT') {
-          store.reset()
-          navigate('/login')
-        }
-
-        if (event === 'TOKEN_REFRESHED' && session) {
-          store.setSession(session)
-        }
-
-        if (event === 'USER_UPDATED' && session) {
-          store.setUser(session.user)
-          await fetchProfile(session.user.id)
-        }
-      }
-    )
-
-    return () => {
-      mounted = false
-      subscription.unsubscribe()
-    }
-  }, [navigate, fetchProfile]) // removed store from dependency to avoid dependency loops if initAuth re-runs. Store values are mutated inside actions.
+  const store = useAuthStore()
 
   // ── Email / Password qeydiyyat ─────────────────────────────────────────────
   const signUp = useCallback(async (
     email: string,
     password: string,
-    fullName: string
+    fullName: string,
   ) => {
     const { data, error } = await supabase.auth.signUp({
       email,
@@ -162,7 +86,7 @@ export function useAuth() {
     full_name?: string
     avatar_url?: string
   }) => {
-    const userId = store.user?.id
+    const userId = useAuthStore.getState().user?.id
     if (!userId) throw new Error('Not authenticated')
 
     const { data, error } = await (supabase as any)
@@ -173,20 +97,36 @@ export function useAuth() {
       .single()
 
     if (error) throw error
-    store.setProfile(data)
+    useAuthStore.getState().setProfile(data)
     return data
-  }, [store])
+  }, [])
+
+  // ── Profil oxu (lazım olduqda) ────────────────────────────────────────────
+  const fetchProfile = useCallback(async (userId: string) => {
+    const { data, error } = await supabase
+      .from('profiles')
+      .select('*')
+      .eq('id', userId)
+      .single()
+
+    if (error) {
+      console.error('[Auth] Profile fetch error:', error)
+      return
+    }
+
+    useAuthStore.getState().setProfile(data)
+  }, [])
 
   return {
     // State
-    user:          store.user,
-    session:       store.session,
-    profile:       store.profile,
-    isLoading:     store.isLoading,
-    isInitialized: store.isInitialized,
+    user:            store.user,
+    session:         store.session,
+    profile:         store.profile,
+    isLoading:       store.isLoading,
+    isInitialized:   store.isInitialized,
     isAuthenticated: !!store.user,
-    isPro:         store.isPro(),
-    plan:          store.plan(),
+    isPro:           store.isPro(),
+    plan:            store.plan(),
 
     // Actions
     signUp,

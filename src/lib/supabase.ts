@@ -18,7 +18,7 @@ export const supabase = createClient<Database>(supabaseUrl, supabaseKey, {
     storageKey:         'flaro-supabase-session',
     storage:            window.localStorage,
     // Web Locks deadlock problemini (HMR/refresh zamanı) bypass etmək üçün
-    // @ts-ignore
+    // @ts-expect-error: Web Locks deadlock problemini bypass etmək üçün
     lock: (name, acquireTimeout, fn) => fn(),
   },
   global: {

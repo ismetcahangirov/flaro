@@ -1,4 +1,4 @@
-# SketchFlow — Deploy və CI/CD
+# Flaro — Deploy və CI/CD
 
 > **Vercel** (Frontend) + **Supabase** (Backend) — Production deployment
 > GitHub Actions CI/CD pipeline, staging/production mühitləri
@@ -15,10 +15,10 @@
 │   GitHub Repo                                                   │
 │       │                                                         │
 │       ├── push: main  ──→  Vercel (Production)                  │
-│       │                    sketchflow.app                       │
+│       │                    flaro.app                       │
 │       │                         │                               │
 │       └── push: staging ──→ Vercel (Preview)                    │
-│                               staging.sketchflow.app            │
+│                               staging.flaro.app            │
 │                                                                 │
 │   Vercel (Frontend)          Supabase (Backend)                 │
 │   ─────────────────          ────────────────────               │
@@ -47,7 +47,7 @@ npm install -g supabase
 supabase login
 
 # Yeni layihə yarat (dashboard.supabase.com-da)
-# Layihə adı: sketchflow-production
+# Layihə adı: flaro-production
 # Region: Ən yaxın (məs: eu-central-1)
 # Database şifrəsi: güclü şifrə seç → saxla!
 
@@ -106,10 +106,10 @@ Supabase Dashboard → Authentication → Providers:
    - Client Secret: (GitHub Developer Settings-dən)
 
 URL Configuration:
-   Site URL: https://sketchflow.app
+   Site URL: https://flaro.app
    Redirect URLs:
-     https://sketchflow.app/auth/callback
-     https://staging.sketchflow.app/auth/callback
+     https://flaro.app/auth/callback
+     https://staging.flaro.app/auth/callback
      http://localhost:5173/auth/callback
 ```
 
@@ -130,7 +130,7 @@ supabase secrets set \
   STRIPE_WEBHOOK_SECRET="whsec_xxx" \
   STRIPE_PRO_PRICE_ID="price_xxx" \
   ANTHROPIC_API_KEY="sk-ant-xxx" \
-  APP_URL="https://sketchflow.app"
+  APP_URL="https://flaro.app"
 
 # Secrets yoxla
 supabase secrets list
@@ -480,7 +480,7 @@ jobs:
         with:
           payload: |
             {
-              "text": "✅ SketchFlow production-a deploy edildi! v${{ github.sha }}"
+              "text": "✅ Flaro production-a deploy edildi! v${{ github.sha }}"
             }
         env:
           SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
@@ -493,7 +493,7 @@ jobs:
 
 ```json
 {
-  "name": "sketchflow",
+  "name": "flaro",
   "version": "1.0.0",
   "private": true,
   "scripts": {
@@ -776,7 +776,7 @@ PRE-DEPLOY:
   □ vercel.json CSP header-ləri yoxlanılıb
 
 POST-DEPLOY:
-  □ https://sketchflow.app açılır
+  □ https://flaro.app açılır
   □ Qeydiyyat → email confirmation işləyir
   □ Google OAuth işləyir
   □ Yeni scene yaratmaq olur
@@ -800,7 +800,7 @@ MONITORING:
 
 | Komponent | Servis | URL | Plan |
 |-----------|--------|-----|------|
-| **Frontend** | Vercel | sketchflow.app | Pro ($20/ay) |
+| **Frontend** | Vercel | flaro.app | Pro ($20/ay) |
 | **Database** | Supabase | *.supabase.co | Pro ($25/ay) |
 | **Storage** | Supabase | *.supabase.co | Pro (daxil) |
 | **Realtime** | Supabase | wss://*.supabase.co | Pro (daxil) |

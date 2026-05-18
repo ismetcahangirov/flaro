@@ -1,4 +1,4 @@
-# SketchFlow — Real-time Əməkdaşlıq
+# Flaro — Real-time Əməkdaşlıq
 
 > **Supabase Realtime** — Cursor sync, element sync, presence, conflict resolution
 > TypeScript strict mode ilə tam tipləşdirilmiş

@@ -1,4 +1,4 @@
-# SketchFlow — Canvas Engine
+# Flaro — Canvas Engine
 
 > **HTML5 Canvas + Rough.js** — El çizimi efekti, Zustand state, Undo/Redo, Zoom/Pan
 > TypeScript strict mode ilə tam tipləşdirilmiş

@@ -1,4 +1,4 @@
-# SketchFlow — Mühit Dəyişənləri və Konfiqurasiya
+# Flaro — Mühit Dəyişənləri və Konfiqurasiya
 
 > Bütün `.env` dəyişənləri, xarici servis konfiqurasiyaları, təhlükəsizlik qaydaları
 > **ÖNƏMLİ:** Heç bir real key-i repoya commit etməyin!
@@ -8,7 +8,7 @@
 ## 📁 Fayl Strukturu
 
 ```
-sketchflow/
+flaro/
 ├── .env.example          ← Şablon (repoda olur)
 ├── .env.local            ← Local dev (gitignore!)
 ├── .env.staging          ← Staging (gitignore!)
@@ -58,7 +58,7 @@ npm-debug.log*
 
 ```bash
 # ═══════════════════════════════════════════════════════════════
-# SKETCHFLOW — Environment Variables Template
+# FLARO — Environment Variables Template
 # Kopyala: cp .env.example .env.local
 # Real dəyərləri doldur
 # ═══════════════════════════════════════════════════════════════
@@ -80,7 +80,7 @@ VITE_STRIPE_PUBLISHABLE_KEY=pk_live_...
 # ──────────────────────────────────────────────────────────────
 # APP CONFIG
 # ──────────────────────────────────────────────────────────────
-VITE_APP_URL=https://sketchflow.app
+VITE_APP_URL=https://flaro.app
 VITE_APP_VERSION=1.0.0
 
 # ──────────────────────────────────────────────────────────────
@@ -164,7 +164,7 @@ VITE_APP_VERSION=1.0.0
 # Developers → Webhooks → endpoint seç → Signing secret → STRIPE_WEBHOOK_SECRET
 
 # Price ID:
-# Products → SketchFlow Pro → Price ID → STRIPE_PRO_PRICE_ID (price_xxx)
+# Products → Flaro Pro → Price ID → STRIPE_PRO_PRICE_ID (price_xxx)
 ```
 
 ### Anthropic API Key
@@ -205,7 +205,7 @@ cat .vercel/project.json
 
 ```bash
 # 1. https://console.cloud.google.com
-# 2. Yeni layihə yarat: SketchFlow
+# 2. Yeni layihə yarat: Flaro
 # 3. APIs & Services → Credentials → Create OAuth 2.0 Client ID
 # 4. Application type: Web application
 # 5. Authorized redirect URIs əlavə et:
@@ -221,8 +221,8 @@ cat .vercel/project.json
 ```bash
 # 1. https://github.com → Settings → Developer settings → OAuth Apps
 # 2. New OAuth App:
-#    Application name: SketchFlow
-#    Homepage URL: https://sketchflow.app
+#    Application name: Flaro
+#    Homepage URL: https://flaro.app
 #    Callback URL: https://YOUR_PROJECT.supabase.co/auth/v1/callback
 # 3. Client ID və Secret → Supabase Dashboard → Auth → Providers → GitHub
 ```
@@ -308,8 +308,8 @@ const stripe = new Stripe(sk_live_xxx)   ← Yalnız server-side!
 
 ```bash
 # 1. Repo klonla
-git clone https://github.com/YOUR_USERNAME/sketchflow.git
-cd sketchflow
+git clone https://github.com/YOUR_USERNAME/flaro.git
+cd flaro
 
 # 2. Dependencies quraşdır
 npm install
@@ -381,4 +381,4 @@ npm run dev
 
 ---
 
-*🎉 Bütün sənədlər tamamlandı! SketchFlow layihəsi üçün tam texniki sənədləşmə hazırdır.*
+*🎉 Bütün sənədlər tamamlandı! Flaro layihəsi üçün tam texniki sənədləşmə hazırdır.*

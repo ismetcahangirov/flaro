@@ -20,6 +20,7 @@
 ## İş qaydaları
 
 - Hər tapşırıqdan sonra `TODO.md`-də `[ ]` → `[x]` et
+- Layihə adı həmişə `Flaro` olmalıdır; `SketchFlow/sketchflow` istifadə etmə
 - Branch adları və commit mesajları ingiliscə olmalıdır
 - PR birləşməmiş növbəti tapşırığa başlama
 - Heç vaxt birbaşa `main`-ə push etmə

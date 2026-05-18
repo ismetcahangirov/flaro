@@ -1,4 +1,4 @@
-# SketchFlow — Abunəlik və Ödəniş
+# Flaro — Abunəlik və Ödəniş
 
 > **Stripe** — Checkout, Customer Portal, Webhook, Plan UI
 > TypeScript strict mode ilə tam tipləşdirilmiş
@@ -97,7 +97,7 @@ const supabase = createClient<Database>(
 )
 
 const PRO_PRICE_ID = Deno.env.get('STRIPE_PRO_PRICE_ID')!
-const APP_URL      = Deno.env.get('APP_URL') ?? 'https://sketchflow.app'
+const APP_URL      = Deno.env.get('APP_URL') ?? 'https://flaro.app'
 
 Deno.serve(async (req: Request) => {
   // CORS preflight
@@ -232,7 +232,7 @@ const supabase = createClient<Database>(
   Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!
 )
 
-const APP_URL = Deno.env.get('APP_URL') ?? 'https://sketchflow.app'
+const APP_URL = Deno.env.get('APP_URL') ?? 'https://flaro.app'
 
 Deno.serve(async (req: Request) => {
   const corsResponse = handleCors(req)
@@ -981,7 +981,7 @@ export function UpgradeBanner({
 | **Banner** | `UpgradeBanner.tsx` | Compact və tam variant |
 
 **Stripe konfiqurasiyası (Dashboard):**
-- Product: "SketchFlow Pro"
+- Product: "Flaro Pro"
 - Price: `$6/month` (recurring) + `$57.60/year` (%20 endirim)
 - Webhook endpoints: `checkout.session.completed`, `customer.subscription.*`, `invoice.payment_failed`
 - Trial: 7 gün (kredit kartı tələb olunur)

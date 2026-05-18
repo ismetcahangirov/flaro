@@ -10,12 +10,12 @@
 
 | Sahə | Dəyər |
 |---|---|
-| **Son tamamlanan tapşırıq** | Mərhələ 2 — Auth və Təhlükəsizlik |
-| **Aktiv branch** | `feature/m02-auth` |
-| **Növbəti branch** | `feature/m03-canvas` |
-| **Növbəti tapşırıq** | Mərhələ 3 — Canvas Engine (PR merge-dən sonra) |
+| **Son tamamlanan tapşırıq** | Mərhələ 3 — Canvas Engine |
+| **Aktiv branch** | `feature/m03-canvas` |
+| **Növbəti branch** | `feature/m04-frontend` |
+| **Növbəti tapşırıq** | Mərhələ 4 — Frontend Komponentlər (PR merge-dən sonra) |
 | **Bloklanmış tapşırıq** | Yoxdur |
-| **Qeyd** | Mərhələ 2 tamamlandı. Auth Store, useAuth hook, Protected Routes, Feature Gates, Sanitization, CORS və Rate Limiter yazıldı. Həmçinin bütün page stub-ları yaradıldı. Ümumi progress 38%. |
+| **Qeyd** | Mərhələ 3 tamamlandı. Rough.js canvas renderer, hit test utilities, Zustand canvasStore, və useCanvas hook tətbiq edildi. Bütün elementlərin çizilməsi, pan, drag, zoom, lasso seçimi və klaviatura qısayolları tam işləkdir. Ümumi progress 48%. |
 
 ---
 
@@ -142,30 +142,30 @@
 
 ## Mərhələ 3 — Canvas Engine
 **Branch:** `feature/m03-canvas`
-**Status:** `[ ]` gözləyir — 0/14 tamamlandı
+**Status:** `[x]` tamamlandı — 14/14 tamamlandı
 
 ### 3.1 Rough.js Wrapper
-- [ ] `src/lib/roughCanvas.ts` — `drawRoughElement` funksiyası yazıldı (rectangle, ellipse, diamond, line, arrow, freedraw, text)
-- [ ] Ox başlığı (`drawArrowhead`), Freedraw (`drawFreedraw`), Text render (`drawText`) yazıldı
-- [ ] `drawSelectionBox` + `drawHandles` + `drawLasso` yazıldı (brand orange, dashed border)
+- [x] `src/lib/roughCanvas.ts` — `drawRoughElement` funksiyası yazıldı (rectangle, ellipse, diamond, line, arrow, freedraw, text)
+- [x] Ox başlığı (`drawArrowhead`), Freedraw (`drawFreedraw`), Text render (`drawText`) yazıldı
+- [x] `drawSelectionBox` + `drawHandles` + `drawLasso` yazıldı (brand orange, dashed border)
 
 ### 3.2 Hit Test
-- [ ] `src/lib/hitTest.ts` — `getElementAtPoint`, `getElementsInRect`, `isPointInElement` yazıldı (ellipse-ə dəqiq hit test)
+- [x] `src/lib/hitTest.ts` — `getElementAtPoint`, `getElementsInRect`, `isPointInElement` yazıldı (ellipse-ə dəqiq hit test)
 
 ### 3.3 Canvas Store
-- [ ] `src/store/canvasStore.ts` — Zustand canvas store yaradıldı (elements, selectedIds, undoStack, redoStack, appState, tool state)
-- [ ] Element actions: `addElement`, `updateElement`, `updateElements`, `deleteElements`, `duplicateElements`, `bringToFront`, `sendToBack`
-- [ ] Selection actions: `selectElement`, `selectAll`, `clearSelection`, `setEditingId`
-- [ ] History actions: `saveHistory`, `undo`, `redo` (max 50 addım)
-- [ ] AppState actions: `setZoom`, `setScroll`, `resetView`, `zoomToFit`
+- [x] `src/store/canvasStore.ts` — Zustand canvas store yaradıldı (elements, selectedIds, undoStack, redoStack, appState, tool state)
+- [x] Element actions: `addElement`, `updateElement`, `updateElements`, `deleteElements`, `duplicateElements`, `bringToFront`, `sendToBack`
+- [x] Selection actions: `selectElement`, `selectAll`, `clearSelection`, `setEditingId`
+- [x] History actions: `saveHistory`, `undo`, `redo` (max 50 addım)
+- [x] AppState actions: `setZoom`, `setScroll`, `resetView`, `zoomToFit`
 
 ### 3.4 useCanvas Hook
-- [ ] `src/hooks/useCanvas.ts` — mouse event handler-lər yazıldı (mouseDown, mouseMove, mouseUp)
-- [ ] Pan (orta düymə + Space), Drag, Lasso, Eraser davranışları tətbiq edildi
-- [ ] Zoom (Ctrl+scroll, mouse mərkəzinə görə) tətbiq edildi
-- [ ] Keyboard shortcuts tətbiq edildi (V/H/R/O/D/L/A/T/P/E tool keys, Ctrl+Z/Y/A/D, Delete, Escape)
-- [ ] `requestAnimationFrame` render loop yaradıldı (clearCanvas, grid, elements, selection, lasso)
-- [ ] Grid çizimi (`drawGrid`) yaradıldı
+- [x] `src/hooks/useCanvas.ts` — mouse event handler-lər yazıldı (mouseDown, mouseMove, mouseUp)
+- [x] Pan (orta düymə + Space), Drag, Lasso, Eraser davranışları tətbiq edildi
+- [x] Zoom (Ctrl+scroll, mouse mərkəzinə görə) tətbiq edildi
+- [x] Keyboard shortcuts tətbiq edildi (V/H/R/O/D/L/A/T/P/E tool keys, Ctrl+Z/Y/A/D, Delete, Escape)
+- [x] `requestAnimationFrame` render loop yaradıldı (clearCanvas, grid, elements, selection, lasso)
+- [x] Grid çizimi (`drawGrid`) yaradıldı
 
 ---
 
@@ -312,13 +312,13 @@
 | 0 — Hazırlıq & Qurulum | `[x]` tamamlandı | 100% (19/19) | 19 |
 | 1 — Verilənlər Bazası | `[x]` tamamlandı | 100% (20/20) | 20 |
 | 2 — Auth & Təhlükəsizlik | `[x]` tamamlandı | 100% (16/16) | 16 |
-| 3 — Canvas Engine | `[ ]` gözləyir | 0% (0/14) | 14 |
+| 3 — Canvas Engine | `[x]` tamamlandı | 100% (14/14) | 14 |
 | 4 — Frontend Komponentlər | `[ ]` gözləyir | 0% (0/22) | 22 |
 | 5 — Əməkdaşlıq | `[ ]` gözləyir | 0% (0/10) | 10 |
 | 6 — Abunəlik & Ödəniş | `[ ]` gözləyir | 0% (0/12) | 12 |
 | 7 — API & Edge Functions | `[ ]` gözləyir | 0% (0/14) | 14 |
 | 8 — Deploy & CI/CD | `[ ]` gözləyir | 0% (0/18) | 18 |
-| **CƏMİ** | | **38% (55/145)** | **145** |
+| **CƏMİ** | | **48% (69/145)** | **145** |
 
 ---
 

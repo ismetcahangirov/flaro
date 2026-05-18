@@ -3,7 +3,7 @@ import { useNavigate }   from 'react-router-dom'
 import {
   Plus, Search, Grid3x3, List,
   LogOut, Settings, Crown,
-  Pencil,
+  Pencil, Sparkles,
 } from 'lucide-react'
 import { supabase }          from '@/lib/supabase'
 import { useAuth }           from '@/hooks/useAuth'
@@ -22,11 +22,23 @@ export default function Dashboard() {
   const { canCreateScene, scenesUsed } = useSubscription()
   const { openBillingPortal } = useBilling()
 
-  const [scenes,      setScenes]      = useState<Scene[]>([])
-  const [isLoading,   setIsLoading]   = useState(true)
-  const [searchQuery, setSearchQuery] = useState('')
-  const [viewMode,    setViewMode]    = useState<'grid' | 'list'>('grid')
-  const [showNewModal, setShowNewModal] = useState(false)
+  const [scenes,         setScenes]         = useState<Scene[]>([])
+  const [isLoading,      setIsLoading]      = useState(true)
+  const [searchQuery,    setSearchQuery]    = useState('')
+  const [viewMode,       setViewMode]       = useState<'grid' | 'list'>('grid')
+  const [showNewModal,   setShowNewModal]   = useState(false)
+  const [showUpgradeMsg, setShowUpgradeMsg] = useState(false)
+
+  // ── Upgrade uğur mesajı (?upgraded=true) ───────────────────────────────
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search)
+    if (params.get('upgraded') === 'true') {
+      setShowUpgradeMsg(true)
+      // URL-i təmizlə
+      window.history.replaceState({}, '', '/dashboard')
+      setTimeout(() => setShowUpgradeMsg(false), 6000)
+    }
+  }, [])
 
   // ── Scene-ləri yüklə ─────────────────────────────────────────────────────
   useEffect(() => {
@@ -230,9 +242,28 @@ export default function Dashboard() {
         </header>
 
         <div className="p-8">
+          {/* Upgrade uğur tostu */}
+          {showUpgradeMsg && (
+            <div className="mb-6 flex items-center gap-4 p-5 bg-gradient-to-r from-orange-500
+                            to-amber-500 text-white rounded-3xl shadow-xl shadow-orange-100
+                            animate-slide-down">
+              <div className="w-10 h-10 bg-white/20 rounded-xl flex items-center justify-center flex-shrink-0">
+                <Sparkles size={20} className="fill-white" />
+              </div>
+              <div>
+                <p className="font-extrabold text-base">Flaro Pro-ya xoş gəldiniz! 🎉</p>
+                <p className="text-sm text-orange-100">Bütün Pro xüsusiyyətlər indi aktiv. 7 günlük pulsuz sınaqdan istifadə edin.</p>
+              </div>
+              <button
+                onClick={() => setShowUpgradeMsg(false)}
+                className="ml-auto text-white/70 hover:text-white transition-colors"
+              >✕</button>
+            </div>
+          )}
+
           {/* Upgrade banner (Free plan, 3 scene dolubsa) */}
           {!isPro && scenesUsed >= 3 && (
-            <div className="mb-6 animate-pulse-soft">
+            <div className="mb-6">
               <UpgradeBanner
                 feature="unlimited_scenes"
                 message="3 scene limitinə çatdınız. Pro planla limitsiz scene yaradın."

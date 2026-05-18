@@ -10,12 +10,12 @@
 
 | Sahə | Dəyər |
 |---|---|
-| **Son tamamlanan tapşırıq** | Mərhələ 0 — Hazırlıq & Layihə Qurulumu |
-| **Aktiv branch** | `feature/m00-setup` |
-| **Növbəti branch** | `feature/m01-database` |
-| **Növbəti tapşırıq** | Mərhələ 1 — Verilənlər Bazası (PR merge-dən sonra) |
+| **Son tamamlanan tapşırıq** | Mərhələ 1 — Verilənlər Bazası |
+| **Aktiv branch** | `feature/m01-database` |
+| **Növbəti branch** | `feature/m02-auth` |
+| **Növbəti tapşırıq** | Mərhələ 2 — Auth & Təhlükəsizlik (PR merge-dən sonra) |
 | **Bloklanmış tapşırıq** | Yoxdur |
-| **Qeyd** | Mərhələ 0 tamamlandı. PR açılıb merge edildikdən sonra Mərhələ 1-ə keç. Ümumi progress 13%. |
+| **Qeyd** | Mərhələ 1 tamamlandı. 15 migration fayl + 2 TypeScript tip faylı yaradıldı. PR merge edildikdən sonra Mərhələ 2-yə keç. Ümumi progress 27%. |
 
 ---
 
@@ -73,39 +73,39 @@
 
 ## Mərhələ 1 — Verilənlər Bazası (Supabase DB)
 **Branch:** `feature/m01-database`
-**Status:** `[ ]` gözləyir — 0/20 tamamlandı
+**Status:** `[x]` tamamlandı — 20/20 tamamlandı
 
 ### 1.1 Enum Tipləri
-- [ ] `001_create_enums.sql` — `subscription_plan`, `subscription_status`, `workspace_role`, `collab_permission`, `element_type` enum-ları yaradıldı
+- [x] `001_create_enums.sql` — `subscription_plan`, `subscription_status`, `workspace_role`, `collab_permission`, `element_type` enum-ları yaradıldı
 
 ### 1.2 Cədvəllər
-- [ ] `002_create_profiles.sql` — `profiles` cədvəli yaradıldı (`id`, `email`, `full_name`, `avatar_url`, `plan`, `scenes_count`)
-- [ ] `profiles` üçün `handle_new_user` trigger-i yaradıldı (auth qeydiyyatda avtomatik profil)
-- [ ] `profiles` üçün `handle_updated_at` trigger-i yaradıldı
-- [ ] `003_create_scenes.sql` — `scenes` cədvəli yaradıldı (`elements` JSONB, `app_state` JSONB, `share_token`, `version`)
-- [ ] `scenes` üçün `check_scenes_limit` trigger-i yaradıldı (Free: max 3)
-- [ ] `scenes` üçün `update_scenes_count` trigger-i yaradıldı (sayac)
-- [ ] `004_create_scene_versions.sql` — `scene_versions` cədvəli yaradıldı (Pro versiya tarixi)
-- [ ] `005_create_workspaces.sql` — `workspaces` cədvəli yaradıldı + `check_workspace_plan` trigger-i (Pro only)
-- [ ] `006_create_workspace_members.sql` — `workspace_members` cədvəli yaradıldı
-- [ ] `007_create_scene_collaborators.sql` — `scene_collaborators` cədvəli yaradıldı
-- [ ] `008_create_subscriptions.sql` — `subscriptions` cədvəli + `sync_user_plan` trigger-i yaradıldı
-- [ ] `009_create_comments.sql` — `comments` cədvəli yaradıldı (Pro, canvas koordinatları ilə)
+- [x] `002_create_profiles.sql` — `profiles` cədvəli yaradıldı (`id`, `email`, `full_name`, `avatar_url`, `plan`, `scenes_count`)
+- [x] `profiles` üçün `handle_new_user` trigger-i yaradıldı (auth qeydiyyatda avtomatik profil)
+- [x] `profiles` üçün `handle_updated_at` trigger-i yaradıldı
+- [x] `003_create_scenes.sql` — `scenes` cədvəli yaradıldı (`elements` JSONB, `app_state` JSONB, `share_token`, `version`)
+- [x] `scenes` üçün `check_scenes_limit` trigger-i yaradıldı (Free: max 3)
+- [x] `scenes` üçün `update_scenes_count` trigger-i yaradıldı (sayac)
+- [x] `004_create_scene_versions.sql` — `scene_versions` cədvəli yaradıldı (Pro versiya tarixi)
+- [x] `005_create_workspaces.sql` — `workspaces` cədvəli yaradıldı + `check_workspace_plan` trigger-i (Pro only)
+- [x] `006_create_workspace_members.sql` — `workspace_members` cədvəli yaradıldı
+- [x] `007_create_scene_collaborators.sql` — `scene_collaborators` cədvəli yaradıldı
+- [x] `008_create_subscriptions.sql` — `subscriptions` cədvəli + `sync_user_plan` trigger-i yaradıldı
+- [x] `009_create_comments.sql` — `comments` cədvəli yaradıldı (Pro, canvas koordinatları ilə)
 
 ### 1.3 RLS Policies
-- [ ] `010_rls_profiles.sql` — Profiles RLS (öz profil + workspace üzvlük)
-- [ ] `011_rls_scenes.sql` — Scenes RLS (öz/public/collaborator/workspace)
-- [ ] `012_rls_workspaces.sql` — Workspaces RLS (owner/member/admin)
-- [ ] `013_rls_subscriptions.sql` — Subscriptions RLS (service_role write only)
-- [ ] `014_rls_comments.sql` — Comments RLS (Pro plan)
+- [x] `010_rls_profiles.sql` — Profiles RLS (öz profil + workspace üzvlük)
+- [x] `011_rls_scenes.sql` — Scenes RLS (öz/public/collaborator/workspace)
+- [x] `012_rls_workspaces.sql` — Workspaces RLS (owner/member/admin)
+- [x] `013_rls_subscriptions.sql` — Subscriptions RLS (service_role write only)
+- [x] `014_rls_comments.sql` — Comments RLS (Pro plan)
 
 ### 1.4 Storage & Rate Limit
-- [ ] Storage bucket-ləri yaradıldı: `thumbnails` (public), `avatars` (public), `scene-assets` (private) + RLS policies
-- [ ] `015_rate_limit_function.sql` — `rate_limit_buckets` cədvəli + `check_rate_limit` PostgreSQL funksiyası yaradıldı
+- [x] Storage bucket-ləri yaradıldı: `thumbnails` (public), `avatars` (public), `scene-assets` (private) + RLS policies
+- [x] `015_storage_and_rate_limit.sql` — `rate_limit_buckets` cədvəli + `check_rate_limit` PostgreSQL funksiyası yaradıldı
 
 ### 1.5 TypeScript Tipləri
-- [ ] `supabase gen types typescript` ilə `src/types/database.types.ts` generate edildi
-- [ ] `src/types/canvas.types.ts` əl ilə yazıldı (`CanvasElement`, `AppState`, `SceneData`, `ToolType` və s.)
+- [x] `src/types/database.types.ts` əl ilə yazıldı (bütün cədvəl tipləri)
+- [x] `src/types/canvas.types.ts` əl ilə yazıldı (`CanvasElement`, `AppState`, `SceneData`, `ToolType` və s.)
 
 ---
 
@@ -310,7 +310,7 @@
 | Mərhələ | Status | Tamamlanma | Tapşırıq sayı |
 |---|---|---|---|
 | 0 — Hazırlıq & Qurulum | `[x]` tamamlandı | 100% (19/19) | 19 |
-| 1 — Verilənlər Bazası | `[ ]` gözləyir | 0% (0/20) | 20 |
+| 1 — Verilənlər Bazası | `[x]` tamamlandı | 100% (20/20) | 20 |
 | 2 — Auth & Təhlükəsizlik | `[ ]` gözləyir | 0% (0/16) | 16 |
 | 3 — Canvas Engine | `[ ]` gözləyir | 0% (0/14) | 14 |
 | 4 — Frontend Komponentlər | `[ ]` gözləyir | 0% (0/22) | 22 |
@@ -318,7 +318,7 @@
 | 6 — Abunəlik & Ödəniş | `[ ]` gözləyir | 0% (0/12) | 12 |
 | 7 — API & Edge Functions | `[ ]` gözləyir | 0% (0/14) | 14 |
 | 8 — Deploy & CI/CD | `[ ]` gözləyir | 0% (0/18) | 18 |
-| **CƏMİ** | | **13% (19/145)** | **145** |
+| **CƏMİ** | | **27% (39/145)** | **145** |
 
 ---
 

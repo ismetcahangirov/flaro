@@ -80,6 +80,9 @@ jobs:
         with:
           version: latest
 
+      - name: Start Supabase
+        run: supabase start
+
       - name: Check migration diff
         run: |
           supabase db diff --schema public

@@ -165,7 +165,7 @@ export function useAuth() {
     const userId = store.user?.id
     if (!userId) throw new Error('Not authenticated')
 
-    const { data, error } = await supabase
+    const { data, error } = await (supabase as any)
       .from('profiles')
       .update(updates)
       .eq('id', userId)

@@ -10,12 +10,12 @@
 
 | Sahə | Dəyər |
 |---|---|
-| **Son tamamlanan tapşırıq** | Mərhələ 3 — Canvas Engine |
-| **Aktiv branch** | `feature/m03-canvas` |
-| **Növbəti branch** | `feature/m04-frontend` |
-| **Növbəti tapşırıq** | Mərhələ 4 — Frontend Komponentlər (PR merge-dən sonra) |
+| **Son tamamlanan tapşırıq** | Mərhələ 4 — Frontend Komponentlər |
+| **Aktiv branch** | `feature/m04-frontend` |
+| **Növbəti branch** | `feature/m05-collaboration` |
+| **Növbəti tapşırıq** | Mərhələ 5 — Realtime Collaboration (PR merge-dən sonra) |
 | **Bloklanmış tapşırıq** | Yoxdur |
-| **Qeyd** | Mərhələ 3 tamamlandı. Rough.js canvas renderer, hit test utilities, Zustand canvasStore, və useCanvas hook tətbiq edildi. Bütün elementlərin çizilməsi, pan, drag, zoom, lasso seçimi və klaviatura qısayolları tam işləkdir. Ümumi progress 48%. |
+| **Qeyd** | Mərhələ 4 tamamlandı. Bütün UI komponentləri, Landing, Dashboard (həm grid/list view-lar, həm də realtime yenilənmə), və Editor səhifələri (toolbar, topbar, props panel, zoom controls) tam olaraq tətbiq edildi və uğurla build olundu. Ümumi progress 65%. |
 
 ---
 
@@ -171,35 +171,35 @@
 
 ## Mərhələ 4 — Frontend Komponentlər
 **Branch:** `feature/m04-frontend`
-**Status:** `[ ]` gözləyir — 0/22 tamamlandı
+**Status:** `[x]` tamamlandı — 22/22 tamamlandı
 
 ### 4.1 UI Kit
-- [ ] `src/components/ui/Tooltip.tsx` — delay (500ms), 4 tərəf (top/right/bottom/left) yaradıldı
-- [ ] `src/components/ui/Button.tsx` — primary/secondary/ghost variant-lar yaradıldı
-- [ ] `src/components/ui/Modal.tsx` — backdrop blur, ESC bağlama, portal yaradıldı
-- [ ] `src/components/ui/Badge.tsx` + `src/components/ui/Avatar.tsx` yaradıldı
-- [ ] `src/components/ui/Toast.tsx` — bildiriş sistemi yaradıldı (success/error/info)
+- [x] `src/components/ui/Tooltip.tsx` — delay (500ms), 4 tərəf (top/right/bottom/left) yaradıldı
+- [x] `src/components/ui/Button.tsx` — primary/secondary/ghost variant-lar yaradıldı
+- [x] `src/components/ui/Modal.tsx` — backdrop blur, ESC bağlama, portal yaradıldı
+- [x] `src/components/ui/Badge.tsx` + `src/components/ui/Avatar.tsx` yaradıldı
+- [x] `src/components/ui/Toast.tsx` — bildiriş sistemi yaradıldı (success/error/info)
 
 ### 4.2 Landing Səhifəsi
-- [ ] `src/pages/Landing.tsx` — Hero bölməsi (gradient, animated heading, CTA buttons) yaradıldı
-- [ ] Navbar (logo, pricing link, giriş/signup buttons) yaradıldı
-- [ ] Feature kartları bölməsi (3 kart: el çizimi, realtime, autosync) yaradıldı
+- [x] `src/pages/Landing.tsx` — Hero bölməsi (gradient, animated heading, CTA buttons) yaradıldı
+- [x] Navbar (logo, pricing link, giriş/signup buttons) yaradıldı
+- [x] Feature kartları bölməsi (3 kart: el çizimi, realtime, autosync) yaradıldı
 
 ### 4.3 Dashboard Səhifəsi
-- [ ] `src/pages/Dashboard.tsx` — Sol sidebar (logo, nav, plan bar, user) yaradıldı
-- [ ] Scene axtarış + grid/list view toggle yaradıldı
-- [ ] Realtime scene siyahısı (Supabase postgres_changes) tətbiq edildi
-- [ ] `src/components/dashboard/SceneCard.tsx` — thumbnail, rename (inline input), duplicate, delete, context menu yaradıldı
-- [ ] `src/components/dashboard/SceneGrid.tsx` — grid və list view rejimləri yaradıldı
-- [ ] `src/components/dashboard/NewSceneModal.tsx` — yeni scene yaratma modalı yaradıldı
+- [x] `src/pages/Dashboard.tsx` — Sol sidebar (logo, nav, plan bar, user) yaradıldı
+- [x] Scene axtarış + grid/list view toggle yaradıldı
+- [x] Realtime scene siyahısı (Supabase postgres_changes) tətbiq edildi
+- [x] `src/components/dashboard/SceneCard.tsx` — thumbnail, rename (inline input), duplicate, delete, context menu yaradıldı
+- [x] `src/components/dashboard/SceneGrid.tsx` — grid və list view rejimləri yaradıldı
+- [x] `src/components/dashboard/NewSceneModal.tsx` — yeni scene yaratma modalı yaradıldı
 
 ### 4.4 Editor Səhifəsi
-- [ ] `src/pages/Editor.tsx` — canvas, toolbar, topbar, propsPanel, collab layers, zoom controls birləşdirildi
-- [ ] `src/components/canvas/Toolbar.tsx` — 11 alət, separator-lar, keyboard shortcut tooltip-ləri yaradıldı
-- [ ] `src/components/canvas/TopBar.tsx` — scene adı (edit), save status, active users, share button yaradıldı
-- [ ] `src/components/canvas/PropsPanel.tsx` — stroke rəngi, fill rəngi, stroke width, roughness, opacity yaradıldı
-- [ ] `src/components/canvas/ZoomControls.tsx` — zoom in/out, reset, fit screen yaradıldı
-- [ ] `src/components/canvas/CanvasBoard.tsx` — canvas element wrapper, touch event dəstəyi yaradıldı
+- [x] `src/pages/Editor.tsx` — canvas, toolbar, topbar, propsPanel, collab layers, zoom controls birləşdirildi
+- [x] `src/components/canvas/Toolbar.tsx` — 11 alət, separator-lar, keyboard shortcut tooltip-ləri yaradıldı
+- [x] `src/components/canvas/TopBar.tsx` — scene adı (edit), save status, active users, share button yaradıldı
+- [x] `src/components/canvas/PropsPanel.tsx` — stroke rəngi, fill rəngi, stroke width, roughness, opacity yaradıldı
+- [x] `src/components/canvas/ZoomControls.tsx` — zoom in/out, reset, fit screen yaradıldı
+- [x] `src/components/canvas/CanvasBoard.tsx` — canvas element wrapper, touch event dəstəyi yaradıldı
 
 ---
 

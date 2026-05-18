@@ -1,25 +1,214 @@
+import { useNavigate } from 'react-router-dom'
+import {
+  Pencil, Zap, Users, Cloud,
+  ArrowRight, Star,
+} from 'lucide-react'
+import { useAuth } from '@/hooks/useAuth'
+
 export default function Landing() {
+  const navigate = useNavigate()
+  const { isAuthenticated } = useAuth()
+
   return (
-    <div className="flex flex-col items-center justify-center min-h-screen bg-slate-50 text-slate-900 p-6">
-      <div className="text-center space-y-6 max-w-2xl">
-        <div className="inline-block bg-orange-500 text-white font-bold text-3xl px-6 py-3 rounded-2xl shadow-lg transform rotate-2 animate-bounce">
-          Flaro
+    <div className="min-h-screen bg-white overflow-x-hidden text-slate-800 font-sans">
+      <Navbar />
+
+      {/* Hero */}
+      <section className="relative pt-32 pb-24 px-6 text-center overflow-hidden">
+        {/* Arxa fon dekorasiya */}
+        <div className="absolute inset-0 -z-10">
+          <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[500px]
+                          bg-[radial-gradient(circle_at_center,#ffedd5_0%,transparent_70%)] opacity-60 rounded-full blur-3xl" />
         </div>
-        <h1 className="text-5xl font-extrabold tracking-tight font-sans text-slate-900 md:text-6xl">
-          Beautiful hand-drawn <span className="text-orange-500">diagrams</span>
+
+        {/* Badge */}
+        <div className="inline-flex items-center gap-2 px-4 py-2 bg-orange-50
+                        border border-orange-200 rounded-full text-orange-700
+                        text-sm font-semibold mb-8 animate-fade-in">
+          <Zap size={14} className="fill-orange-500 text-orange-500" />
+          El çizimi ilə professional diaqramlar
+        </div>
+
+        {/* Başlıq */}
+        <h1 className="text-6xl md:text-7xl font-extrabold text-slate-900
+                       tracking-tight mb-6 leading-[1.05] animate-slide-up">
+          Fikirləri{' '}
+          <span className="relative inline-block">
+            <span className="text-orange-500">çəkin</span>
+            {/* El çizimi alt xətt */}
+            <svg
+              className="absolute -bottom-2 left-0 w-full"
+              viewBox="0 0 200 12"
+              preserveAspectRatio="none"
+            >
+              <path
+                d="M2 8 Q50 2 100 7 Q150 12 198 6"
+                stroke="#F97316"
+                strokeWidth="3"
+                fill="none"
+                strokeLinecap="round"
+              />
+            </svg>
+          </span>
+          , paylaşın, birlikdə işləyin
         </h1>
-        <p className="text-lg text-slate-600 font-sans leading-relaxed">
-          Create premium wireframes, mindmaps, and workflows that look like they were sketched on a whiteboard. Built for collaborative teams.
+
+        <p className="text-xl text-slate-500 max-w-2xl mx-auto mb-10 leading-relaxed">
+          Flaro — el çizimi estetikası olan, real-time əməkdaşlıq imkanları ilə
+          təchiz edilmiş ağıllı diaqram yaratma platforması.
         </p>
-        <div className="pt-4 flex flex-col sm:flex-row justify-center gap-4">
-          <a href="/login" className="px-8 py-4 bg-orange-500 hover:bg-orange-600 text-white font-semibold rounded-xl shadow-md transition-all">
-            Get Started Free
-          </a>
-          <a href="/pricing" className="px-8 py-4 bg-white hover:bg-slate-100 text-slate-800 font-semibold rounded-xl border border-slate-200 shadow-sm transition-all">
-            View Pricing
-          </a>
+
+        {/* CTA düymələri */}
+        <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
+          <button
+            onClick={() => navigate(isAuthenticated ? '/dashboard' : '/login')}
+            className="flex items-center gap-2.5 px-8 py-4 bg-orange-500 text-white
+                       font-bold text-lg rounded-2xl hover:bg-orange-600 transition-all
+                       shadow-lg shadow-orange-200 hover:shadow-xl hover:shadow-orange-200
+                       hover:-translate-y-0.5 active:translate-y-0"
+          >
+            Pulsuz başla
+            <ArrowRight size={20} />
+          </button>
+
+          <button
+            onClick={() => navigate('/pricing')}
+            className="flex items-center gap-2 px-8 py-4 bg-white text-slate-700
+                       font-semibold text-lg rounded-2xl border border-slate-200
+                       hover:border-slate-300 hover:bg-slate-50 transition-all"
+          >
+            Qiymətlər
+          </button>
+        </div>
+
+        {/* Social proof */}
+        <div className="flex items-center justify-center gap-6 mt-12 text-sm text-slate-500">
+          <div className="flex items-center gap-1.5">
+            <div className="flex -space-x-2">
+              {['#F97316', '#3B82F6', '#10B981', '#8B5CF6'].map((c, i) => (
+                <div key={i} className="w-7 h-7 rounded-full border-2 border-white"
+                     style={{ backgroundColor: c }} />
+              ))}
+            </div>
+            <span>10,000+ istifadəçi</span>
+          </div>
+          <div className="flex items-center gap-1">
+            {[...Array(5)].map((_, i) => (
+              <Star key={i} size={14} className="fill-yellow-400 text-yellow-400" />
+            ))}
+            <span className="ml-1">4.9/5</span>
+          </div>
+        </div>
+      </section>
+
+      {/* Feature bölməsi */}
+      <section className="py-24 px-6 bg-slate-50">
+        <div className="max-w-6xl mx-auto">
+          <h2 className="text-4xl font-bold text-center text-slate-900 mb-4 tracking-tight">
+            Niyə Flaro?
+          </h2>
+          <p className="text-center text-slate-500 mb-16 max-w-xl mx-auto">
+            Professional görünüş, el çizimi ruhu
+          </p>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            {FEATURES.map((f, i) => (
+              <FeatureCard key={i} {...f} />
+            ))}
+          </div>
+        </div>
+      </section>
+    </div>
+  )
+}
+
+const FEATURES = [
+  {
+    icon:  <Pencil className="text-orange-500" size={24} />,
+    title: 'El çizimi estetikası',
+    desc:  'Rough.js ilə hər element canlı, üzvi görünür. Texniki diaqramlar belə insan əli tərəfindən çəkilmiş hiss verir.',
+    color: 'bg-orange-50',
+  },
+  {
+    icon:  <Users className="text-blue-500" size={24} />,
+    title: 'Real-time əməkdaşlıq',
+    desc:  'Komandanızla eyni canvas üzərində işləyin. Hər kəsin kursoru, seçimi anlıq görünür.',
+    color: 'bg-blue-50',
+  },
+  {
+    icon:  <Cloud className="text-emerald-500" size={24} />,
+    title: 'Avtomatik sinxronizasiya',
+    desc:  'Pro planda hər dəyişiklik buludda avtomatik saxlanılır. Heç nəyi itirməyin.',
+    color: 'bg-emerald-50',
+  },
+]
+
+function FeatureCard({ icon, title, desc, color }: typeof FEATURES[0]) {
+  return (
+    <div className="bg-white rounded-3xl p-8 border border-slate-100 shadow-sm
+                    hover:shadow-md transition-shadow group">
+      <div className={`w-12 h-12 ${color} rounded-2xl flex items-center justify-center mb-5`}>
+        {icon}
+      </div>
+      <h3 className="text-lg font-bold text-slate-900 mb-3">{title}</h3>
+      <p className="text-slate-500 leading-relaxed text-sm">{desc}</p>
+    </div>
+  )
+}
+
+function Navbar() {
+  const navigate = useNavigate()
+  const { isAuthenticated } = useAuth()
+
+  return (
+    <nav className="fixed top-0 inset-x-0 z-50 bg-white/80 backdrop-blur-md
+                    border-b border-slate-100">
+      <div className="max-w-6xl mx-auto px-6 h-16 flex items-center justify-between">
+        <div className="flex items-center gap-2.5 cursor-pointer"
+             onClick={() => navigate('/')}>
+          <div className="w-8 h-8 bg-orange-500 rounded-lg flex items-center justify-center">
+            <Pencil size={16} className="text-white" strokeWidth={2.5} />
+          </div>
+          <span className="font-bold text-lg text-slate-900">Flaro</span>
+        </div>
+
+        <div className="flex items-center gap-3">
+          <button
+            onClick={() => navigate('/pricing')}
+            className="text-sm font-medium text-slate-600 hover:text-slate-900 px-3 py-2
+                       rounded-lg hover:bg-slate-100 transition-colors"
+          >
+            Qiymətlər
+          </button>
+
+          {isAuthenticated ? (
+            <button
+              onClick={() => navigate('/dashboard')}
+              className="px-4 py-2 bg-orange-500 text-white text-sm font-semibold
+                         rounded-xl hover:bg-orange-600 transition-colors shadow-md shadow-orange-100"
+            >
+              Dashboard
+            </button>
+          ) : (
+            <>
+              <button
+                onClick={() => navigate('/login')}
+                className="text-sm font-medium text-slate-600 hover:text-slate-900 px-3 py-2
+                           rounded-lg hover:bg-slate-100 transition-colors"
+              >
+                Giriş
+              </button>
+              <button
+                onClick={() => navigate('/login')}
+                className="px-4 py-2 bg-orange-500 text-white text-sm font-semibold
+                           rounded-xl hover:bg-orange-600 transition-colors shadow-md shadow-orange-100"
+              >
+                Başla — Pulsuz
+              </button>
+            </>
+          )}
         </div>
       </div>
-    </div>
+    </nav>
   )
 }

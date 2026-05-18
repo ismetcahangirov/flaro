@@ -131,7 +131,7 @@ export const useCanvasStore = create<CanvasStore>()(
         updateElement: (id, updates) => set((state) => {
           const idx = state.elements.findIndex(e => e.id === id)
           if (idx !== -1) {
-            Object.assign(state.elements[idx], updates)
+            Object.assign(state.elements[idx] as any, updates)
             state.isDirty = true
           }
         }),
@@ -288,7 +288,7 @@ export const useCanvasStore = create<CanvasStore>()(
 
           const current  = s.undoStack.pop()!
           s.redoStack.push(current)
-          s.elements     = s.undoStack[s.undoStack.length - 1]
+          s.elements     = s.undoStack[s.undoStack.length - 1] ?? []
           s.selectedIds  = new Set()
           s.isDirty      = true
         }),

@@ -1,4 +1,3 @@
-import rough from 'roughjs'
 import type { RoughCanvas } from 'roughjs/bin/canvas'
 import type { Options as RoughOptions } from 'roughjs/bin/core'
 import type { CanvasElement, Point } from '@/types/canvas.types'
@@ -118,6 +117,7 @@ function drawArrowhead(
 ): void {
   const last = points[points.length - 1]
   const prev = points[points.length - 2]
+  if (!last || !prev) return
 
   const angle  = Math.atan2(last[1] - prev[1], last[0] - prev[0])
   const size   = width * 4 + 8
@@ -157,13 +157,20 @@ function drawFreedraw(
   ctx.lineJoin     = 'round'
   ctx.globalAlpha  = el.opacity / 100
 
+  const firstPt = el.points[0]
+  if (!firstPt) {
+    ctx.restore()
+    return
+  }
+
   ctx.beginPath()
-  ctx.moveTo(el.x + el.points[0].x, el.y + el.points[0].y)
+  ctx.moveTo(el.x + firstPt.x, el.y + firstPt.y)
 
   // Smooth curves — Catmull-Rom spline
   for (let i = 1; i < el.points.length - 1; i++) {
     const p1 = el.points[i]
     const p2 = el.points[i + 1]
+    if (!p1 || !p2) continue
 
     const mx = (el.x + p1.x + el.x + p2.x) / 2
     const my = (el.y + p1.y + el.y + p2.y) / 2
@@ -172,7 +179,9 @@ function drawFreedraw(
   }
 
   const last = el.points[el.points.length - 1]
-  ctx.lineTo(el.x + last.x, el.y + last.y)
+  if (last) {
+    ctx.lineTo(el.x + last.x, el.y + last.y)
+  }
   ctx.stroke()
   ctx.restore()
 }

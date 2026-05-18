@@ -11,8 +11,8 @@ export function getElementAtPoint(
 
   // Üstdən aşağı axtarış (son çizilən üstdə olur)
   for (let i = elements.length - 1; i >= 0; i--) {
-    const el = elements[i]
-    if (el.isDeleted) continue
+    const el = elements[i] as CanvasElement
+    if (!el || el.isDeleted) continue
 
     if (isPointInElement(el, point, pad)) return el
   }
@@ -31,7 +31,7 @@ export function getElementsInRect(
   const maxY = Math.max(p1.y, p2.y)
 
   return elements.filter(el => {
-    if (el.isDeleted) return false
+    if (!el || el.isDeleted) return false
     return (
       el.x >= minX &&
       el.y >= minY &&

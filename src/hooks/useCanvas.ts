@@ -206,11 +206,6 @@ export function useCanvas(canvasRef: React.RefObject<HTMLCanvasElement>) {
       lassoEnd.current = canvasPoint
 
       // Lasso içindəki elementləri seç
-      const inRect = getElementsInRect(
-        store.elements,
-        lassoStart.current,
-        canvasPoint
-      )
       store.setElements(
         store.elements.map(el => el) // redraw trigger
       )

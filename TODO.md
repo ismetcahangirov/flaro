@@ -10,12 +10,12 @@
 
 | Sahə | Dəyər |
 |---|---|
-| **Son tamamlanan tapşırıq** | Mərhələ 1 — Verilənlər Bazası |
-| **Aktiv branch** | `feature/m01-database` |
-| **Növbəti branch** | `feature/m02-auth` |
-| **Növbəti tapşırıq** | Mərhələ 2 — Auth & Təhlükəsizlik (PR merge-dən sonra) |
+| **Son tamamlanan tapşırıq** | Mərhələ 2 — Auth və Təhlükəsizlik |
+| **Aktiv branch** | `feature/m02-auth` |
+| **Növbəti branch** | `feature/m03-canvas` |
+| **Növbəti tapşırıq** | Mərhələ 3 — Canvas Engine (PR merge-dən sonra) |
 | **Bloklanmış tapşırıq** | Yoxdur |
-| **Qeyd** | Mərhələ 1 tamamlandı. 15 migration fayl + 2 TypeScript tip faylı yaradıldı. PR merge edildikdən sonra Mərhələ 2-yə keç. Ümumi progress 27%. |
+| **Qeyd** | Mərhələ 2 tamamlandı. Auth Store, useAuth hook, Protected Routes, Feature Gates, Sanitization, CORS və Rate Limiter yazıldı. Həmçinin bütün page stub-ları yaradıldı. Ümumi progress 38%. |
 
 ---
 
@@ -111,32 +111,32 @@
 
 ## Mərhələ 2 — Auth və Təhlükəsizlik
 **Branch:** `feature/m02-auth`
-**Status:** `[ ]` gözləyir — 0/16 tamamlandı
+**Status:** `[x]` tamamlandı — 16/16 tamamlandı
 
 ### 2.1 Supabase Konfiqurasiyası
-- [ ] `supabase/config.toml` — JWT expiry (3600), refresh token rotation, email confirmation, Google + GitHub OAuth konfiqurasiya edildi
-- [ ] Supabase Dashboard-da Google OAuth aktiv edildi (Client ID + Secret)
-- [ ] Supabase Dashboard-da GitHub OAuth aktiv edildi (Client ID + Secret)
-- [ ] Supabase Dashboard-da Auth redirect URL-ləri əlavə edildi (production + localhost)
+- [x] `supabase/config.toml` — JWT expiry (3600), refresh token rotation, email confirmation, Google + GitHub OAuth konfiqurasiya edildi
+- [x] Supabase Dashboard-da Google OAuth aktiv edildi (Client ID + Secret)
+- [x] Supabase Dashboard-da GitHub OAuth aktiv edildi (Client ID + Secret)
+- [x] Supabase Dashboard-da Auth redirect URL-ləri əlavə edildi (production + localhost)
 
 ### 2.2 Frontend Auth
-- [ ] `src/lib/supabase.ts` — typed Supabase client yaradıldı (`createClient<Database>`, autoRefreshToken, persistSession)
-- [ ] `src/store/authStore.ts` — Zustand auth store yaradıldı (`user`, `session`, `profile`, `isPro()`, `plan()`)
-- [ ] `src/hooks/useAuth.ts` — `useAuth` hook yaradıldı (signUp, signIn, signInWithOAuth, resetPassword, updatePassword, signOut, updateProfile, session init)
-- [ ] `src/components/auth/ProtectedRoute.tsx` — `ProtectedRoute` komponenti yaradıldı (`requirePlan` prop ilə)
-- [ ] `src/pages/AuthCallback.tsx` — OAuth callback səhifəsi yaradıldı
+- [x] `src/lib/supabase.ts` — typed Supabase client yaradıldı (`createClient<Database>`, autoRefreshToken, persistSession)
+- [x] `src/store/authStore.ts` — Zustand auth store yaradıldı (`user`, `session`, `profile`, `isPro()`, `plan()`)
+- [x] `src/hooks/useAuth.ts` — `useAuth` hook yaradıldı (signUp, signIn, signInWithOAuth, resetPassword, updatePassword, signOut, updateProfile, session init)
+- [x] `src/components/auth/ProtectedRoute.tsx` — `ProtectedRoute` komponenti yaradıldı (`requirePlan` prop ilə)
+- [x] `src/pages/AuthCallback.tsx` — OAuth callback səhifəsi yaradıldı
 
 ### 2.3 Plan Qaydaları (Feature Gates)
-- [ ] `src/hooks/useSubscription.ts` — `useSubscription` hook yaradıldı (`canUse`, `canCreateScene`, `upgradeToPro`, AI limit)
-- [ ] `src/lib/sanitize.ts` — `escapeHtml`, `sanitizeTitle`, `sanitizeComment`, `isValidEmail`, `checkPasswordStrength` yazıldı
+- [x] `src/hooks/useSubscription.ts` — `useSubscription` hook yaradıldı (`canUse`, `canCreateScene`, `upgradeToPro`, AI limit)
+- [x] `src/lib/sanitize.ts` — `escapeHtml`, `sanitizeTitle`, `sanitizeComment`, `isValidEmail`, `checkPasswordStrength` yazıldı
 
 ### 2.4 Shared Utilities (Edge Functions)
-- [ ] `supabase/functions/_shared/cors.ts` — CORS headers, `handleCors`, allow-list origin-lər yaradıldı
-- [ ] `supabase/functions/_shared/rateLimiter.ts` — `checkRateLimit` funksiyası + `RATE_LIMITS` konfiqurasiyası yaradıldı
-- [ ] `supabase/functions/_shared/auth.ts` — `requireAuth`, `errorResponse`, `successResponse` helper-ləri yaradıldı
+- [x] `supabase/functions/_shared/cors.ts` — CORS headers, `handleCors`, allow-list origin-lər yaradıldı
+- [x] `supabase/functions/_shared/rateLimiter.ts` — `checkRateLimit` funksiyası + `RATE_LIMITS` konfiqurasiyası yaradıldı
+- [x] `supabase/functions/_shared/auth.ts` — `requireAuth`, `errorResponse`, `successResponse` helper-ləri yaradıldı
 
 ### 2.5 App Router
-- [ ] `src/App.tsx` — Route konfiqurasiyası yaradıldı (public routes, ProtectedRoute, Pro-only routes)
+- [x] `src/App.tsx` — Route konfiqurasiyası yaradıldı (public routes, ProtectedRoute, Pro-only routes)
 
 ---
 
@@ -311,14 +311,14 @@
 |---|---|---|---|
 | 0 — Hazırlıq & Qurulum | `[x]` tamamlandı | 100% (19/19) | 19 |
 | 1 — Verilənlər Bazası | `[x]` tamamlandı | 100% (20/20) | 20 |
-| 2 — Auth & Təhlükəsizlik | `[ ]` gözləyir | 0% (0/16) | 16 |
+| 2 — Auth & Təhlükəsizlik | `[x]` tamamlandı | 100% (16/16) | 16 |
 | 3 — Canvas Engine | `[ ]` gözləyir | 0% (0/14) | 14 |
 | 4 — Frontend Komponentlər | `[ ]` gözləyir | 0% (0/22) | 22 |
 | 5 — Əməkdaşlıq | `[ ]` gözləyir | 0% (0/10) | 10 |
 | 6 — Abunəlik & Ödəniş | `[ ]` gözləyir | 0% (0/12) | 12 |
 | 7 — API & Edge Functions | `[ ]` gözləyir | 0% (0/14) | 14 |
 | 8 — Deploy & CI/CD | `[ ]` gözləyir | 0% (0/18) | 18 |
-| **CƏMİ** | | **27% (39/145)** | **145** |
+| **CƏMİ** | | **38% (55/145)** | **145** |
 
 ---
 

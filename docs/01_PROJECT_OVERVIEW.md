@@ -1,4 +1,4 @@
-# SketchFlow — Layihə Baxışı və Arxitektura
+# Flaro — Layihə Baxışı və Arxitektura
 
 > **El çizimi tərzi ilə diaqram yaratma aləti** — React + Vite + Supabase
 > Rəng paleti: Orange (#F97316) əsaslı, Free & Pro planları ilə
@@ -7,7 +7,7 @@
 
 ## 📋 Layihə Haqqında
 
-**SketchFlow** — Excalidraw-dan ilhamlanan, el çizimi estetikası olan, real-time əməkdaşlıq imkanları ilə təchiz edilmiş bulud əsaslı diaqram yaratma platformasıdır.
+**Flaro** — Excalidraw-dan ilhamlanan, el çizimi estetikası olan, real-time əməkdaşlıq imkanları ilə təchiz edilmiş bulud əsaslı diaqram yaratma platformasıdır.
 
 ### Əsas Xüsusiyyətlər (Görüntülərdən)
 
@@ -65,7 +65,7 @@ Types:      supabase gen types (auto-generated DB types)
 ## 📁 Qovluq Strukturu
 
 ```
-sketchflow/
+flaro/
 ├── public/
 │   ├── fonts/                    # Caveat (el yazısı fontu)
 │   └── favicon.svg
@@ -249,8 +249,8 @@ Bu layihə üçün aşağıdakı sənədlər ardıcıl hazırlanacaq:
 
 ```bash
 # 1. Layihəni yarat
-npm create vite@latest sketchflow -- --template react-ts
-cd sketchflow
+npm create vite@latest flaro -- --template react-ts
+cd flaro
 
 # 2. Asılılıqları quraşdır
 npm install @supabase/supabase-js @supabase/auth-ui-react

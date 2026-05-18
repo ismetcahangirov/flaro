@@ -1,4 +1,4 @@
-# SketchFlow — API və Edge Functions
+# Flaro — API və Edge Functions
 
 > **Supabase Edge Functions** — Scene CRUD, AI inteqrasiyası, Export (PDF/PPTX/PNG/SVG)
 > TypeScript strict mode ilə tam tipləşdirilmiş
@@ -392,9 +392,9 @@ Deno.serve(async (req: Request) => {
     switch (format) {
       case 'json': {
         const jsonData = JSON.stringify({
-          type:     'sketchflow',
+          type:     'flaro',
           version:  2,
-          source:   'https://sketchflow.app',
+          source:   'https://flaro.app',
           elements: scene.elements,
           appState: scene.app_state,
         }, null, 2)
@@ -404,7 +404,7 @@ Deno.serve(async (req: Request) => {
           headers: {
             ...corsHeaders,
             'Content-Type':        'application/json',
-            'Content-Disposition': `attachment; filename="${scene.title}.sketchflow.json"`,
+            'Content-Disposition': `attachment; filename="${scene.title}.flaro.json"`,
           },
         })
       }
@@ -539,7 +539,7 @@ Deno.serve(async (req: Request) => {
   }
 
   // ── Claude API çağırışı ───────────────────────────────────────────────────
-  const systemPrompt = `You are a diagram generation assistant for SketchFlow, a hand-drawn style whiteboard app.
+  const systemPrompt = `You are a diagram generation assistant for Flaro, a hand-drawn style whiteboard app.
 
 Generate canvas elements based on the user's request. Return ONLY valid JSON array of elements.
 Each element must have these fields:
@@ -1139,7 +1139,7 @@ export function useExport(sceneId: string) {
 
   const exportAsJSON = useCallback(() => {
     const data = JSON.stringify({
-      type:     'sketchflow',
+      type:     'flaro',
       version:  2,
       elements: canvas.elements,
       appState: canvas.appState,
@@ -1149,7 +1149,7 @@ export function useExport(sceneId: string) {
     const url  = URL.createObjectURL(blob)
     const a    = document.createElement('a')
     a.href     = url
-    a.download = 'scene.sketchflow.json'
+    a.download = 'scene.flaro.json'
     a.click()
     URL.revokeObjectURL(url)
   }, [canvas])

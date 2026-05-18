@@ -1,4 +1,4 @@
-# TODO — SketchFlow
+# TODO — Flaro
 
 > Local AI ilə işləyərkən tamamlanan tapşırıqları `[ ]` → `[x]` et.
 > **Format:** `[x]` = tamamlandı · `[ ]` = gözləyir · `[~]` = davam edir · `[!]` = bloklanıb
@@ -45,7 +45,7 @@
 **Status:** `[x]` tamamlandı — 19/19 tamamlandı
 
 ### 0.1 Layihə İskelet
-- [x] `npm create vite@latest sketchflow -- --template react-ts` ilə layihə yaradıldı
+- [x] `npm create vite@latest flaro -- --template react-ts` ilə layihə yaradıldı
 - [x] Qovluq strukturu yaradıldı (`src/components/`, `src/hooks/`, `src/lib/`, `src/pages/`, `src/store/`, `src/types/`, `src/styles/`)
 - [x] `supabase/migrations/` və `supabase/functions/` qovluqları yaradıldı
 - [x] `.gitignore` hazırlandı (`.env*`, `node_modules/`, `dist/` və s.)
@@ -225,7 +225,7 @@
 **Status:** `[ ]` gözləyir — 0/12 tamamlandı
 
 ### 6.1 Stripe Konfiqurasiyası
-- [ ] Stripe Dashboard-da "SketchFlow Pro" product yaradıldı ($6/ay aylıq + $57.60/il illik)
+- [ ] Stripe Dashboard-da "Flaro Pro" product yaradıldı ($6/ay aylıq + $57.60/il illik)
 - [ ] Stripe Dashboard-da webhook endpoint qeydiyyata alındı (checkout.session.completed, customer.subscription.*, invoice.payment_failed)
 - [ ] `src/lib/stripe.ts` — singleton `loadStripe` yaradıldı
 
@@ -259,7 +259,7 @@
 - [ ] `src/hooks/useExport.ts` — `exportScene` yaradıldı (PNG/SVG/JSON client-side, PDF/PPTX server-side)
 - [ ] Client-side PNG export (2x resolution, offscreen canvas) tətbiq edildi
 - [ ] Client-side SVG export (elements to SVG) tətbiq edildi
-- [ ] Client-side JSON export (sketchflow format) tətbiq edildi
+- [ ] Client-side JSON export (flaro format) tətbiq edildi
 
 ### 7.3 AI Generation
 - [ ] `supabase/functions/ai-generate/index.ts` — Claude Sonnet 4 inteqrasiyası, rate limit (Free 10/gün, Pro 100/gün), sistem promptu (diagram/flowchart/mindmap/wireframe), element sanitizasiyası yaradıldı
@@ -289,7 +289,7 @@
 - [ ] Vercel CLI quraşdırıldı, `vercel link` ilə layihə bağlandı
 - [ ] Vercel environment variables set edildi (VITE_SUPABASE_URL, VITE_SUPABASE_ANON_KEY, VITE_STRIPE_PUBLISHABLE_KEY, VITE_APP_URL)
 - [ ] `vercel --prod` ilə ilk production deploy edildi
-- [ ] Custom domain (sketchflow.app) Vercel-ə əlavə edildi + SSL avtomatik aktivdir
+- [ ] Custom domain (flaro.app) Vercel-ə əlavə edildi + SSL avtomatik aktivdir
 
 ### 8.3 GitHub Actions CI/CD
 - [ ] `.github/workflows/ci.yml` yaradıldı (lint + type-check + build + db-check + deploy-staging + deploy-production)

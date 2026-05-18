@@ -1,4 +1,4 @@
-# SketchFlow — Auth və Təhlükəsizlik
+# Flaro — Auth və Təhlükəsizlik
 
 > **Supabase Auth** — Email/Password + OAuth, JWT, Rate Limiting, Stripe Webhook
 > TypeScript strict mode ilə tam tipləşdirilmiş
@@ -51,10 +51,10 @@
 ```toml
 [auth]
 enabled = true
-site_url = "https://sketchflow.app"
+site_url = "https://flaro.app"
 additional_redirect_urls = [
   "http://localhost:5173",
-  "https://sketchflow.app"
+  "https://flaro.app"
 ]
 jwt_expiry = 3600           # 1 saat
 refresh_token_rotation_enabled = true
@@ -105,7 +105,7 @@ export const supabase = createClient<Database>(supabaseUrl, supabaseKey, {
     autoRefreshToken:    true,
     persistSession:      true,
     detectSessionInUrl:  true,
-    storageKey:          'sketchflow-auth',
+    storageKey:          'flaro-auth',
     storage:             window.localStorage,
   },
   global: {
@@ -187,7 +187,7 @@ export const useAuthStore = create<AuthState>()(
         plan:  () => get().profile?.plan ?? 'free',
       }),
       {
-        name: 'sketchflow-auth',
+        name: 'flaro-auth',
         // Yalnız bu sahələri persist et — session-u etmə (Supabase öz idarə edir)
         partialize: (state) => ({ profile: state.profile }),
       }
@@ -914,8 +914,8 @@ $$;
 
 ```typescript
 const ALLOWED_ORIGINS = [
-  'https://sketchflow.app',
-  'https://www.sketchflow.app',
+  'https://flaro.app',
+  'https://www.flaro.app',
   ...(Deno.env.get('DENO_ENV') === 'development'
     ? ['http://localhost:5173', 'http://localhost:3000']
     : []),
@@ -1020,7 +1020,7 @@ VITE_STRIPE_PUBLISHABLE_KEY=pk_live_xxx
 
 # App
 VITE_APP_VERSION=1.0.0
-VITE_APP_URL=https://sketchflow.app
+VITE_APP_URL=https://flaro.app
 
 # Supabase Edge Functions (server-side only — VITE_ prefix yoxdur)
 SUPABASE_SERVICE_ROLE_KEY=your_service_role_key

@@ -1,4 +1,4 @@
-# SketchFlow — Frontend Komponentlər
+# Flaro — Frontend Komponentlər
 
 > **React 18 + TypeScript + Tailwind CSS** — Dashboard, Editor, Toolbar, UI Kit
 > Orange theme, Lucide icons, el çizimi estetikası
@@ -165,7 +165,7 @@ export default function Landing() {
         </h1>
 
         <p className="text-xl text-gray-500 max-w-2xl mx-auto mb-10 leading-relaxed">
-          SketchFlow — el çizimi estetikası olan, real-time əməkdaşlıq imkanları ilə
+          Flaro — el çizimi estetikası olan, real-time əməkdaşlıq imkanları ilə
           təchiz edilmiş ağıllı diaqram yaratma platforması.
         </p>
 
@@ -216,7 +216,7 @@ export default function Landing() {
       <section className="py-24 px-4 bg-gray-50">
         <div className="max-w-6xl mx-auto">
           <h2 className="text-4xl font-bold text-center text-gray-900 mb-4">
-            Niyə SketchFlow?
+            Niyə Flaro?
           </h2>
           <p className="text-center text-gray-500 mb-16 max-w-xl mx-auto">
             Professional görünüş, əl çizimi ruhu
@@ -280,7 +280,7 @@ function Navbar() {
           <div className="w-8 h-8 bg-brand-500 rounded-lg flex items-center justify-center">
             <Pencil size={16} className="text-white" strokeWidth={2.5} />
           </div>
-          <span className="font-bold text-lg text-gray-900">SketchFlow</span>
+          <span className="font-bold text-lg text-gray-900">Flaro</span>
         </div>
 
         <div className="flex items-center gap-3">
@@ -426,7 +426,7 @@ export default function Dashboard() {
             <div className="w-8 h-8 bg-brand-500 rounded-lg flex items-center justify-center">
               <Pencil size={16} className="text-white" strokeWidth={2.5} />
             </div>
-            <span className="font-bold text-gray-900">SketchFlow</span>
+            <span className="font-bold text-gray-900">Flaro</span>
           </div>
         </div>
 

@@ -1,4 +1,4 @@
-# SketchFlow — Verilənlər Bazası Sxemi
+# Flaro — Verilənlər Bazası Sxemi
 
 > **Supabase PostgreSQL** — RLS Policies, Triggers, TypeScript Types
 > Fayl: `supabase/migrations/`

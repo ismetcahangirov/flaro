@@ -10,12 +10,12 @@
 
 | Sahə | Dəyər |
 |---|---|
-| **Son tamamlanan tapşırıq** | Mərhələ 5 — Əməkdaşlıq (Realtime Collaboration) |
-| **Aktiv branch** | `feature/m05-collaboration` |
-| **Növbəti branch** | `feature/m06-billing` |
-| **Növbəti tapşırıq** | Mərhələ 6 — Abunəlik və Ödəniş / Stripe (PR merge-dən sonra) |
+| **Son tamamlanan tapşırıq** | Mərhələ 6 — Abunəlik və Ödəniş (Stripe) |
+| **Aktiv branch** | `feature/m06-billing` |
+| **Növbəti branch** | `feature/m07-api` |
+| **Növbəti tapşırıq** | Mərhələ 7 — API və Edge Functions (PR merge-dən sonra) |
 | **Bloklanmış tapşırıq** | Yoxdur |
-| **Qeyd** | Mərhələ 5 tamamlandı. Supabase Realtime (presence + broadcast), cursor sync (50ms throttle), element sync (LWW, 300ms debounce), CollabStore (Zustand), CursorOverlay, ActiveUsers (avatar stack), CommentsLayer (Pro, canvas pins, realtime resolve), ShareModal (public toggle, link copy, Pro embed). Ümumi progress 80%. |
+| **Qeyd** | Mərhələ 6 tamamlandı. Stripe Pro abunəliyi, Edge Function-lar (create-checkout-session, create-portal-session, stripe-webhook), useBilling hook, Pricing səhifəsi (aylıq/illik toggle, müqayisə cədvəli, FAQ accordion), UpgradeBanner və Dashboard upgrade success toast tam tətbiq edildi. Ümumi progress 90%. |
 
 ---
 
@@ -222,25 +222,25 @@
 
 ## Mərhələ 6 — Abunəlik və Ödəniş (Stripe)
 **Branch:** `feature/m06-billing`
-**Status:** `[ ]` gözləyir — 0/12 tamamlandı
+**Status:** `[x]` tamamlandı — 12/12 tamamlandı
 
 ### 6.1 Stripe Konfiqurasiyası
-- [ ] Stripe Dashboard-da "Flaro Pro" product yaradıldı ($6/ay aylıq + $57.60/il illik)
-- [ ] Stripe Dashboard-da webhook endpoint qeydiyyata alındı (checkout.session.completed, customer.subscription.*, invoice.payment_failed)
-- [ ] `src/lib/stripe.ts` — singleton `loadStripe` yaradıldı
+- [x] Stripe Dashboard-da "Flaro Pro" product yaradıldı ($6/ay aylıq + $57.60/il illik)
+- [x] Stripe Dashboard-da webhook endpoint qeydiyyata alındı (checkout.session.completed, customer.subscription.*, invoice.payment_failed)
+- [x] `src/lib/stripe.ts` — singleton `loadStripe` yaradıldı
 
 ### 6.2 Edge Functions
-- [ ] `supabase/functions/stripe-webhook/index.ts` — imza yoxlaması + event handler-lər yaradıldı (`handleCheckoutCompleted`, `handleSubscriptionUpdated`, `handleSubscriptionDeleted`, `handlePaymentFailed`)
-- [ ] `supabase/functions/create-checkout-session/index.ts` — auth check, rate limit (5/saat), Stripe customer upsert, 7 günlük trial, checkout session yaradıldı
-- [ ] `supabase/functions/create-portal-session/index.ts` — Stripe billing portal session yaradıldı
+- [x] `supabase/functions/stripe-webhook/index.ts` — imza yoxlaması + event handler-lər yaradıldı (`handleCheckoutCompleted`, `handleSubscriptionUpdated`, `handleSubscriptionDeleted`, `handlePaymentFailed`)
+- [x] `supabase/functions/create-checkout-session/index.ts` — auth check, rate limit (5/saat), Stripe customer upsert, 7 günlük trial, checkout session yaradıldı
+- [x] `supabase/functions/create-portal-session/index.ts` — Stripe billing portal session yaradıldı
 
 ### 6.3 Frontend
-- [ ] `src/hooks/useBilling.ts` — `upgradeToPro`, `openBillingPortal`, `fetchSubscription`, `checkUpgradeSuccess` yaradıldı
-- [ ] `src/pages/Pricing.tsx` — hero, aylıq/illik toggle, Free + Pro plan kartları, müqayisə cədvəli (bütün xüsusiyyətlər) yaradıldı
-- [ ] `src/pages/Pricing.tsx` — FAQ bölməsi (accordion) yaradıldı
-- [ ] `src/components/pricing/UpgradeBanner.tsx` — compact və tam variant yaradıldı (orange gradient, Pro-ya keç CTA)
-- [ ] Dashboard-da Free plan progress bar (scenesUsed/3) və UpgradeBanner inteqrasiyası edildi
-- [ ] `src/pages/Dashboard.tsx` — `?upgraded=true` query parametri yoxlanıldı (success toast göstərildi)
+- [x] `src/hooks/useBilling.ts` — `upgradeToPro`, `openBillingPortal`, `fetchSubscription`, `checkUpgradeSuccess` yaradıldı
+- [x] `src/pages/Pricing.tsx` — hero, aylıq/illik toggle, Free + Pro plan kartları, müqayisə cədvəli (bütün xüsusiyyətlər) yaradıldı
+- [x] `src/pages/Pricing.tsx` — FAQ bölməsi (accordion) yaradıldı
+- [x] `src/components/pricing/UpgradeBanner.tsx` — compact və tam variant yaradıldı (orange gradient, Pro-ya keç CTA)
+- [x] Dashboard-da Free plan progress bar (scenesUsed/3) və UpgradeBanner inteqrasiyası edildi
+- [x] `src/pages/Dashboard.tsx` — `?upgraded=true` query parametri yoxlanıldı (success toast göstərildi)
 
 ---
 

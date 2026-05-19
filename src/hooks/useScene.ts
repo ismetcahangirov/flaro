@@ -12,7 +12,7 @@ const AUTOSAVE_DEBOUNCE_FREE = 1_000   // 1s
 export function useScene(sceneId?: string) {
   const navigate = useNavigate()
   // Read canvas state imperatively via getState() to avoid stale closure issues
-  const { user, isPro } = useAuth()
+  const { user } = useAuth()
 
   const [scene,      setScene]      = useState<Scene | null>(null)
   const [isSaving,   setIsSaving]   = useState(false)
@@ -22,8 +22,6 @@ export function useScene(sceneId?: string) {
 
   const autoSaveTimer  = useRef<ReturnType<typeof setTimeout> | null>(null)
   const isSavingRef    = useRef(false)
-  const isProRef       = useRef(isPro)
-  isProRef.current     = isPro
 
   // ── Scene yüklə ──────────────────────────────────────────────────────────
   const loadScene = useCallback(async (id: string) => {
@@ -72,49 +70,16 @@ export function useScene(sceneId?: string) {
       // Read current canvas state imperatively (no stale closure)
       const { elements, appState } = useCanvasStore.getState()
 
-      // In development, bypass Edge Function (no local server running)
-      // and save directly via Supabase client to avoid CORS issues
-      if (import.meta.env.DEV) {
-        const { error } = await (supabase
-          .from('scenes') as any)
-          .update({
-            elements,
-            app_state: appState,
-            title: scene?.title ?? 'Untitled',
-          })
-          .eq('id', sceneId)
+      const { error } = await (supabase
+        .from('scenes') as any)
+        .update({
+          elements,
+          app_state: appState,
+          title: scene?.title ?? 'Untitled',
+        })
+        .eq('id', sceneId)
 
-        if (error) throw error
-      } else {
-        const { data: { session } } = await supabase.auth.getSession()
-        if (!session) throw new Error('No session')
-
-        let thumbnail: string | undefined
-        if (isProRef.current) thumbnail = await generateThumbnail()
-
-        const response = await fetch(
-          `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/scene-save`,
-          {
-            method:  'POST',
-            headers: {
-              'Content-Type':  'application/json',
-              'Authorization': `Bearer ${session.access_token}`,
-            },
-            body: JSON.stringify({
-              sceneId,
-              title:    scene?.title ?? 'Untitled',
-              elements,
-              appState,
-              thumbnail,
-            }),
-          }
-        )
-
-        if (!response.ok) {
-          const err = await response.json()
-          throw new Error(err.error?.message ?? 'Save failed')
-        }
-      }
+      if (error) throw error
 
       useCanvasStore.getState().setDirty(false)
       setLastSaved(new Date())
@@ -131,7 +96,7 @@ export function useScene(sceneId?: string) {
   // ── Avtomatik saxlama ───────────────────────────────────────────────────
   // Stable reference — uses refs to avoid recreating on every render
   const scheduleAutoSave = useCallback(() => {
-    const delay = isProRef.current ? AUTOSAVE_DEBOUNCE_PRO : AUTOSAVE_DEBOUNCE_FREE
+    const delay = AUTOSAVE_DEBOUNCE_PRO
 
     if (autoSaveTimer.current) clearTimeout(autoSaveTimer.current)
 
@@ -243,24 +208,5 @@ export function useScene(sceneId?: string) {
     renameScene,
     duplicateScene,
     scheduleAutoSave,
-  }
-}
-
-// ── Canvas thumbnail yaratma ─────────────────────────────────────────────────
-
-async function generateThumbnail(): Promise<string | undefined> {
-  try {
-    const canvas = document.querySelector<HTMLCanvasElement>('#main-canvas')
-    if (!canvas) return undefined
-
-    const thumb   = document.createElement('canvas')
-    thumb.width   = 400
-    thumb.height  = 300
-    const ctx     = thumb.getContext('2d')!
-
-    ctx.drawImage(canvas, 0, 0, 400, 300)
-    return thumb.toDataURL('image/png', 0.7)
-  } catch {
-    return undefined
   }
 }

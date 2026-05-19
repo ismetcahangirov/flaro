@@ -45,8 +45,9 @@ export default function Editor() {
   // Canvas dəyişikliklərini izlə və autosave planlaşdır
   useEffect(() => {
     return useCanvasStore.subscribe(
-      (state) => state.isDirty,
-      (isDirty) => {
+      (state) => state.changeCounter,
+      () => {
+        const { isDirty } = useCanvasStore.getState()
         if (isDirty) scheduleAutoSave()
       }
     )
@@ -96,12 +97,12 @@ export default function Editor() {
       />
 
       {/* Əsas sahə */}
-      <div className="flex-1 flex relative overflow-hidden">
+      <div className="flex-1 flex relative">
         {/* Sol toolbar */}
         <Toolbar />
 
         {/* Canvas */}
-        <div className="flex-1 relative">
+        <div className="flex-1 relative overflow-hidden">
           <canvas
             id="main-canvas"
             ref={canvasRef}

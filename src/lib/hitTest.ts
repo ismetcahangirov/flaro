@@ -50,6 +50,32 @@ function isPointInElement(
 ): boolean {
   const { x, y, width, height, type, angle } = el
 
+  // Line / Arrow / Freedraw — əvvəlcə segment hit-test (bounding box yoxlanılmadan)
+  if ((type === 'line' || type === 'arrow' || type === 'freedraw') && el.points && el.points.length > 1) {
+    // Points-lərdən faktiki bounding box hesabla
+    let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity
+    for (const pt of el.points) {
+      const wx = el.x + pt.x
+      const wy = el.y + pt.y
+      if (wx < minX) minX = wx
+      if (wy < minY) minY = wy
+      if (wx > maxX) maxX = wx
+      if (wy > maxY) maxY = wy
+    }
+    minX -= pad; minY -= pad; maxX += pad; maxY += pad
+
+    if (point.x < minX || point.x > maxX || point.y < minY || point.y > maxY) return false
+
+    // Seqment hit-test
+    const threshold = pad * 2
+    for (let i = 0; i < el.points.length - 1; i++) {
+      const p1 = { x: el.x + el.points[i]!.x, y: el.y + el.points[i]!.y }
+      const p2 = { x: el.x + el.points[i + 1]!.x, y: el.y + el.points[i + 1]!.y }
+      if (distToSegment(point, p1, p2) < threshold) return true
+    }
+    return false
+  }
+
   // Transform point to element local space to account for rotation
   const cx = x + width / 2
   const cy = y + height / 2
@@ -60,13 +86,13 @@ function isPointInElement(
   const rotatedY = cy + dx * Math.sin(localAngle) + dy * Math.cos(localAngle)
 
   // Bounding box normallaşdırmaq
-  const minX = Math.min(x, x + width)  - pad
-  const minY = Math.min(y, y + height) - pad
-  const maxX = Math.max(x, x + width)  + pad
-  const maxY = Math.max(y, y + height) + pad
+  const bMinX = Math.min(x, x + width)  - pad
+  const bMinY = Math.min(y, y + height) - pad
+  const bMaxX = Math.max(x, x + width)  + pad
+  const bMaxY = Math.max(y, y + height) + pad
 
-  if (rotatedX < minX || rotatedX > maxX) return false
-  if (rotatedY < minY || rotatedY > maxY) return false
+  if (rotatedX < bMinX || rotatedX > bMaxX) return false
+  if (rotatedY < bMinY || rotatedY > bMaxY) return false
 
   // Ellipse — daha dəqiq hit test
   if (type === 'ellipse') {
@@ -76,10 +102,6 @@ function isPointInElement(
            ((rotatedY - cy) ** 2 / ry ** 2) <= 1
   }
 
-  // Line / Arrow / Freedraw check
-  // For precise line hit testing, we would need to check distance to segments,
-  // but bounding box is a good enough approximation for now.
-  
   return true
 }
 
@@ -132,5 +154,14 @@ export function getHandleAtPoint(
   if (hitTest(el.x - PAD, el.y + el.height / 2)) return 'ml'
 
   return null
+}
+
+function distToSegment(p: Point, a: Point, b: Point): number {
+  const dx = b.x - a.x
+  const dy = b.y - a.y
+  const lenSq = dx * dx + dy * dy
+  if (lenSq === 0) return Math.hypot(p.x - a.x, p.y - a.y)
+  const t = Math.max(0, Math.min(1, ((p.x - a.x) * dx + (p.y - a.y) * dy) / lenSq))
+  return Math.hypot(p.x - (a.x + t * dx), p.y - (a.y + t * dy))
 }
 

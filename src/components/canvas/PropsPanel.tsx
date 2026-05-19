@@ -1,5 +1,7 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useRef } from 'react'
+import { Menu } from 'lucide-react'
 import { useCanvasStore } from '@/store/canvasStore'
+import { Modal } from '@/components/ui/Modal'
 
 const STROKE_WIDTHS  = [1, 2, 3, 4, 6]
 const ROUGHNESS_VALS = [
@@ -17,17 +19,52 @@ export function PropsPanel() {
   const store = useCanvasStore()
   const selectedEls = store.elements.filter(e => store.selectedIds.has(e.id))
   const hasSelection = selectedEls.length > 0
+  const [isOpen, setIsOpen] = useState(true)
 
   return (
-    <aside className="w-64 shrink-0 bg-white border-l border-slate-100 md:shadow-lg
-                      flex flex-col overflow-y-auto z-10 animate-fade-in transition-transform">
-      <div className="p-4 border-b border-slate-100 bg-slate-50/20">
-        <h3 className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">
-          {hasSelection ? `${selectedEls.length} element seçildi` : 'Alət xüsusiyyətləri'}
-        </h3>
-      </div>
+    <>
+      {/* Panel bağlı olduqda görünən floating toggle */}
+      {!isOpen && (
+        <button
+          onClick={() => setIsOpen(true)}
+          className="fixed right-4 top-1/2 -translate-y-1/2 w-8 h-16
+                     bg-white border border-slate-200 rounded-l-xl
+                     flex items-center justify-center shadow-lg
+                     hover:bg-slate-50 transition-colors z-30"
+        >
+          <Menu size={16} className="text-slate-500" />
+        </button>
+      )}
 
-      <div className="p-4 space-y-5">
+      {/* Mobil overlay fonu */}
+      {isOpen && (
+        <div
+          onClick={() => setIsOpen(false)}
+          className="md:hidden fixed inset-0 bg-black/30 z-[5] animate-fade-in"
+        />
+      )}
+
+      <aside className={`shrink-0 bg-white border-l border-slate-100
+                        flex flex-col overflow-hidden z-10
+                        relative md:static
+                        max-md:fixed max-md:right-0 max-md:top-0 max-md:h-full
+                        ${isOpen ? 'w-64' : 'w-0 md:border-l-0'}`}
+              style={{ transition: 'width 0.25s ease' }}>
+
+        <div className={`flex flex-col overflow-y-auto ${isOpen ? 'opacity-100' : 'opacity-0 invisible'}`}>
+          <div className="p-3 border-b border-slate-100 bg-slate-50/20 shrink-0 flex items-center justify-between gap-2">
+            <h3 className="text-[10px] font-bold text-slate-400 uppercase tracking-wider whitespace-nowrap">
+              {hasSelection ? `${selectedEls.length} element seçildi` : 'Alət xüsusiyyətləri'}
+            </h3>
+            <button
+              onClick={() => setIsOpen(false)}
+              className="w-7 h-7 rounded-lg hover:bg-slate-200 flex items-center justify-center text-slate-400 hover:text-slate-600 transition-colors flex-shrink-0"
+            >
+              <Menu size={14} />
+            </button>
+          </div>
+
+        <div className="p-4 space-y-5">
         {/* Stroke rəngi */}
         <Section title="Xətt rəngi">
           <ColorPicker
@@ -116,7 +153,9 @@ export function PropsPanel() {
           />
         </Section>
       </div>
+      </div>
     </aside>
+    </>
   )
 }
 
@@ -140,8 +179,11 @@ interface ColorPickerProps {
 
 function ColorPicker({ value, onChange, onElementUpdate, showTransparent }: ColorPickerProps) {
   const allColors = showTransparent ? ['transparent', ...PRESET_COLORS] : PRESET_COLORS
-  
+
   const [hexInput, setHexInput] = useState(value === 'transparent' ? '' : value)
+  const [isModalOpen, setIsModalOpen] = useState(false)
+  const colorPickerRef = useRef<HTMLInputElement>(null)
+  const hexRef = useRef<HTMLInputElement>(null)
 
   useEffect(() => {
     if (value !== 'transparent') {
@@ -150,6 +192,13 @@ function ColorPicker({ value, onChange, onElementUpdate, showTransparent }: Colo
       setHexInput('')
     }
   }, [value])
+
+  const applyColor = (c: string) => {
+    onChange(c)
+    onElementUpdate(c)
+    if (c !== 'transparent') setHexInput(c)
+    else setHexInput('')
+  }
 
   const handleHexChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const val = e.target.value
@@ -160,13 +209,20 @@ function ColorPicker({ value, onChange, onElementUpdate, showTransparent }: Colo
     }
   }
 
+  const handleColorPickerChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const c = e.target.value
+    setHexInput(c)
+    onChange(c)
+    onElementUpdate(c)
+  }
+
   return (
-    <div className="flex flex-col gap-3">
+    <>
       <div className="flex flex-wrap gap-2">
         {allColors.map(c => (
           <button
             key={c}
-            onClick={() => { onChange(c); onElementUpdate(c) }}
+            onClick={() => applyColor(c)}
             className={`w-7 h-7 rounded-lg border-2 transition-all ${
               value === c ? 'border-orange-500 scale-110 shadow-md shadow-orange-100' : 'border-transparent hover:scale-105'
             }`}
@@ -179,31 +235,89 @@ function ColorPicker({ value, onChange, onElementUpdate, showTransparent }: Colo
             }}
           />
         ))}
-        {/* Custom rəng */}
-        <label className="w-7 h-7 rounded-lg border-2 border-dashed border-slate-300
-                          hover:border-orange-400 cursor-pointer flex items-center
-                          justify-center text-slate-400 text-lg overflow-hidden transition-colors relative">
+        {/* + düyməsi — həmişə sadə, Modal açır */}
+        <button
+          onClick={() => { setIsModalOpen(true); setHexInput(value === 'transparent' ? '#1e1e1e' : value) }}
+          className="w-7 h-7 rounded-lg border-2 border-dashed border-slate-300
+                     hover:border-orange-400 flex items-center justify-center
+                     text-slate-800 text-lg transition-colors bg-white"
+        >
           +
-          <input
-            type="color"
-            className="absolute opacity-0 w-0 h-0"
-            value={value === 'transparent' ? '#ffffff' : value}
-            onChange={e => { onChange(e.target.value); onElementUpdate(e.target.value) }}
+        </button>
+
+        {/* Seçilmiş custom rəng bloku (yalnız dəyişdiriləndə görünür) */}
+        {value !== 'transparent' && !PRESET_COLORS.includes(value) && (
+          <button
+            onClick={() => { setIsModalOpen(true); setHexInput(value) }}
+            className="w-7 h-7 rounded-lg border-2 border-slate-200 hover:border-orange-400 transition-all hover:scale-105"
+            style={{ backgroundColor: value }}
           />
-        </label>
+        )}
       </div>
 
-      <div className="flex items-center gap-2 mt-1">
-        <span className="text-xs font-semibold text-slate-400">HEX:</span>
-        <input
-          type="text"
-          value={hexInput}
-          onChange={handleHexChange}
-          placeholder="#000000"
-          spellCheck={false}
-          className="flex-1 px-2.5 py-1.5 bg-slate-50 border border-slate-200 rounded-lg text-xs font-semibold text-slate-700 outline-none focus:border-orange-500 focus:bg-white transition-colors"
-        />
-      </div>
-    </div>
+      {/* HEX Modalı */}
+      <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} title="HEX Rəng Seç" size="sm">
+        <div className="flex flex-col gap-4">
+          {/* Rəng önizləmə */}
+          <div className="flex items-center gap-3">
+            <div
+              className="w-12 h-12 rounded-xl border-2 border-slate-200 shadow-inner flex-shrink-0"
+              style={{
+                backgroundColor: hexInput && /^#([0-9A-F]{3}){1,2}$/i.test(hexInput) ? hexInput : '#ffffff',
+                backgroundImage: hexInput === '' || value === 'transparent'
+                  ? 'linear-gradient(45deg, #ccc 25%, transparent 25%, transparent 75%, #ccc 75%), linear-gradient(45deg, #ccc 25%, #fff 25%, #fff 75%, #ccc 75%)'
+                  : undefined,
+                backgroundSize: '8px 8px',
+              }}
+            />
+            <div className="flex flex-col gap-1">
+              <span className="text-[10px] font-semibold text-slate-400 uppercase">Seçilmiş rəng</span>
+              <span className="text-xs font-semibold text-slate-700">{hexInput || 'Şəffaf'}</span>
+            </div>
+          </div>
+
+          {/* HEX input */}
+          <div className="flex items-center gap-2">
+            <span className="text-xs font-bold text-slate-500 flex-shrink-0">HEX:</span>
+            <input
+              ref={hexRef}
+              type="text"
+              value={hexInput}
+              onChange={handleHexChange}
+              onKeyDown={e => {
+                if (e.key === 'Enter' && /^#([0-9A-F]{3}){1,2}$/i.test(hexInput)) {
+                  setIsModalOpen(false)
+                }
+              }}
+              placeholder="#000000"
+              spellCheck={false}
+              autoFocus
+              className="flex-1 px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-sm font-semibold text-slate-700 outline-none focus:border-orange-500 focus:bg-white transition-colors"
+            />
+          </div>
+
+          {/* Brauzer rəng seçici */}
+          <div className="flex items-center gap-2">
+            <span className="text-xs font-bold text-slate-500 flex-shrink-0">Palitra:</span>
+            <input
+              ref={colorPickerRef}
+              type="color"
+              value={hexInput && /^#([0-9A-F]{3}){1,2}$/i.test(hexInput) ? hexInput : '#ffffff'}
+              onChange={handleColorPickerChange}
+              className="w-full h-10 rounded-lg cursor-pointer border border-slate-200"
+            />
+          </div>
+
+          {/* Tətbiq et düyməsi */}
+          <button
+            onClick={() => setIsModalOpen(false)}
+            className="w-full py-2.5 bg-orange-500 text-white text-sm font-bold rounded-xl
+                       hover:bg-orange-600 transition-colors active:scale-95"
+          >
+            Tətbiq et
+          </button>
+        </div>
+      </Modal>
+    </>
   )
 }

@@ -1,7 +1,7 @@
 import type { RoughCanvas } from 'roughjs/bin/canvas'
 import type { Options as RoughOptions } from 'roughjs/bin/core'
 import type { CanvasElement, Point } from '@/types/canvas.types'
-import { useCanvasStore } from '@/store/canvasStore'
+import { useCanvasStore, getGroupBoundingBox } from '@/store/canvasStore'
 
 function getRoughOptions(el: CanvasElement): RoughOptions {
   return {
@@ -299,6 +299,39 @@ function drawHandles(
   ctx.closePath()
   ctx.fill()
   ctx.stroke()
+}
+
+// ── Qrup seçim qutusu ────────────────────────────────────────────────────────
+
+export function drawGroupSelectionBox(
+  ctx:         CanvasRenderingContext2D,
+  elements:    CanvasElement[],
+  selectedIds: Set<string>,
+  zoom:        number
+) {
+  if (selectedIds.size < 2) return
+  const bbox = getGroupBoundingBox(elements, selectedIds)
+  if (!bbox) return
+
+  const PAD = 8 / zoom
+
+  ctx.save()
+  ctx.strokeStyle = '#6366f1'
+  ctx.lineWidth   = 1.5 / zoom
+  ctx.setLineDash([6 / zoom, 3 / zoom])
+  ctx.strokeRect(bbox.x - PAD, bbox.y - PAD, bbox.width + PAD * 2, bbox.height + PAD * 2)
+  ctx.setLineDash([])
+  ctx.restore()
+
+  // Handle-ları virtual element kimi çək
+  drawSelectionBox(ctx, {
+    x: bbox.x - PAD, y: bbox.y - PAD,
+    width: bbox.width + PAD * 2, height: bbox.height + PAD * 2,
+    angle: 0, id: '', type: 'rectangle',
+    strokeColor: '', fillColor: '', fillStyle: 'solid' as any,
+    strokeWidth: 0, strokeStyle: 'solid' as any,
+    opacity: 100, roughness: 0, seed: 0, version: 1, isDeleted: false,
+  }, zoom, '#6366f1')
 }
 
 // ── Lasso seçim xətti ────────────────────────────────────────────────────────

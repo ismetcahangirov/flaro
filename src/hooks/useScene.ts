@@ -6,8 +6,8 @@ import { useAuth }        from '@/hooks/useAuth'
 import { sanitizeTitle }  from '@/lib/sanitize'
 import type { Scene }     from '@/types/database.types'
 
-const AUTOSAVE_DEBOUNCE_PRO  = 2_000   // 2s
-const AUTOSAVE_DEBOUNCE_FREE = 10_000  // 10s
+const AUTOSAVE_DEBOUNCE_PRO  = 1_000   // 1s
+const AUTOSAVE_DEBOUNCE_FREE = 1_000   // 1s
 
 export function useScene(sceneId?: string) {
   const navigate = useNavigate()

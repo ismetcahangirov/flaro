@@ -152,7 +152,7 @@ function ColorPicker({ value, onChange, onElementUpdate, showTransparent }: Colo
   }, [value])
 
   const handleHexChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    let val = e.target.value
+    const val = e.target.value
     setHexInput(val)
     if (/^#([0-9A-F]{3}){1,2}$/i.test(val)) {
       onChange(val)

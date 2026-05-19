@@ -857,8 +857,14 @@ export function useCanvas(canvasRef: React.RefObject<HTMLCanvasElement>) {
     } as unknown as MouseEvent
   }
 
+  const isTouch = useRef(false)
+
   const handleTouchStart = useCallback((e: TouchEvent) => {
-    e.preventDefault()
+    isTouch.current = true
+    // Tək toxunuşda preventDefault etmirik ki, mobil klaviatura açıla bilsin
+    if (e.touches.length > 1) {
+      e.preventDefault()
+    }
     if (e.touches.length === 1) {
       handleMouseDown(touchToMouse(e.touches[0]!))
     }
@@ -899,7 +905,9 @@ export function useCanvas(canvasRef: React.RefObject<HTMLCanvasElement>) {
   }, [handleMouseMove])
 
   const handleTouchEnd = useCallback((e: TouchEvent) => {
-    e.preventDefault()
+    if (e.touches.length >= 2) {
+      e.preventDefault()
+    }
     if (e.touches.length < 2) {
       pinchDistRef.current = null
     }
@@ -1012,9 +1020,26 @@ export function useCanvas(canvasRef: React.RefObject<HTMLCanvasElement>) {
     const canvas = canvasRef.current
     if (!canvas) return
 
-    canvas.addEventListener('mousedown', handleMouseDown)
-    canvas.addEventListener('mousemove', handleMouseMove)
-    canvas.addEventListener('mouseup',   handleMouseUp)
+    const onMouseDown = (e: MouseEvent) => {
+      if (isTouch.current) return // touch-un yaratdığı saxta mouse event-i blokla
+      handleMouseDown(e)
+    }
+    const onMouseMove = (e: MouseEvent) => {
+      if (isTouch.current) return
+      handleMouseMove(e)
+    }
+    const onMouseUp = (e: MouseEvent) => {
+      if (isTouch.current) {
+        // toxunuş bitdikdən bir az sonra isTouch-u sıfırla ki, növbəti əsl mouse event-lər işləsin
+        setTimeout(() => { isTouch.current = false }, 100)
+        return
+      }
+      handleMouseUp()
+    }
+
+    canvas.addEventListener('mousedown', onMouseDown)
+    canvas.addEventListener('mousemove', onMouseMove)
+    canvas.addEventListener('mouseup',   onMouseUp)
     canvas.addEventListener('wheel',     handleWheel, { passive: false })
     canvas.addEventListener('dblclick',  handleDoubleClick)
     
@@ -1023,9 +1048,9 @@ export function useCanvas(canvasRef: React.RefObject<HTMLCanvasElement>) {
     canvas.addEventListener('touchend',   handleTouchEnd,   { passive: false })
 
     return () => {
-      canvas.removeEventListener('mousedown', handleMouseDown)
-      canvas.removeEventListener('mousemove', handleMouseMove)
-      canvas.removeEventListener('mouseup',   handleMouseUp)
+      canvas.removeEventListener('mousedown', onMouseDown)
+      canvas.removeEventListener('mousemove', onMouseMove)
+      canvas.removeEventListener('mouseup',   onMouseUp)
       canvas.removeEventListener('wheel',     handleWheel)
       canvas.removeEventListener('dblclick',  handleDoubleClick)
 

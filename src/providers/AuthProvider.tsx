@@ -88,7 +88,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
         console.debug('[Auth] Event:', event, session?.user?.email ?? 'no user')
 
-        if (event === 'SIGNED_IN' && session) {
+        if ((event === 'INITIAL_SESSION' || event === 'SIGNED_IN') && session) {
           useAuthStore.getState().setSession(session)
           useAuthStore.getState().setUser(session.user)
           await fetchProfile(session.user.id)

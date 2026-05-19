@@ -71,7 +71,7 @@ export function TopBar({
   }, [showExportMenu])
 
   return (
-    <header className="h-16 max-md:h-auto max-md:py-2 bg-white border-b border-slate-100 px-4 max-md:px-2 flex max-md:flex-wrap items-center justify-between z-20 shadow-sm relative gap-4 max-md:gap-2">
+    <header className="h-14 md:h-16 bg-white border-b border-slate-100 px-2 md:px-4 flex items-center justify-between z-20 shadow-sm relative gap-2 md:gap-4">
       {/* Sol: Back & Title */}
       <div className="flex items-center gap-3 max-md:gap-1.5 min-w-0">
         <button
@@ -92,12 +92,12 @@ export function TopBar({
                 if (e.key === 'Escape') setIsEditing(false)
               }}
               autoFocus
-              className="text-sm font-semibold text-slate-800 border-b-2 border-orange-500 outline-none px-1 min-w-[120px]"
+              className="text-sm font-semibold text-slate-800 border-b-2 border-orange-500 outline-none px-1 min-w-[80px] max-w-[120px] md:max-w-none"
             />
           ) : (
             <h2
               onClick={() => setIsEditing(true)}
-              className="text-sm font-bold text-slate-800 cursor-pointer hover:bg-slate-50 px-2 py-1 rounded-lg transition-colors truncate max-w-[180px]"
+              className="text-sm font-bold text-slate-800 cursor-pointer hover:bg-slate-50 px-2 py-1 rounded-lg transition-colors truncate max-w-[100px] md:max-w-[180px]"
             >
               {title}
             </h2>

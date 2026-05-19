@@ -1,14 +1,14 @@
 import React, { useEffect, useRef, useLayoutEffect } from 'react'
 import { useCanvasStore } from '@/store/canvasStore'
 
-const FONT_FAMILIES: Record<string, string> = {
+export const FONT_FAMILIES: Record<string, string> = {
   hand:   'Caveat, cursive',
   normal: 'Inter, sans-serif',
   code:   'JetBrains Mono, monospace',
 }
 
 // Canvas-da mətni ölçür
-const measureText = (
+export const measureText = (
   text:       string,
   fontSize:   number,
   fontFamily: string
@@ -199,6 +199,9 @@ export function TextEditor() {
       onKeyDown={handleKeyDown}
       onMouseDown={(e) => e.stopPropagation()}
       onClick={(e) => e.stopPropagation()}
+      onTouchStart={(e) => e.stopPropagation()}
+      onTouchMove={(e) => e.stopPropagation()}
+      onTouchEnd={(e) => e.stopPropagation()}
       onBlur={handleBlur}
       autoFocus
       spellCheck={false}

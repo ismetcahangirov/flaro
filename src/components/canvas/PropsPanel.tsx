@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from 'react'
 import { Menu } from 'lucide-react'
 import { useCanvasStore } from '@/store/canvasStore'
 import { Modal } from '@/components/ui/Modal'
+import { measureText } from './TextEditor'
 
 const STROKE_WIDTHS  = [1, 2, 3, 4, 6]
 const ROUGHNESS_VALS = [
@@ -19,7 +20,9 @@ export function PropsPanel() {
   const store = useCanvasStore()
   const selectedEls = store.elements.filter(e => store.selectedIds.has(e.id))
   const hasSelection = selectedEls.length > 0
-  const [isOpen, setIsOpen] = useState(true)
+  const [isOpen, setIsOpen] = useState(window.innerWidth > 768)
+
+  const showTextProps = store.activeTool === 'text' || selectedEls.some(e => e.type === 'text')
 
   return (
     <>
@@ -40,15 +43,15 @@ export function PropsPanel() {
       {isOpen && (
         <div
           onClick={() => setIsOpen(false)}
-          className="md:hidden fixed inset-0 bg-black/30 z-[5] animate-fade-in"
+          className="md:hidden fixed inset-0 bg-black/30 z-40 animate-fade-in"
         />
       )}
 
       <aside className={`shrink-0 bg-white border-l border-slate-100
                         flex flex-col overflow-hidden z-10
                         relative md:static
-                        max-md:fixed max-md:right-0 max-md:top-0 max-md:h-full
-                        ${isOpen ? 'w-64' : 'w-0 md:border-l-0'}`}
+                        max-md:fixed max-md:right-0 max-md:top-0 max-md:h-full max-md:z-50
+                        ${isOpen ? 'w-64 max-md:w-72' : 'w-0 md:border-l-0'}`}
               style={{ transition: 'width 0.25s ease' }}>
 
         <div className={`flex flex-col overflow-y-auto ${isOpen ? 'opacity-100' : 'opacity-0 invisible'}`}>
@@ -152,6 +155,35 @@ export function PropsPanel() {
             className="w-full accent-orange-500 h-1 bg-slate-100 rounded-lg appearance-none cursor-pointer"
           />
         </Section>
+
+        {/* Text Properties (Yalnız Text aləti və ya seçili text varsa görünür) */}
+        {showTextProps && (
+          <Section title={`Mətn ölçüsü — ${store.fontSize}px`}>
+            <input
+              type="range"
+              min={12} max={100} step={2}
+              value={store.fontSize}
+              onChange={e => {
+                const v = Number(e.target.value)
+                store.setFontSize(v)
+                if (store.selectedIds.size > 0) {
+                  const txtIds = Array.from(store.selectedIds).filter(id => store.elements.find(el => el.id === id)?.type === 'text')
+                  txtIds.forEach(id => {
+                    const el = store.elements.find(el => el.id === id)
+                    if (el && el.text) {
+                      const m = measureText(el.text, v, el.fontFamily ?? 'hand')
+                      store.updateElement(id, { fontSize: v, width: m.width, height: m.height })
+                    } else {
+                      store.updateElement(id, { fontSize: v })
+                    }
+                  })
+                }
+              }}
+              className="w-full accent-orange-500 h-1 bg-slate-100 rounded-lg appearance-none cursor-pointer"
+            />
+          </Section>
+        )}
+
       </div>
       </div>
     </aside>

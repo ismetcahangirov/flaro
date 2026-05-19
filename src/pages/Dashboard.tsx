@@ -1,33 +1,34 @@
-import { useState, useEffect } from 'react'
-import { useNavigate }   from 'react-router-dom'
+import { useState, useEffect, useCallback } from 'react'
+import { useNavigate } from 'react-router-dom'
 import {
   Plus, Search, Grid3x3, List,
   LogOut, Settings, Crown,
-  Pencil, Sparkles,
+  Sparkles, Home, RefreshCw, Menu, X
 } from 'lucide-react'
-import { supabase }          from '@/lib/supabase'
-import { useAuth }           from '@/hooks/useAuth'
-import { useScene }          from '@/hooks/useScene'
-import { useSubscription }   from '@/hooks/useSubscription'
-import { useBilling }        from '@/hooks/useBilling'
-import { SceneGrid }         from '@/components/dashboard/SceneGrid'
-import { NewSceneModal }     from '@/components/dashboard/NewSceneModal'
-import { UpgradeBanner }     from '@/components/pricing/UpgradeBanner'
-import type { Scene }        from '@/types/database.types'
+import { supabase } from '@/lib/supabase'
+import { useAuth } from '@/hooks/useAuth'
+import { useScene } from '@/hooks/useScene'
+import { useSubscription } from '@/hooks/useSubscription'
+import { useBilling } from '@/hooks/useBilling'
+import { SceneGrid } from '@/components/dashboard/SceneGrid'
+import { NewSceneModal } from '@/components/dashboard/NewSceneModal'
+import { UpgradeBanner } from '@/components/pricing/UpgradeBanner'
+import type { Scene } from '@/types/database.types'
 
 export default function Dashboard() {
-  const navigate   = useNavigate()
-  const { user, profile, isPro, signOut } = useAuth()
+  const navigate = useNavigate()
+  const { user, session, profile, isPro, signOut } = useAuth()
   const { createScene, deleteScene, renameScene, duplicateScene } = useScene()
   const { canCreateScene, scenesUsed } = useSubscription()
   const { openBillingPortal } = useBilling()
 
-  const [scenes,         setScenes]         = useState<Scene[]>([])
-  const [isLoading,      setIsLoading]      = useState(true)
-  const [searchQuery,    setSearchQuery]    = useState('')
-  const [viewMode,       setViewMode]       = useState<'grid' | 'list'>('grid')
-  const [showNewModal,   setShowNewModal]   = useState(false)
+  const [scenes, setScenes] = useState<Scene[]>([])
+  const [isLoading, setIsLoading] = useState(true)
+  const [searchQuery, setSearchQuery] = useState('')
+  const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid')
+  const [showNewModal, setShowNewModal] = useState(false)
   const [showUpgradeMsg, setShowUpgradeMsg] = useState(false)
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
 
   // ── Upgrade uğur mesajı (?upgraded=true) ───────────────────────────────
   useEffect(() => {
@@ -40,21 +41,30 @@ export default function Dashboard() {
     }
   }, [])
 
+  const [errorMsg, setErrorMsg] = useState('')
+
+  const fetchScenes = useCallback(async () => {
+    if (!user) return
+    setIsLoading(true)
+    setErrorMsg('')
+    const { data, error } = await supabase
+      .from('scenes')
+      .select('*')
+      .eq('owner_id', user.id)
+      .order('updated_at', { ascending: false })
+
+    if (error) {
+      console.error('[Dashboard] Error fetching scenes:', error)
+      setErrorMsg('Səhnələri yükləyərkən xəta baş verdi.')
+    } else if (data) {
+      setScenes(data)
+    }
+    setIsLoading(false)
+  }, [user])
+
   // ── Scene-ləri yüklə ─────────────────────────────────────────────────────
   useEffect(() => {
-    if (!user) return
-
-    const fetchScenes = async () => {
-      setIsLoading(true)
-      const { data, error } = await supabase
-        .from('scenes')
-        .select('*')
-        .eq('owner_id', user.id)
-        .order('updated_at', { ascending: false })
-
-      if (!error && data) setScenes(data)
-      setIsLoading(false)
-    }
+    if (!user || !session) return
 
     fetchScenes()
 
@@ -69,7 +79,7 @@ export default function Dashboard() {
       .subscribe()
 
     return () => { channel.unsubscribe() }
-  }, [user])
+  }, [user, session, fetchScenes])
 
   // ── Yeni scene yarat ─────────────────────────────────────────────────────
   const handleCreateScene = async (title: string) => {
@@ -95,24 +105,42 @@ export default function Dashboard() {
 
   return (
     <div className="min-h-screen bg-slate-50 flex text-slate-800 font-sans">
+      {/* Mobil Overlay */}
+      {mobileMenuOpen && (
+        <div 
+          className="fixed inset-0 bg-slate-900/20 backdrop-blur-sm z-30 md:hidden transition-opacity"
+          onClick={() => setMobileMenuOpen(false)}
+        />
+      )}
+
       {/* Sol sidebar */}
-      <aside className="w-64 bg-white border-r border-slate-100 flex flex-col
-                        shadow-md fixed top-0 left-0 h-full z-30">
-        {/* Logo */}
-        <div className="p-5 border-b border-slate-100">
-          <div className="flex items-center gap-2.5">
-            <div className="w-8 h-8 bg-orange-500 rounded-lg flex items-center justify-center">
-              <Pencil size={16} className="text-white" strokeWidth={2.5} />
-            </div>
-            <span className="font-bold text-slate-900 text-lg">Flaro</span>
-          </div>
+      <aside className={`w-64 bg-white border-r border-slate-100 flex flex-col
+                        shadow-md fixed top-0 left-0 h-full z-40 transition-transform duration-300
+                        ${mobileMenuOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'}`}>
+        {/* Logo & Close button on Mobile */}
+        <div className="px-5 py-2 border-b border-slate-100 flex items-center justify-between">
+          <img style={{ filter: "drop-shadow(0 0px 7px rgba(255, 87, 4, 0.2))" }} src="/flaro-logo.png" alt="Flaro" className="h-[45px] md:h-[65px] lg:h-[85px] w-auto" />
+          <button 
+            onClick={() => setMobileMenuOpen(false)}
+            className="md:hidden p-2 text-slate-400 hover:text-slate-600 hover:bg-slate-50 rounded-lg"
+          >
+            <X size={20} />
+          </button>
         </div>
 
         {/* Nav */}
         <nav className="flex-1 p-4 space-y-1">
-          <SidebarItem icon={<Grid3x3 size={17}/>} label="Səhnələrim" active />
+          <button
+            onClick={() => navigate('/')}
+            className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl
+                       text-sm font-medium transition-colors text-slate-500 hover:bg-slate-50 hover:text-slate-800"
+          >
+            <Home size={17} />
+            Ana səhifə
+          </button>
+          <SidebarItem icon={<Grid3x3 size={17} />} label="Səhnələrim" active />
           {isPro && (
-            <SidebarItem icon={<Crown size={17}/>} label="Workspace" />
+            <SidebarItem icon={<Crown size={17} />} label="Workspace" />
           )}
         </nav>
 
@@ -181,16 +209,24 @@ export default function Dashboard() {
       </aside>
 
       {/* Əsas məzmun */}
-      <main className="flex-1 ml-64">
+      <main className="flex-1 md:ml-64 w-full min-w-0">
         {/* Top bar */}
         <header className="sticky top-0 z-20 bg-white/85 backdrop-blur-md
-                           border-b border-slate-100 px-8 h-16 flex items-center gap-4">
-          <h1 className="text-xl font-bold text-slate-900 flex-shrink-0">
+                           border-b border-slate-100 px-4 md:px-8 h-16 flex items-center gap-2 md:gap-4">
+          
+          <button 
+            onClick={() => setMobileMenuOpen(true)}
+            className="md:hidden p-2 -ml-2 text-slate-500 hover:text-slate-800 hover:bg-slate-50 rounded-xl transition-colors"
+          >
+            <Menu size={22} />
+          </button>
+
+          <h1 className="text-xl font-bold text-slate-900 flex-shrink-0 hidden md:block">
             Səhnələrim
           </h1>
 
           {/* Axtarış */}
-          <div className="flex-1 max-w-md relative">
+          <div className="flex-1 max-w-md relative hidden sm:block">
             <Search size={15} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" />
             <input
               type="text"
@@ -203,26 +239,31 @@ export default function Dashboard() {
             />
           </div>
 
-          <div className="flex items-center gap-2 ml-auto">
+          <div className="flex items-center gap-1.5 md:gap-2 ml-auto">
             {/* View toggle */}
             <div className="flex bg-slate-100 p-1 rounded-xl gap-0.5">
               <button
+                onClick={fetchScenes}
+                title="Yenilə"
+                className={`p-2 rounded-lg transition-colors text-slate-400 hover:text-slate-600 ${isLoading ? 'animate-spin' : ''}`}
+              >
+                <RefreshCw size={15} />
+              </button>
+              <button
                 onClick={() => setViewMode('grid')}
-                className={`p-2 rounded-lg transition-colors ${
-                  viewMode === 'grid'
-                    ? 'bg-white text-orange-500 shadow-sm'
-                    : 'text-slate-400 hover:text-slate-600'
-                }`}
+                className={`p-2 rounded-lg transition-colors ${viewMode === 'grid'
+                  ? 'bg-white text-orange-500 shadow-sm'
+                  : 'text-slate-400 hover:text-slate-600'
+                  }`}
               >
                 <Grid3x3 size={15} />
               </button>
               <button
                 onClick={() => setViewMode('list')}
-                className={`p-2 rounded-lg transition-colors ${
-                  viewMode === 'list'
-                    ? 'bg-white text-orange-500 shadow-sm'
-                    : 'text-slate-400 hover:text-slate-600'
-                }`}
+                className={`p-2 rounded-lg transition-colors ${viewMode === 'list'
+                  ? 'bg-white text-orange-500 shadow-sm'
+                  : 'text-slate-400 hover:text-slate-600'
+                  }`}
               >
                 <List size={15} />
               </button>
@@ -231,17 +272,34 @@ export default function Dashboard() {
             {/* Yeni scene düyməsi */}
             <button
               onClick={() => setShowNewModal(true)}
-              className="flex items-center gap-2 px-4 py-2 bg-orange-500 text-white
+              className="flex items-center gap-1.5 md:gap-2 px-3 md:px-4 py-2 bg-orange-500 text-white
                          text-sm font-semibold rounded-xl hover:bg-orange-600
-                         transition-colors shadow-md shadow-orange-100"
+                         transition-colors shadow-md shadow-orange-100 whitespace-nowrap"
             >
               <Plus size={16} />
-              Yeni scene
+              <span className="hidden sm:inline">Yeni scene</span>
+              <span className="sm:hidden">Yeni</span>
             </button>
           </div>
         </header>
 
-        <div className="p-8">
+        {/* Mobil Axtarış (ancaq mobildə, top barın altında) */}
+        <div className="p-4 sm:hidden bg-white border-b border-slate-100">
+          <div className="relative">
+            <Search size={15} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" />
+            <input
+              type="text"
+              placeholder="Səhnələri axtarın..."
+              value={searchQuery}
+              onChange={e => setSearchQuery(e.target.value)}
+              className="w-full pl-9 pr-4 py-2.5 bg-slate-100 border border-transparent
+                         rounded-xl text-sm outline-none focus:bg-white
+                         focus:border-orange-300 transition-all placeholder:text-slate-400"
+            />
+          </div>
+        </div>
+
+        <div className="p-4 md:p-8">
           {/* Upgrade uğur tostu */}
           {showUpgradeMsg && (
             <div className="mb-6 flex items-center gap-4 p-5 bg-gradient-to-r from-orange-500
@@ -268,6 +326,14 @@ export default function Dashboard() {
                 feature="unlimited_scenes"
                 message="3 scene limitinə çatdınız. Pro planla limitsiz scene yaradın."
               />
+            </div>
+          )}
+
+          {/* Xəta mesajı */}
+          {errorMsg && (
+            <div className="mb-6 p-4 bg-red-50 text-red-600 border border-red-200 rounded-xl flex items-center gap-3">
+              <span className="flex-1">{errorMsg}</span>
+              <button onClick={fetchScenes} className="text-sm font-bold bg-white px-3 py-1.5 rounded-lg border border-red-200 hover:bg-red-50">Təkrar yoxla</button>
             </div>
           )}
 
@@ -313,11 +379,10 @@ function SidebarItem({
 }: { icon: React.ReactNode; label: string; active?: boolean }) {
   return (
     <button className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl
-                        text-sm font-medium transition-colors ${
-      active
+                        text-sm font-medium transition-colors ${active
         ? 'bg-orange-50 text-orange-600 font-bold'
         : 'text-slate-500 hover:bg-slate-50 hover:text-slate-800'
-    }`}>
+      }`}>
       {icon}
       {label}
     </button>

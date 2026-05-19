@@ -87,7 +87,7 @@ export default function Landing() {
             <div className="flex -space-x-2">
               {['#F97316', '#3B82F6', '#10B981', '#8B5CF6'].map((c, i) => (
                 <div key={i} className="w-7 h-7 rounded-full border-2 border-white"
-                     style={{ backgroundColor: c }} />
+                  style={{ backgroundColor: c }} />
               ))}
             </div>
             <span>10,000+ istifadəçi</span>
@@ -124,21 +124,21 @@ export default function Landing() {
 
 const FEATURES = [
   {
-    icon:  <Pencil className="text-orange-500" size={24} />,
+    icon: <Pencil className="text-orange-500" size={24} />,
     title: 'El çizimi estetikası',
-    desc:  'Rough.js ilə hər element canlı, üzvi görünür. Texniki diaqramlar belə insan əli tərəfindən çəkilmiş hiss verir.',
+    desc: 'Rough.js ilə hər element canlı, üzvi görünür. Texniki diaqramlar belə insan əli tərəfindən çəkilmiş hiss verir.',
     color: 'bg-orange-50',
   },
   {
-    icon:  <Users className="text-blue-500" size={24} />,
+    icon: <Users className="text-blue-500" size={24} />,
     title: 'Real-time əməkdaşlıq',
-    desc:  'Komandanızla eyni canvas üzərində işləyin. Hər kəsin kursoru, seçimi anlıq görünür.',
+    desc: 'Komandanızla eyni canvas üzərində işləyin. Hər kəsin kursoru, seçimi anlıq görünür.',
     color: 'bg-blue-50',
   },
   {
-    icon:  <Cloud className="text-emerald-500" size={24} />,
+    icon: <Cloud className="text-emerald-500" size={24} />,
     title: 'Avtomatik sinxronizasiya',
-    desc:  'Pro planda hər dəyişiklik buludda avtomatik saxlanılır. Heç nəyi itirməyin.',
+    desc: 'Pro planda hər dəyişiklik buludda avtomatik saxlanılır. Heç nəyi itirməyin.',
     color: 'bg-emerald-50',
   },
 ]
@@ -161,21 +161,17 @@ function Navbar() {
   const { isAuthenticated } = useAuth()
 
   return (
-    <nav className="fixed top-0 inset-x-0 z-50 bg-white/80 backdrop-blur-md
+    <nav className="fixed top-0 inset-x-0 z-50 bg-black/80 backdrop-blur-md py-2
                     border-b border-slate-100">
       <div className="max-w-6xl mx-auto px-6 h-16 flex items-center justify-between">
-        <div className="flex items-center gap-2.5 cursor-pointer"
-             onClick={() => navigate('/')}>
-          <div className="w-8 h-8 bg-orange-500 rounded-lg flex items-center justify-center">
-            <Pencil size={16} className="text-white" strokeWidth={2.5} />
-          </div>
-          <span className="font-bold text-lg text-slate-900">Flaro</span>
+        <div className="cursor-pointer" onClick={() => navigate('/')}>
+          <img src="/flaro-logo.png" alt="Flaro" className="h-[45px] md:h-[65px] lg:h-[85px] w-auto" />
         </div>
 
         <div className="flex items-center gap-3">
           <button
             onClick={() => navigate('/pricing')}
-            className="text-sm font-medium text-slate-600 hover:text-slate-900 px-3 py-2
+            className="text-sm font-medium text-gray-300 hover:text-slate-900 px-3 py-2
                        rounded-lg hover:bg-slate-100 transition-colors"
           >
             Qiymətlər
@@ -185,7 +181,7 @@ function Navbar() {
             <button
               onClick={() => navigate('/dashboard')}
               className="px-4 py-2 bg-orange-500 text-white text-sm font-semibold
-                         rounded-xl hover:bg-orange-600 transition-colors shadow-md shadow-orange-100"
+                         rounded-xl hover:bg-orange-600 transition-colors hover:text-white hover:shadow-md hover:shadow-orange-500"
             >
               Dashboard
             </button>

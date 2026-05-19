@@ -66,6 +66,7 @@ interface CanvasStore {
   setStrokeStyle:   (style: CanvasElement['strokeStyle']) => void
   setRoughness:     (roughness: number) => void
   setOpacity:       (opacity: number) => void
+  setFontSize:      (size: number) => void
 
   // ── Actions: AppState ─────────────────────────────────────────────────────
   setZoom:          (zoom: number) => void
@@ -249,6 +250,7 @@ export const useCanvasStore = create<CanvasStore>()(
         setStrokeStyle: (style)     => set((s) => { s.strokeStyle = style }),
         setRoughness:   (roughness) => set((s) => { s.roughness   = roughness }),
         setOpacity:     (opacity)   => set((s) => { s.opacity     = opacity  }),
+        setFontSize:    (size)      => set((s) => { s.fontSize    = size     }),
 
         // ── AppState ─────────────────────────────────────────────────────────
         setZoom: (zoom) => set((s) => {

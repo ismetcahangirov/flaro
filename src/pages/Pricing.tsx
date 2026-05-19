@@ -4,7 +4,7 @@ import {
   Check, X, Zap, Sparkles,
   Infinity, Users, Cloud,
   Presentation, MessageSquare,
-  FileDown, Brain,
+  FileDown, Brain, Home,
 } from 'lucide-react'
 import { useBilling }   from '@/hooks/useBilling'
 import { useAuth }      from '@/hooks/useAuth'
@@ -83,7 +83,16 @@ export default function Pricing() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-orange-50 via-white to-white font-sans text-slate-800">
+    <div className="min-h-screen bg-gradient-to-b from-orange-50 via-white to-white font-sans text-slate-800 relative">
+      {/* Ana səhifəyə qayıt */}
+      <button 
+        onClick={() => navigate('/')}
+        className="absolute top-6 left-6 md:top-8 md:left-8 flex items-center gap-2 px-4 py-2 bg-white/60 hover:bg-white rounded-xl shadow-sm border border-orange-100 text-slate-600 hover:text-orange-600 transition-all font-medium backdrop-blur-sm z-10"
+      >
+        <Home size={18} />
+        <span className="hidden sm:inline">Ana səhifə</span>
+      </button>
+
       {/* Hero */}
       <div className="max-w-5xl mx-auto px-4 pt-20 pb-12 text-center">
         <div className="inline-flex items-center gap-2 px-4 py-2 bg-orange-100

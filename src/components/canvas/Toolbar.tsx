@@ -35,11 +35,12 @@ export function Toolbar() {
   const { activeTool, setTool } = useCanvasStore()
 
   return (
-    <div className="z-20 bg-white rounded-2xl shadow-lg border border-slate-100
+    <div className="z-20 bg-white rounded-xl md:rounded-2xl shadow-lg border border-slate-100
                     flex flex-row md:flex-col gap-0.5 animate-fade-in
-                    fixed bottom-3 left-1/2 -translate-x-1/2
-                    md:left-4 md:top-1/2 md:-translate-y-1/2 md:bottom-auto md:translate-x-0
-                    p-1 md:p-1.5 max-w-[calc(100vw-1rem)]">
+                    fixed bottom-3 md:left-4 left-1/2 -translate-x-1/2
+                    md:top-1/2 md:-translate-y-1/2 md:bottom-auto md:translate-x-0
+                    p-1 md:p-1.5 w-[calc(100vw-2rem)] md:w-auto overflow-x-auto
+                    [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden">
       {TOOLS.map((tool, i) => {
         if (tool === 'separator') {
           return (

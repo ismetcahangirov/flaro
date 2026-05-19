@@ -3,10 +3,11 @@ import {
 } from 'react'
 import rough from 'roughjs'
 import { nanoid } from 'nanoid'
-import { useCanvasStore } from '@/store/canvasStore'
+import { useCanvasStore, getGroupBoundingBox } from '@/store/canvasStore'
 import {
   drawRoughElement,
   drawSelectionBox,
+  drawGroupSelectionBox,
   drawLasso,
 } from '@/lib/roughCanvas'
 import { getElementAtPoint, getElementsInRect, getHandleAtPoint } from '@/lib/hitTest'
@@ -45,6 +46,14 @@ export function useCanvas(canvasRef: React.RefObject<HTMLCanvasElement>) {
   const showGuideYRef = useRef<boolean>(false)
   const guideXCoordRef = useRef<number>(0)
   const guideYCoordRef = useRef<number>(0)
+
+  // Group resize/rotate refs
+  const isGroupRotating           = useRef(false)
+  const isGroupResizing           = useRef(false)
+  const groupRotateCenter         = useRef<Point>({ x: 0, y: 0 })
+  const groupResizeInitialBox     = useRef<{x: number, y: number, width: number, height: number} | null>(null)
+  const groupResizeInitialElements = useRef<CanvasElement[] | null>(null)
+  const groupResizeHandle         = useRef<HandleType | null>(null)
 
   // ── Koordinat çevirmə ─────────────────────────────────────────────────────
   const toCanvas = useCallback((sx: number, sy: number): Point => {
@@ -126,8 +135,49 @@ export function useCanvas(canvasRef: React.RefObject<HTMLCanvasElement>) {
       case 'select': {
         let clickedHandle: HandleType | null = null
         let targetEl: CanvasElement | null = null
-        
-        // First check if we clicked a handle on a selected element
+
+        // Çoxlu seçim varsa, əvvəlcə qrup bounding box-un handle-larını yoxla
+        if (s.selectedIds.size > 1) {
+          const groupBbox = getGroupBoundingBox(elements, s.selectedIds)
+          if (groupBbox) {
+            const PAD = 8 / s.appState.zoom
+            const virtualEl = {
+              x: groupBbox.x - PAD, y: groupBbox.y - PAD,
+              width: groupBbox.width + PAD * 2, height: groupBbox.height + PAD * 2,
+              angle: 0, id: '', type: 'rectangle' as const,
+              strokeColor: '', fillColor: '', fillStyle: 'solid' as any,
+              strokeWidth: 0, strokeStyle: 'solid' as any,
+              opacity: 100, roughness: 0, seed: 0, version: 1, isDeleted: false,
+            }
+            clickedHandle = getHandleAtPoint(virtualEl, canvasPoint, s.appState.zoom)
+
+            if (clickedHandle) {
+              if (clickedHandle === 'rotate') {
+                isGroupRotating.current = true
+                groupRotateCenter.current = {
+                  x: groupBbox.x + groupBbox.width / 2,
+                  y: groupBbox.y + groupBbox.height / 2,
+                }
+                groupResizeInitialElements.current = elements
+                  .filter(el => s.selectedIds.has(el.id))
+                  .map(el => ({ ...el }))
+              } else {
+                isGroupResizing.current = true
+                groupResizeHandle.current = clickedHandle
+                groupResizeInitialBox.current = { ...groupBbox }
+                groupResizeInitialElements.current = elements
+                  .filter(el => s.selectedIds.has(el.id))
+                  .map(el => ({ ...el }))
+              }
+              mouseStart.current = canvasPoint
+              lastMouse.current = canvasPoint
+              s.saveHistory()
+              return
+            }
+          }
+        }
+
+        // Tək element handle-larını yoxla
         for (const elId of Array.from(s.selectedIds)) {
           const el = elements.find(e => e.id === elId)
           if (el) {
@@ -180,6 +230,7 @@ export function useCanvas(canvasRef: React.RefObject<HTMLCanvasElement>) {
         break
 
       case 'eraser': {
+        isDrawing.current = true
         const hit = getElementAtPoint(elements, canvasPoint, s.appState.zoom)
         if (hit) {
           s.saveHistory()
@@ -189,6 +240,7 @@ export function useCanvas(canvasRef: React.RefObject<HTMLCanvasElement>) {
       }
 
       case 'text': {
+        e.preventDefault()
         const hit = getElementAtPoint(elements, canvasPoint, s.appState.zoom)
         if (hit?.type === 'text') {
           s.setEditingId(hit.id)
@@ -245,6 +297,12 @@ export function useCanvas(canvasRef: React.RefObject<HTMLCanvasElement>) {
       return
     }
 
+    // Eraser — davamlı silmə
+    if (s.activeTool === 'eraser' && isDrawing.current) {
+      const hit = getElementAtPoint(s.elements, canvasPoint, s.appState.zoom)
+      if (hit) s.deleteElements([hit.id])
+    }
+
     // Rotate
     if (rotatingElementId.current) {
       if (canvasRef.current) canvasRef.current.style.cursor = 'grabbing'
@@ -275,6 +333,50 @@ export function useCanvas(canvasRef: React.RefObject<HTMLCanvasElement>) {
         
         s.updateElement(el.id, { angle })
       }
+      return
+    }
+
+    // Group rotate
+    if (isGroupRotating.current && groupResizeInitialElements.current) {
+      if (canvasRef.current) canvasRef.current.style.cursor = 'grabbing'
+      const center = groupRotateCenter.current
+      let angle = Math.atan2(canvasPoint.y - center.y, canvasPoint.x - center.x) + Math.PI / 2
+
+      if (e.shiftKey) {
+        const degree = (angle * 180) / Math.PI
+        angle = (Math.round(degree / 15) * 15 * Math.PI) / 180
+      } else {
+        const degree = (angle * 180) / Math.PI
+        const targets = [0, 45, 90, 135, 180, 225, 270, 315, 360, -45, -90, -135, -180, -225, -270, -315, -360]
+        for (const target of targets) {
+          if (Math.abs(degree - target) < 3) {
+            angle = (target * Math.PI) / 180
+            break
+          }
+        }
+      }
+
+      const startAngle = Math.atan2(
+        mouseStart.current.y - center.y,
+        mouseStart.current.x - center.x
+      ) + Math.PI / 2
+      const deltaAngle = angle - startAngle
+
+      groupResizeInitialElements.current.forEach(origEl => {
+        const elCenterX = origEl.x + origEl.width / 2
+        const elCenterY = origEl.y + origEl.height / 2
+        const relX = elCenterX - center.x
+        const relY = elCenterY - center.y
+        const cos = Math.cos(deltaAngle)
+        const sin = Math.sin(deltaAngle)
+        const newCenterX = center.x + relX * cos - relY * sin
+        const newCenterY = center.y + relX * sin + relY * cos
+        s.updateElement(origEl.id, {
+          x: newCenterX - origEl.width / 2,
+          y: newCenterY - origEl.height / 2,
+          angle: (origEl.angle || 0) + deltaAngle,
+        })
+      })
       return
     }
 
@@ -350,6 +452,46 @@ export function useCanvas(canvasRef: React.RefObject<HTMLCanvasElement>) {
       return
     }
 
+    // Group resize
+    if (isGroupResizing.current && groupResizeInitialBox.current && groupResizeHandle.current && groupResizeInitialElements.current) {
+      const handle = groupResizeHandle.current
+      if (canvasRef.current) {
+        if (['tl', 'br'].includes(handle)) canvasRef.current.style.cursor = 'nwse-resize'
+        else if (['tr', 'bl'].includes(handle)) canvasRef.current.style.cursor = 'nesw-resize'
+        else if (['tm', 'bm'].includes(handle)) canvasRef.current.style.cursor = 'ns-resize'
+        else if (['ml', 'mr'].includes(handle)) canvasRef.current.style.cursor = 'ew-resize'
+      }
+
+      const initial = groupResizeInitialBox.current
+      const dx = canvasPoint.x - mouseStart.current.x
+      const dy = canvasPoint.y - mouseStart.current.y
+
+      let newWidth = initial.width
+      let newHeight = initial.height
+      let deltaX = 0
+      let deltaY = 0
+
+      if (handle.includes('r')) newWidth += dx
+      if (handle.includes('l')) { newWidth -= dx; deltaX += dx }
+      if (handle.includes('b')) newHeight += dy
+      if (handle.includes('t')) { newHeight -= dy; deltaY += dy }
+
+      const scaleX = initial.width > 0 ? newWidth / initial.width : 1
+      const scaleY = initial.height > 0 ? newHeight / initial.height : 1
+
+      groupResizeInitialElements.current.forEach(origEl => {
+        const relX = origEl.x - initial.x
+        const relY = origEl.y - initial.y
+        s.updateElement(origEl.id, {
+          x: initial.x + deltaX + relX * scaleX,
+          y: initial.y + deltaY + relY * scaleY,
+          width: origEl.width * scaleX,
+          height: origEl.height * scaleY,
+        })
+      })
+      return
+    }
+
     // Drag seçilmiş elementlər
     if (isDragging.current && s.selectedIds.size > 0) {
       if (canvasRef.current) canvasRef.current.style.cursor = 'move'
@@ -368,38 +510,62 @@ export function useCanvas(canvasRef: React.RefObject<HTMLCanvasElement>) {
       const viewportCenterY = (h / 2 - s.appState.scrollY) / s.appState.zoom
 
       // Hər seçilmiş elementi yenilə
-      s.elements.forEach(el => {
-        if (s.selectedIds.has(el.id)) {
-          let newX = el.x + dx
-          let newY = el.y + dy
+      const threshold = 6 / s.appState.zoom
 
-          // Əgər yalnız bir element seçilibsə, onu mərkəz oxlarına tam snap edək
-          if (s.selectedIds.size === 1) {
+      // Qrup (çoxlu seçim) mərkəzləmə snap-i
+      if (s.selectedIds.size > 1) {
+        const groupBbox = getGroupBoundingBox(s.elements, s.selectedIds)
+        if (groupBbox) {
+          const groupCenterX = groupBbox.x + groupBbox.width / 2 + dx
+          const groupCenterY = groupBbox.y + groupBbox.height / 2 + dy
+
+          let snapX = 0
+          let snapY = 0
+
+          if (Math.abs(groupCenterY - viewportCenterY) < threshold) {
+            snapY = viewportCenterY - (groupBbox.y + groupBbox.height / 2)
+            showGuideYRef.current = true
+            guideYCoordRef.current = viewportCenterY
+          }
+
+          if (Math.abs(groupCenterX - viewportCenterX) < threshold) {
+            snapX = viewportCenterX - (groupBbox.x + groupBbox.width / 2)
+            showGuideXRef.current = true
+            guideXCoordRef.current = viewportCenterX
+          }
+
+          s.elements.forEach(el => {
+            if (s.selectedIds.has(el.id)) {
+              s.updateElement(el.id, { x: el.x + dx + snapX, y: el.y + dy + snapY })
+            }
+          })
+        }
+      } else {
+        // Tək element snap-i
+        s.elements.forEach(el => {
+          if (s.selectedIds.has(el.id)) {
+            let newX = el.x + dx
+            let newY = el.y + dy
+
             const elCenterX = newX + el.width / 2
             const elCenterY = newY + el.height / 2
-            const threshold = 6 / s.appState.zoom // 6px məsafədə tam snap edir
 
-            // Y oxu üzrə mərkəzləmə (Horizontal alignment line)
             if (Math.abs(elCenterY - viewportCenterY) < threshold) {
               newY = viewportCenterY - el.height / 2
               showGuideYRef.current = true
               guideYCoordRef.current = viewportCenterY
             }
 
-            // X oxu üzrə mərkəzləmə (Vertical alignment line)
             if (Math.abs(elCenterX - viewportCenterX) < threshold) {
               newX = viewportCenterX - el.width / 2
               showGuideXRef.current = true
               guideXCoordRef.current = viewportCenterX
             }
-          }
 
-          s.updateElement(el.id, {
-            x: newX,
-            y: newY,
-          })
-        }
-      })
+            s.updateElement(el.id, { x: newX, y: newY })
+          }
+        })
+      }
 
       lastMouse.current = canvasPoint
       return
@@ -453,17 +619,38 @@ export function useCanvas(canvasRef: React.RefObject<HTMLCanvasElement>) {
     }
 
     // --- Cursor Updates on Hover ---
-    if (!isDragging.current && !isDrawing.current && !resizingHandle.current && !rotatingElementId.current && !lassoStart.current) {
+    if (!isDragging.current && !isDrawing.current && !resizingHandle.current && !rotatingElementId.current && !lassoStart.current && !isGroupRotating.current && !isGroupResizing.current) {
       if (s.activeTool === 'select' || s.activeTool === 'hand') {
         let hoverHandle: HandleType | null = null
-        for (const elId of Array.from(s.selectedIds)) {
-          const el = s.elements.find(e => e.id === elId)
-          if (el) {
-            hoverHandle = getHandleAtPoint(el, canvasPoint, s.appState.zoom)
-            if (hoverHandle) break
+
+        // Çoxlu seçimdə əvvəlcə qrup bounding box handle-larını yoxla
+        if (s.selectedIds.size > 1) {
+          const groupBbox = getGroupBoundingBox(s.elements, s.selectedIds)
+          if (groupBbox) {
+            const PAD = 8 / s.appState.zoom
+            const virtualEl = {
+              x: groupBbox.x - PAD, y: groupBbox.y - PAD,
+              width: groupBbox.width + PAD * 2, height: groupBbox.height + PAD * 2,
+              angle: 0, id: '', type: 'rectangle' as const,
+              strokeColor: '', fillColor: '', fillStyle: 'solid' as any,
+              strokeWidth: 0, strokeStyle: 'solid' as any,
+              opacity: 100, roughness: 0, seed: 0, version: 1, isDeleted: false,
+            }
+            hoverHandle = getHandleAtPoint(virtualEl, canvasPoint, s.appState.zoom)
           }
         }
-        
+
+        // Tək element handle-larını yoxla (qrup handle-u tapılmadısa)
+        if (!hoverHandle) {
+          for (const elId of Array.from(s.selectedIds)) {
+            const el = s.elements.find(e => e.id === elId)
+            if (el) {
+              hoverHandle = getHandleAtPoint(el, canvasPoint, s.appState.zoom)
+              if (hoverHandle) break
+            }
+          }
+        }
+
         if (canvasRef.current) {
           if (hoverHandle) {
             if (hoverHandle === 'rotate') canvasRef.current.style.cursor = 'grab'
@@ -482,7 +669,7 @@ export function useCanvas(canvasRef: React.RefObject<HTMLCanvasElement>) {
              }
           }
         }
-      } else {
+      } else if (s.activeTool !== 'eraser') {
         if (canvasRef.current) {
           canvasRef.current.style.cursor = 'crosshair'
         }
@@ -535,6 +722,11 @@ export function useCanvas(canvasRef: React.RefObject<HTMLCanvasElement>) {
     resizingHandle.current = null
     rotatingElementId.current = null
     currentElId.current = null
+    isGroupRotating.current = false
+    isGroupResizing.current = false
+    groupResizeHandle.current = null
+    groupResizeInitialBox.current = null
+    groupResizeInitialElements.current = null
 
     // Köməkçi xətləri sıfırla
     showGuideXRef.current = false
@@ -767,6 +959,11 @@ export function useCanvas(canvasRef: React.RefObject<HTMLCanvasElement>) {
           }
         })
 
+      // Qrup seçim qutusu (çoxlu seçimdə)
+      if (selectedIds.size > 1) {
+        drawGroupSelectionBox(ctx, elements, selectedIds, zoom)
+      }
+
       // Lasso
       if (lassoStart.current && lassoEnd.current) {
         drawLasso(ctx, lassoStart.current, lassoEnd.current, zoom)
@@ -837,6 +1034,25 @@ export function useCanvas(canvasRef: React.RefObject<HTMLCanvasElement>) {
       canvas.removeEventListener('touchend',   handleTouchEnd)
     }
   }, [handleMouseDown, handleMouseMove, handleMouseUp, handleWheel, handleDoubleClick, handleTouchStart, handleTouchMove, handleTouchEnd, canvasRef.current])
+
+  // ── Eraser dairəvi kursoru ────────────────────────────────────────────────────
+  useEffect(() => {
+    const canvas = canvasRef.current
+    if (!canvas) return
+
+    if (store.activeTool === 'eraser') {
+      const size = 20
+      const svg = `<svg xmlns='http://www.w3.org/2000/svg' width='${size}' height='${size}'>
+        <circle cx='${size / 2}' cy='${size / 2}' r='${size / 2 - 1}'
+          fill='rgba(255,255,255,0.8)' stroke='#666' stroke-width='1.5'/>
+      </svg>`
+      canvas.style.cursor = `url("data:image/svg+xml,${encodeURIComponent(svg)}") ${size / 2} ${size / 2}, crosshair`
+    } else if (store.activeTool === 'hand') {
+      canvas.style.cursor = 'grab'
+    } else {
+      canvas.style.cursor = 'crosshair'
+    }
+  }, [store.activeTool, canvasRef])
 
   return { toCanvas, toScreen }
 }

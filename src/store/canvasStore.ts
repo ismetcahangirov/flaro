@@ -36,6 +36,7 @@ interface CanvasStore {
   redoStack:     CanvasElement[][]
 
   // ── UI ────────────────────────────────────────────────────────────────────
+  changeCounter: number     // Hər mutasiyada artır — autosave dinləyir
   isDirty:       boolean    // Saxlanılmamış dəyişikliklər
   isReadOnly:    boolean    // Paylaşılan view-only rejim
 
@@ -97,6 +98,20 @@ const DEFAULT_APP_STATE: AppState = {
   theme:           'light',
 }
 
+export function getGroupBoundingBox(elements: CanvasElement[], selectedIds: Set<string>) {
+  const selected = elements.filter(el => selectedIds.has(el.id) && !el.isDeleted)
+  if (selected.length === 0) return null
+
+  let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity
+  for (const el of selected) {
+    minX = Math.min(minX, el.x)
+    minY = Math.min(minY, el.y)
+    maxX = Math.max(maxX, el.x + Math.abs(el.width))
+    maxY = Math.max(maxY, el.y + Math.abs(el.height))
+  }
+  return { x: minX, y: minY, width: maxX - minX, height: maxY - minY }
+}
+
 export const useCanvasStore = create<CanvasStore>()(
   devtools(
     subscribeWithSelector(
@@ -117,16 +132,18 @@ export const useCanvasStore = create<CanvasStore>()(
         fontSize:    20,
         fontFamily:  'hand',
 
-        appState:    { ...DEFAULT_APP_STATE },
-        undoStack:   [[]],
-        redoStack:   [],
-        isDirty:     false,
-        isReadOnly:  false,
+        appState:      { ...DEFAULT_APP_STATE },
+        undoStack:     [[]],
+        redoStack:     [],
+        changeCounter: 0,
+        isDirty:       false,
+        isReadOnly:    false,
 
         // ── Element actions ──────────────────────────────────────────────────
         addElement: (el) => set((state) => {
           state.elements.push(el)
           state.isDirty = true
+          state.changeCounter++
         }),
 
         updateElement: (id, updates) => set((state) => {
@@ -134,6 +151,7 @@ export const useCanvasStore = create<CanvasStore>()(
           if (idx !== -1) {
             Object.assign(state.elements[idx] as any, updates)
             state.isDirty = true
+          state.changeCounter++
           }
         }),
 
@@ -142,12 +160,14 @@ export const useCanvasStore = create<CanvasStore>()(
             if (ids.includes(el.id)) Object.assign(el, updates)
           })
           state.isDirty = true
+          state.changeCounter++
         }),
 
         deleteElements: (ids) => set((state) => {
           state.elements = state.elements.filter(e => !ids.includes(e.id))
           ids.forEach(id => state.selectedIds.delete(id))
           state.isDirty = true
+          state.changeCounter++
         }),
 
         duplicateElements: (ids) => set((state) => {
@@ -169,6 +189,7 @@ export const useCanvasStore = create<CanvasStore>()(
           state.elements.push(...newEls)
           state.selectedIds = new Set(newEls.map(e => e.id))
           state.isDirty = true
+          state.changeCounter++
         }),
 
         bringToFront: (ids) => set((state) => {

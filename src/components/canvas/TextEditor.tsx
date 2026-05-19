@@ -197,6 +197,8 @@ export function TextEditor() {
       value={editingEl.text ?? ''}
       onChange={handleChange}
       onKeyDown={handleKeyDown}
+      onMouseDown={(e) => e.stopPropagation()}
+      onClick={(e) => e.stopPropagation()}
       onBlur={handleBlur}
       autoFocus
       spellCheck={false}

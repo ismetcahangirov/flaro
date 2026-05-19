@@ -6,11 +6,12 @@ import { useAuth }        from '@/hooks/useAuth'
 import { sanitizeTitle }  from '@/lib/sanitize'
 import type { Scene }     from '@/types/database.types'
 
-const AUTOSAVE_DEBOUNCE_MS = 2000  // 2 saniyə
+const AUTOSAVE_DEBOUNCE_PRO  = 2_000   // 2s
+const AUTOSAVE_DEBOUNCE_FREE = 10_000  // 10s
 
 export function useScene(sceneId?: string) {
   const navigate = useNavigate()
-  const canvas   = useCanvasStore()
+  // Read canvas state imperatively via getState() to avoid stale closure issues
   const { user, isPro } = useAuth()
 
   const [scene,      setScene]      = useState<Scene | null>(null)
@@ -19,7 +20,10 @@ export function useScene(sceneId?: string) {
   const [lastSaved,  setLastSaved]  = useState<Date | null>(null)
   const [saveError,  setSaveError]  = useState<string | null>(null)
 
-  const autoSaveTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
+  const autoSaveTimer  = useRef<ReturnType<typeof setTimeout> | null>(null)
+  const isSavingRef    = useRef(false)
+  const isProRef       = useRef(isPro)
+  isProRef.current     = isPro
 
   // ── Scene yüklə ──────────────────────────────────────────────────────────
   const loadScene = useCallback(async (id: string) => {
@@ -36,7 +40,9 @@ export function useScene(sceneId?: string) {
       if (error) throw error
 
       setScene(data)
-      canvas.loadScene(
+
+      // Use getState() to avoid stale canvas reference in closure
+      useCanvasStore.getState().loadScene(
         (data.elements as any) ?? [],
         (data.app_state as any) ?? {
           zoom: 1, scrollX: 0, scrollY: 0,
@@ -51,72 +57,89 @@ export function useScene(sceneId?: string) {
     } finally {
       setIsLoading(false)
     }
-  }, [canvas, navigate])
+  }, [navigate]) // canvas dependency removed — using getState() instead
 
   // ── Scene saxla ───────────────────────────────────────────────────────────
   const saveScene = useCallback(async (force = false) => {
     if (!sceneId || !user) return
-    if (isSaving && !force) return
+    if (isSavingRef.current && !force) return
 
+    isSavingRef.current = true
     setIsSaving(true)
     setSaveError(null)
 
     try {
-      const { data: { session } } = await supabase.auth.getSession()
-      if (!session) throw new Error('No session')
+      // Read current canvas state imperatively (no stale closure)
+      const { elements, appState } = useCanvasStore.getState()
 
-      // Canvas thumbnail-ı yarat (async, hybird)
-      let thumbnail: string | undefined
-      if (isPro) {
-        thumbnail = await generateThumbnail()
-      }
+      // In development, bypass Edge Function (no local server running)
+      // and save directly via Supabase client to avoid CORS issues
+      if (import.meta.env.DEV) {
+        const { error } = await (supabase
+          .from('scenes') as any)
+          .update({
+            elements,
+            app_state: appState,
+            title: scene?.title ?? 'Untitled',
+          })
+          .eq('id', sceneId)
 
-      const response = await fetch(
-        `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/scene-save`,
-        {
-          method:  'POST',
-          headers: {
-            'Content-Type':  'application/json',
-            'Authorization': `Bearer ${session.access_token}`,
-          },
-          body: JSON.stringify({
-            sceneId,
-            title:    canvas.elements.length > 0
-              ? scene?.title ?? 'Untitled'
-              : 'Untitled',
-            elements: canvas.elements,
-            appState: canvas.appState,
-            thumbnail,
-          }),
+        if (error) throw error
+      } else {
+        const { data: { session } } = await supabase.auth.getSession()
+        if (!session) throw new Error('No session')
+
+        let thumbnail: string | undefined
+        if (isProRef.current) thumbnail = await generateThumbnail()
+
+        const response = await fetch(
+          `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/scene-save`,
+          {
+            method:  'POST',
+            headers: {
+              'Content-Type':  'application/json',
+              'Authorization': `Bearer ${session.access_token}`,
+            },
+            body: JSON.stringify({
+              sceneId,
+              title:    scene?.title ?? 'Untitled',
+              elements,
+              appState,
+              thumbnail,
+            }),
+          }
+        )
+
+        if (!response.ok) {
+          const err = await response.json()
+          throw new Error(err.error?.message ?? 'Save failed')
         }
-      )
-
-      if (!response.ok) {
-        const err = await response.json()
-        throw new Error(err.error?.message ?? 'Save failed')
       }
 
-      canvas.setDirty(false)
+      useCanvasStore.getState().setDirty(false)
       setLastSaved(new Date())
 
     } catch (err: any) {
       setSaveError(err.message)
       console.error('[Scene] Save error:', err)
     } finally {
+      isSavingRef.current = false
       setIsSaving(false)
     }
-  }, [sceneId, user, isSaving, canvas, scene, isPro])
+  }, [sceneId, user, scene])
 
-  // ── Avtomatik saxlama (Pro) ───────────────────────────────────────────────
+  // ── Avtomatik saxlama ───────────────────────────────────────────────────
+  // Stable reference — uses refs to avoid recreating on every render
   const scheduleAutoSave = useCallback(() => {
-    if (!isPro) return
+    const delay = isProRef.current ? AUTOSAVE_DEBOUNCE_PRO : AUTOSAVE_DEBOUNCE_FREE
 
     if (autoSaveTimer.current) clearTimeout(autoSaveTimer.current)
 
     autoSaveTimer.current = setTimeout(() => {
-      if (canvas.isDirty) saveScene()
-    }, AUTOSAVE_DEBOUNCE_MS)
-  }, [isPro, canvas.isDirty, saveScene])
+      const { isDirty } = useCanvasStore.getState()
+      if (isDirty) saveScene()
+    }, delay)
+  }, [saveScene]) // canvas.isDirty removed — reads via getState()
 
   // ── Yeni scene yarat ──────────────────────────────────────────────────────
   const createScene = useCallback(async (title = 'Untitled Scene') => {
@@ -138,7 +161,6 @@ export function useScene(sceneId?: string) {
       .single())
 
     if (error) {
-      // DB trigger xətası (Free plan limiti)
       if (error.message.includes('FREE_PLAN_LIMIT')) {
         throw new Error('FREE_PLAN_LIMIT')
       }
@@ -231,7 +253,6 @@ async function generateThumbnail(): Promise<string | undefined> {
     const canvas = document.querySelector<HTMLCanvasElement>('#main-canvas')
     if (!canvas) return undefined
 
-    // Kiçik thumbnail üçün offscreen canvas
     const thumb   = document.createElement('canvas')
     thumb.width   = 400
     thumb.height  = 300

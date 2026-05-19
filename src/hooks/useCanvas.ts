@@ -1028,7 +1028,7 @@ export function useCanvas(canvasRef: React.RefObject<HTMLCanvasElement>) {
       if (isTouch.current) return
       handleMouseMove(e)
     }
-    const onMouseUp = (e: MouseEvent) => {
+    const onMouseUp = () => {
       if (isTouch.current) {
         // toxunuş bitdikdən bir az sonra isTouch-u sıfırla ki, növbəti əsl mouse event-lər işləsin
         setTimeout(() => { isTouch.current = false }, 100)

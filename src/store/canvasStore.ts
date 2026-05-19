@@ -51,6 +51,7 @@ interface CanvasStore {
 
   // ── Actions: Selection ────────────────────────────────────────────────────
   selectElement:    (id: string, multi?: boolean) => void
+  selectElements:   (ids: string[]) => void
   selectAll:        () => void
   clearSelection:   () => void
   setEditingId:     (id: string | null) => void
@@ -199,6 +200,10 @@ export const useCanvasStore = create<CanvasStore>()(
           }
         }),
 
+        selectElements: (ids) => set((state) => {
+          ids.forEach(id => state.selectedIds.add(id))
+        }),
+
         selectAll: () => set((state) => {
           state.selectedIds = new Set(
             state.elements.filter(e => !e.isDeleted).map(e => e.id)
@@ -256,8 +261,10 @@ export const useCanvasStore = create<CanvasStore>()(
           const maxX = Math.max(...xs)
           const maxY = Math.max(...ys)
 
-          const W = window.innerWidth
-          const H = window.innerHeight
+          const canvas = document.getElementById('main-canvas')
+          const rect = canvas ? canvas.getBoundingClientRect() : null
+          const W = rect ? rect.width : window.innerWidth
+          const H = rect ? rect.height : window.innerHeight
           const PAD = 80
 
           const zoom = Math.min(

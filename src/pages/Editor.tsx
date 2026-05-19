@@ -3,6 +3,7 @@ import { useParams }          from 'react-router-dom'
 import { useCanvas }          from '@/hooks/useCanvas'
 import { useScene }           from '@/hooks/useScene'
 import { useCollaboration }   from '@/hooks/useCollaboration'
+import { useCanvasStore }   from '@/store/canvasStore'
 import { useAuth }            from '@/hooks/useAuth'
 import { Toolbar }            from '@/components/canvas/Toolbar'
 import { TopBar }             from '@/components/canvas/TopBar'
@@ -13,13 +14,14 @@ import { CommentsLayer }      from '@/components/collaboration/Comments'
 import { ActiveUsers }        from '@/components/collaboration/ActiveUsers'
 import { ShareModal }         from '@/components/collaboration/ShareModal'
 import { AIPanel }            from '@/components/canvas/AIPanel'
+import { TextEditor }         from '@/components/canvas/TextEditor'
 import type { Scene }         from '@/types/database.types'
 
 export default function Editor() {
   const { sceneId } = useParams<{ sceneId: string }>()
   const canvasRef   = useRef<HTMLCanvasElement>(null)
 
-  const { loadScene, saveScene, isSaving, lastSaved, scene } = useScene(sceneId)
+  const { loadScene, saveScene, isSaving, lastSaved, scene, scheduleAutoSave } = useScene(sceneId)
   const { isPro }    = useAuth()
   const { toCanvas } = useCanvas(canvasRef)
   const collab       = useCollaboration(sceneId ?? '')
@@ -27,15 +29,35 @@ export default function Editor() {
   const [showShareModal, setShowShareModal] = useState(false)
   const [localScene, setLocalScene]         = useState<Scene | null>(null)
 
-  // Scene-i yüklə
+  const loadSceneRef = useRef(loadScene)
+  loadSceneRef.current = loadScene
+
+  // Scene-i yüklə — yalnız sceneId dəyişdikdə
   useEffect(() => {
-    if (sceneId) loadScene(sceneId)
+    if (sceneId) loadSceneRef.current(sceneId)
   }, [sceneId]) // eslint-disable-line react-hooks/exhaustive-deps
 
   // scene yükləndikdə localScene-i yenilə
   useEffect(() => {
     if (scene) setLocalScene(scene)
   }, [scene])
+
+  // Canvas dəyişikliklərini izlə və autosave planlaşdır
+  useEffect(() => {
+    return useCanvasStore.subscribe(
+      (state) => state.isDirty,
+      (isDirty) => {
+        if (isDirty) scheduleAutoSave()
+      }
+    )
+  }, [scheduleAutoSave])
+
+  // Keyboard shortcut Ctrl+S
+  useEffect(() => {
+    const handler = () => saveScene(true)
+    window.addEventListener('flaro:save', handler)
+    return () => window.removeEventListener('flaro:save', handler)
+  }, [saveScene])
 
   // Cursor hərəkətini broadcast et
   useEffect(() => {
@@ -55,7 +77,7 @@ export default function Editor() {
       canvas.removeEventListener('mousemove',  handleMouseMove)
       canvas.removeEventListener('mouseleave', handleMouseLeave)
     }
-  }, [toCanvas, collab.broadcastCursor])
+  }, [toCanvas, collab])
 
   // activeUsers as array for TopBar prop
   const activeUsersArr = Array.from(collab.activeUsers.values())
@@ -92,6 +114,9 @@ export default function Editor() {
 
           {/* Comments layer (Pro only) */}
           {isPro && sceneId && <CommentsLayer sceneId={sceneId} />}
+
+          {/* Text Editor overlay */}
+          <TextEditor />
         </div>
 
         {/* Sağ panel */}

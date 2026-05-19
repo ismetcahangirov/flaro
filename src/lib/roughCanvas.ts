@@ -1,6 +1,7 @@
 import type { RoughCanvas } from 'roughjs/bin/canvas'
 import type { Options as RoughOptions } from 'roughjs/bin/core'
 import type { CanvasElement, Point } from '@/types/canvas.types'
+import { useCanvasStore } from '@/store/canvasStore'
 
 function getRoughOptions(el: CanvasElement): RoughOptions {
   return {
@@ -200,6 +201,9 @@ export function drawText(
 ): void {
   if (!el.text) return
 
+  const editingId = useCanvasStore.getState().editingId
+  if (editingId === el.id) return
+
   ctx.save()
   ctx.globalAlpha  = el.opacity / 100
   ctx.fillStyle    = el.strokeColor
@@ -278,6 +282,23 @@ function drawHandles(
     ctx.fillRect   (hx, hy, SIZE, SIZE)
     ctx.strokeRect (hx, hy, SIZE, SIZE)
   })
+
+  // Rotate handle
+  const rotOffset = 30 / zoom
+  const tmX = el.x + el.width / 2
+  const tmY = el.y - PAD
+
+  ctx.beginPath()
+  ctx.moveTo(tmX, tmY)
+  ctx.lineTo(tmX, tmY - rotOffset + HALF)
+  ctx.stroke()
+
+  ctx.beginPath()
+  // Math.PI to 0 creates a top half circle
+  ctx.arc(tmX, tmY - rotOffset, SIZE, Math.PI, 0)
+  ctx.closePath()
+  ctx.fill()
+  ctx.stroke()
 }
 
 // ── Lasso seçim xətti ────────────────────────────────────────────────────────

@@ -71,9 +71,9 @@ export function TopBar({
   }, [showExportMenu])
 
   return (
-    <header className="h-16 bg-white border-b border-slate-100 px-4 flex items-center justify-between z-20 shadow-sm relative gap-4">
+    <header className="h-16 max-md:h-auto max-md:py-2 bg-white border-b border-slate-100 px-4 max-md:px-2 flex max-md:flex-wrap items-center justify-between z-20 shadow-sm relative gap-4 max-md:gap-2">
       {/* Sol: Back & Title */}
-      <div className="flex items-center gap-3 min-w-0">
+      <div className="flex items-center gap-3 max-md:gap-1.5 min-w-0">
         <button
           onClick={() => navigate('/dashboard')}
           className="w-8 h-8 rounded-full hover:bg-slate-100 flex items-center justify-center text-slate-500 hover:text-slate-800 transition-colors flex-shrink-0"
@@ -133,15 +133,15 @@ export function TopBar({
       </div>
 
       {/* Sağ: Share & Export */}
-      <div className="flex items-center gap-2 flex-shrink-0">
+      <div className="flex items-center gap-2 max-md:gap-1 flex-shrink-0">
         <Button
           variant="secondary"
           size="sm"
           onClick={onShare}
-          className="flex items-center gap-1.5"
+          className="flex items-center gap-1.5 max-md:px-2"
         >
           <Share2 size={14} />
-          Paylaş
+          <span className="max-md:hidden">Paylaş</span>
         </Button>
 
         {/* Export dropdown */}
@@ -151,10 +151,10 @@ export function TopBar({
             size="sm"
             onClick={() => setShowExportMenu(!showExportMenu)}
             isLoading={isExporting}
-            className="flex items-center gap-1.5"
+            className="flex items-center gap-1.5 max-md:px-2"
           >
             <Download size={14} />
-            Yüklə
+            <span className="max-md:hidden">Yüklə</span>
           </Button>
 
           {showExportMenu && (

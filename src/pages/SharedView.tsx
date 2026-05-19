@@ -1,24 +1,24 @@
 import { useEffect, useRef, useState } from 'react'
-import { useParams, useNavigate }   from 'react-router-dom'
-import { supabase }          from '@/lib/supabase'
-import { useCanvas }          from '@/hooks/useCanvas'
-import { useCanvasStore }    from '@/store/canvasStore'
-import { ZoomControls }       from '@/components/canvas/ZoomControls'
+import { useParams, useNavigate } from 'react-router-dom'
+import { supabase } from '@/lib/supabase'
+import { useCanvas } from '@/hooks/useCanvas'
+import { useCanvasStore } from '@/store/canvasStore'
+import { ZoomControls } from '@/components/canvas/ZoomControls'
 import { Sparkles, Eye, ShieldAlert } from 'lucide-react'
-import type { Scene }        from '@/types/database.types'
+import type { Scene } from '@/types/database.types'
 
 export default function SharedView() {
   const { shareToken } = useParams<{ shareToken: string }>()
-  const navigate       = useNavigate()
-  const canvasRef      = useRef<HTMLCanvasElement>(null)
-  const store          = useCanvasStore()
-  
+  const navigate = useNavigate()
+  const canvasRef = useRef<HTMLCanvasElement>(null)
+  const store = useCanvasStore()
+
   // Initialize read-only canvas hook
   useCanvas(canvasRef)
 
-  const [scene, setScene]         = useState<Scene | null>(null)
+  const [scene, setScene] = useState<Scene | null>(null)
   const [isLoading, setIsLoading] = useState(true)
-  const [error, setError]         = useState<string | null>(null)
+  const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
     async function fetchSharedScene() {

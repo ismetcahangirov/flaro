@@ -1,22 +1,22 @@
 import { useState } from 'react'
 import { Link2, Copy, Check, Globe, Lock } from 'lucide-react'
-import { supabase }   from '@/lib/supabase'
-import { useAuth }    from '@/hooks/useAuth'
+import { supabase } from '@/lib/supabase'
+import { useAuth } from '@/hooks/useAuth'
 import type { Scene } from '@/types/database.types'
 
 interface ShareModalProps {
-  scene:    Scene
-  onClose:  () => void
+  scene: Scene
+  onClose: () => void
   onUpdate: (updated: Partial<Scene>) => void
 }
 
 export function ShareModal({ scene, onClose, onUpdate }: ShareModalProps) {
-  const { isPro }           = useAuth()
+  const { isPro } = useAuth()
   const [copied, setCopied] = useState(false)
   const [copiedEmbed, setCopiedEmbed] = useState(false)
   const [isSaving, setIsSaving] = useState(false)
 
-  const shareUrl  = `${window.location.origin}/s/${scene.share_token}`
+  const shareUrl = `${window.location.origin}/s/${scene.share_token}`
   const embedCode = `<iframe src="${shareUrl}?embed=1" width="800" height="600" frameborder="0" />`
 
   const copyToClipboard = async (text: string, isEmbed = false) => {
@@ -82,7 +82,7 @@ export function ShareModal({ scene, onClose, onUpdate }: ShareModalProps) {
           <div className="flex items-center gap-3">
             {scene.is_public
               ? <Globe size={18} className="text-orange-500" />
-              : <Lock  size={18} className="text-slate-400" />
+              : <Lock size={18} className="text-slate-400" />
             }
             <div>
               <p className="text-sm font-semibold text-slate-800">
@@ -99,15 +99,13 @@ export function ShareModal({ scene, onClose, onUpdate }: ShareModalProps) {
           <button
             onClick={togglePublic}
             disabled={isSaving}
-            className={`relative w-12 h-6 rounded-full transition-all duration-300 ${
-              scene.is_public ? 'bg-orange-500' : 'bg-slate-200'
-            } disabled:opacity-60`}
+            className={`relative w-12 h-6 rounded-full transition-all duration-300 ${scene.is_public ? 'bg-orange-500' : 'bg-slate-200'
+              } disabled:opacity-60`}
           >
             <span
               className={`absolute top-0.5 left-0.5 w-5 h-5 bg-white rounded-full
-                          shadow-sm transition-transform duration-300 ${
-                scene.is_public ? 'translate-x-6' : ''
-              }`}
+                          shadow-sm transition-transform duration-300 ${scene.is_public ? 'translate-x-6' : ''
+                }`}
             />
           </button>
         </div>
@@ -125,11 +123,10 @@ export function ShareModal({ scene, onClose, onUpdate }: ShareModalProps) {
               <button
                 onClick={() => copyToClipboard(shareUrl)}
                 className={`px-4 py-2.5 rounded-xl text-sm font-bold
-                            flex items-center gap-1.5 flex-shrink-0 transition-all ${
-                  copied
+                            flex items-center gap-1.5 flex-shrink-0 transition-all ${copied
                     ? 'bg-emerald-500 text-white'
                     : 'bg-orange-500 text-white hover:bg-orange-600'
-                }`}
+                  }`}
               >
                 {copied ? <Check size={16} /> : <Copy size={16} />}
                 {copied ? 'Kopyalandı' : 'Kopyala'}
@@ -152,7 +149,7 @@ export function ShareModal({ scene, onClose, onUpdate }: ShareModalProps) {
                   <span className="flex-1">{embedCode}</span>
                   {copiedEmbed
                     ? <Check size={14} className="text-emerald-500 flex-shrink-0 mt-0.5" />
-                    : <Copy  size={14} className="text-slate-400 flex-shrink-0 mt-0.5" />
+                    : <Copy size={14} className="text-slate-400 flex-shrink-0 mt-0.5" />
                   }
                 </div>
               </div>

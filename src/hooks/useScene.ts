@@ -6,8 +6,7 @@ import { useAuth }        from '@/hooks/useAuth'
 import { sanitizeTitle }  from '@/lib/sanitize'
 import type { Scene }     from '@/types/database.types'
 
-const AUTOSAVE_DEBOUNCE_PRO  = 1_000   // 1s
-const AUTOSAVE_DEBOUNCE_FREE = 1_000   // 1s
+const AUTOSAVE_DEBOUNCE = 1_000   // 1s
 
 export function useScene(sceneId?: string) {
   const navigate = useNavigate()
@@ -96,7 +95,7 @@ export function useScene(sceneId?: string) {
   // ── Avtomatik saxlama ───────────────────────────────────────────────────
   // Stable reference — uses refs to avoid recreating on every render
   const scheduleAutoSave = useCallback(() => {
-    const delay = AUTOSAVE_DEBOUNCE_PRO
+    const delay = AUTOSAVE_DEBOUNCE
 
     if (autoSaveTimer.current) clearTimeout(autoSaveTimer.current)
 

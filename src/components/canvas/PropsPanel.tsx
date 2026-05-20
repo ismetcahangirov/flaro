@@ -49,7 +49,7 @@ export function PropsPanel() {
 
       <aside className={`shrink-0 bg-white border-l border-slate-100
                         flex flex-col overflow-hidden z-10
-                        relative md:static
+                        relative md:relative h-[calc(100vh-56px)] md:h-[calc(100vh-64px)]
                         max-md:fixed max-md:right-0 max-md:top-0 max-md:h-full max-md:z-50
                         ${isOpen ? 'w-64 max-md:w-72' : 'w-0 md:border-l-0'}`}
               style={{ transition: 'width 0.25s ease' }}>

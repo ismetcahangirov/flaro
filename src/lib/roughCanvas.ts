@@ -207,7 +207,7 @@ export function drawText(
   ctx.save()
   ctx.globalAlpha  = el.opacity / 100
   ctx.fillStyle    = el.strokeColor
-  ctx.font         = `${el.fontSize ?? 20}px ${FONT_FAMILIES[el.fontFamily ?? 'hand']}`
+  ctx.font         = `${el.fontWeight ?? 400} ${el.fontSize ?? 20}px ${FONT_FAMILIES[el.fontFamily ?? 'hand']}`
   ctx.textAlign    = (el.textAlign ?? 'left') as CanvasTextAlign
   ctx.textBaseline = 'top'
 

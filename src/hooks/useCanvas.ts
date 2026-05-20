@@ -111,6 +111,7 @@ export function useCanvas(canvasRef: React.RefObject<HTMLCanvasElement>) {
       text:        type === 'text' ? '' : undefined,
       fontSize:    type === 'text' ? fontSize : undefined,
       fontFamily:  type === 'text' ? s.fontFamily : undefined,
+      fontWeight:  type === 'text' ? (s.fontWeight ?? 400) : undefined,
       textAlign:   type === 'text' ? 'left' : undefined,
     }
   }, [])
@@ -875,6 +876,8 @@ export function useCanvas(canvasRef: React.RefObject<HTMLCanvasElement>) {
       shiftKey: false,
       metaKey: false,
       ctrlKey: false,
+      preventDefault:  () => {},
+      stopPropagation: () => {},
     } as unknown as MouseEvent
   }
 

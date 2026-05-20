@@ -11,6 +11,7 @@ interface AuthState {
   isInitialized: boolean
 
   // Actions
+  setAuth:        (user: User | null, session: Session | null) => void
   setUser:        (user: User | null) => void
   setSession:     (session: Session | null) => void
   setProfile:     (profile: Profile | null) => void
@@ -33,6 +34,7 @@ export const useAuthStore = create<AuthState>()(
         isLoading:     false,
         isInitialized: false,
 
+        setAuth:        (user, session) => set({ user, session }),
         setUser:        (user)          => set({ user }),
         setSession:     (session)       => set({ session }),
         setProfile:     (profile)       => set({ profile }),

@@ -32,42 +32,47 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     // Açılışda mütləq bir dəfə session-u yoxlayırıq (refresh atılanda INITIAL_SESSION qaçırıla bilər)
     const initializeAuth = async () => {
       try {
-        // HMR Web Locks deadlock problemindən qorunmaq üçün getSession-a timeout əlavə edirik.
-        const getSessionWithTimeout = () => {
-          return Promise.race([
-            supabase.auth.getSession(),
-            new Promise<{ data: { session: any }, error: any }>((_, reject) => {
-              setTimeout(() => reject(new Error('getSession timeout - deadlock bypass')), 1500)
-            })
-          ])
-        }
-
         let session = null
-        try {
-          const res = await getSessionWithTimeout()
-          session = res.data.session
-        } catch (err: any) {
-          console.warn('[Auth] Supabase getSession failed or timed out. Falling back to localStorage.', err.message)
-          const stored = localStorage.getItem('flaro-supabase-session')
-          if (stored) {
-            try {
-              const parsed = JSON.parse(stored)
-              // Supabase storage formatı adətən: {"currentSession": {...}} və ya birbaşa session obyektidir.
-              session = parsed.currentSession || parsed
-            } catch (e) {
-              // Parse error
+
+        // Development-da HMR Web Locks deadlock riski var, ona görə timeout əlavə edirik.
+        // Production-da Promise.race lazım deyil — lock düzgün işləyir.
+        if (import.meta.env.DEV) {
+          const getSessionWithTimeout = () => {
+            return Promise.race([
+              supabase.auth.getSession(),
+              new Promise<{ data: { session: any }, error: any }>((_, reject) => {
+                setTimeout(() => reject(new Error('getSession timeout - deadlock bypass')), 1500)
+              })
+            ])
+          }
+
+          try {
+            const res = await getSessionWithTimeout()
+            session = res.data.session
+          } catch (err: any) {
+            console.warn('[Auth] Supabase getSession failed or timed out. Falling back to localStorage.', err.message)
+            const stored = localStorage.getItem('flaro-supabase-session')
+            if (stored) {
+              try {
+                const parsed = JSON.parse(stored)
+                session = parsed.currentSession || parsed
+              } catch (e) {
+                // Parse error
+              }
             }
           }
+        } else {
+          // Production: normal getSession, timeout yoxdur
+          const { data } = await supabase.auth.getSession()
+          session = data.session
         }
 
         if (session) {
-          useAuthStore.getState().setSession(session)
-          useAuthStore.getState().setUser(session.user)
+          useAuthStore.getState().setAuth(session.user, session)
           await fetchProfile(session.user.id)
         } else {
           // Əgər session yoxdursa (və ya vaxtı bitibsə), Zustand-ı təmizləyirik
-          useAuthStore.getState().setSession(null)
-          useAuthStore.getState().setUser(null)
+          useAuthStore.getState().setAuth(null, null)
           useAuthStore.getState().setProfile(null)
         }
       } catch (err) {
@@ -89,8 +94,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         console.debug('[Auth] Event:', event, session?.user?.email ?? 'no user')
 
         if ((event === 'INITIAL_SESSION' || event === 'SIGNED_IN') && session) {
-          useAuthStore.getState().setSession(session)
-          useAuthStore.getState().setUser(session.user)
+          useAuthStore.getState().setAuth(session.user, session)
           await fetchProfile(session.user.id)
           useAuthStore.getState().setInitialized(true)
         }
@@ -110,11 +114,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         }
 
         if (event === 'TOKEN_REFRESHED' && session) {
-          useAuthStore.getState().setSession(session)
+          useAuthStore.getState().setAuth(session.user, session)
         }
 
         if (event === 'USER_UPDATED' && session) {
-          useAuthStore.getState().setUser(session.user)
+          useAuthStore.getState().setAuth(session.user, session)
           await fetchProfile(session.user.id)
         }
       }

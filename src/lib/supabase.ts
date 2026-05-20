@@ -17,15 +17,11 @@ export const supabase = createClient<Database>(supabaseUrl, supabaseKey, {
     // Fərqli açar — localStorage key konflikti aradan qaldırıldı
     storageKey:         'flaro-supabase-session',
     storage:            window.localStorage,
-    // Web Locks deadlock problemini (HMR/refresh zamanı) bypass etmək üçün
-    // YALNIZ development-da — production-da lock normal işləməlidir,
-    // əks halda Supabase session initialize düzgün olmur.
-    ...(import.meta.env.DEV
-      ? {
-          // @ts-expect-error: Web Locks deadlock problemini bypass etmək üçün
-          lock: (name: string, acquireTimeout: number, fn: () => Promise<any>) => fn(),
-        }
-      : {}),
+    // Web Locks deadlock problemini (HMR/refresh zamanı) bypass etmək üçün.
+    // HƏM development HƏM production-da bypass aktiv olmalıdır —
+    // əks halda signInWithPassword / getSession arasında lock deadlock yaranır.
+    // @ts-expect-error: Web Locks deadlock problemini bypass etmək üçün
+    lock: (name: string, acquireTimeout: number, fn: () => Promise<any>) => fn(),
   },
   global: {
     headers: {

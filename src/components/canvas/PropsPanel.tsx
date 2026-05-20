@@ -54,7 +54,7 @@ export function PropsPanel() {
                         ${isOpen ? 'w-64 max-md:w-72' : 'w-0 md:border-l-0'}`}
               style={{ transition: 'width 0.25s ease' }}>
 
-        <div className={`flex flex-col overflow-y-auto ${isOpen ? 'opacity-100' : 'opacity-0 invisible'}`}>
+        <div className={`flex flex-col flex-1 min-h-0 overflow-y-auto ${isOpen ? 'opacity-100' : 'opacity-0 invisible'}`}>
           <div className="p-3 border-b border-slate-100 bg-slate-50/20 shrink-0 flex items-center justify-between gap-2">
             <h3 className="text-[10px] font-bold text-slate-400 uppercase tracking-wider whitespace-nowrap">
               {hasSelection ? `${selectedEls.length} element seçildi` : 'Alət xüsusiyyətləri'}
@@ -158,6 +158,7 @@ export function PropsPanel() {
 
         {/* Text Properties (Yalnız Text aləti və ya seçili text varsa görünür) */}
         {showTextProps && (
+          <>
           <Section title={`Mətn ölçüsü — ${store.fontSize}px`}>
             <input
               type="range"
@@ -171,7 +172,7 @@ export function PropsPanel() {
                   txtIds.forEach(id => {
                     const el = store.elements.find(el => el.id === id)
                     if (el && el.text) {
-                      const m = measureText(el.text, v, el.fontFamily ?? 'hand')
+                      const m = measureText(el.text, v, el.fontFamily ?? 'hand', el.fontWeight ?? 400)
                       store.updateElement(id, { fontSize: v, width: m.width, height: m.height })
                     } else {
                       store.updateElement(id, { fontSize: v })
@@ -182,6 +183,47 @@ export function PropsPanel() {
               className="w-full accent-orange-500 h-1 bg-slate-100 rounded-lg appearance-none cursor-pointer"
             />
           </Section>
+
+          <Section title="Mətn qalınlığı">
+            <div className="flex gap-1.5">
+              {([
+                { value: 300, label: 'İncə' },
+                { value: 400, label: 'Normal' },
+                { value: 500, label: 'Orta' },
+                { value: 600, label: 'Yarıqalın' },
+                { value: 700, label: 'Qalın' },
+              ] as const).map(fw => (
+                <button
+                  key={fw.value}
+                  onClick={() => {
+                    store.setFontWeight(fw.value)
+                    if (store.selectedIds.size > 0) {
+                      const txtIds = Array.from(store.selectedIds).filter(id => store.elements.find(el => el.id === id)?.type === 'text')
+                      txtIds.forEach(id => {
+                        const el = store.elements.find(el => el.id === id)
+                        if (el && el.text) {
+                          const m = measureText(el.text, el.fontSize ?? 20, el.fontFamily ?? 'hand', fw.value)
+                          store.updateElement(id, { fontWeight: fw.value, width: m.width, height: m.height })
+                        } else {
+                          store.updateElement(id, { fontWeight: fw.value })
+                        }
+                      })
+                    }
+                  }}
+                  className={`flex-1 py-2 px-1 rounded-xl text-[10px] font-semibold
+                              border-2 transition-colors active:scale-95 leading-tight text-center ${
+                    store.fontWeight === fw.value
+                      ? 'border-orange-500 bg-orange-50/50 text-orange-600 font-bold'
+                      : 'border-slate-200 text-slate-500 hover:border-slate-300'
+                  }`}
+                  style={{ fontWeight: fw.value }}
+                >
+                  {fw.label}
+                </button>
+              ))}
+            </div>
+          </Section>
+          </>
         )}
 
       </div>

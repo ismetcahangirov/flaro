@@ -50,6 +50,7 @@ export interface CanvasElement {
   text?:       string
   fontSize?:   number
   fontFamily?: FontFamily
+  fontWeight?: number          // 100-900 (400 = normal, 700 = bold)
   textAlign?:  TextAlign
 
   // Arrow/Line spesifik

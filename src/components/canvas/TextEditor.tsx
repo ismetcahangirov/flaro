@@ -11,7 +11,8 @@ export const FONT_FAMILIES: Record<string, string> = {
 export const measureText = (
   text:       string,
   fontSize:   number,
-  fontFamily: string
+  fontFamily: string,
+  fontWeight: number = 400
 ): { width: number; height: number } => {
   const lines = text.split('\n')
   const lineH = fontSize * 1.4
@@ -21,7 +22,7 @@ export const measureText = (
   const ctx = canvas.getContext('2d')
   let maxWidth = 0
   if (ctx) {
-    ctx.font = `${fontSize}px ${FONT_FAMILIES[fontFamily] ?? FONT_FAMILIES.hand}`
+    ctx.font = `${fontWeight} ${fontSize}px ${FONT_FAMILIES[fontFamily] ?? FONT_FAMILIES.hand}`
     for (const line of lines) {
       const w = ctx.measureText(line || ' ').width
       if (w > maxWidth) maxWidth = w
@@ -80,6 +81,7 @@ export function TextEditor() {
   const { zoom, scrollX, scrollY } = appState
   const fontSize   = editingEl.fontSize   ?? 20
   const fontFamily = editingEl.fontFamily ?? 'hand'
+  const fontWeight = editingEl.fontWeight ?? 400
   const color      = editingEl.strokeColor ?? '#1e1e1e'
   const opacity    = (editingEl.opacity ?? 100) / 100
 
@@ -95,7 +97,7 @@ export function TextEditor() {
   // ── onChange ─────────────────────────────────────────────────────────────
   const handleChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     const val      = e.target.value
-    const measured = measureText(val, fontSize, fontFamily)
+    const measured = measureText(val, fontSize, fontFamily, fontWeight)
 
     let newX = editingEl.x
     const align = editingEl.textAlign ?? 'left'
@@ -170,6 +172,7 @@ export function TextEditor() {
     height:         'auto',
     fontSize:       `${fontSize * zoom}px`,
     fontFamily:     FONT_FAMILIES[fontFamily] ?? FONT_FAMILIES.hand,
+    fontWeight:     fontWeight,
     color,
     opacity,
     background:     'transparent',
@@ -204,6 +207,8 @@ export function TextEditor() {
       onTouchEnd={(e) => e.stopPropagation()}
       onBlur={handleBlur}
       autoFocus
+      inputMode="text"
+      enterKeyHint="done"
       spellCheck={false}
       autoComplete="off"
       autoCorrect="off"

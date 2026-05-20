@@ -27,6 +27,7 @@ interface CanvasStore {
   opacity:       number
   fontSize:      number
   fontFamily:    CanvasElement['fontFamily']
+  fontWeight:    number
 
   // ── App state ─────────────────────────────────────────────────────────────
   appState:      AppState
@@ -67,6 +68,7 @@ interface CanvasStore {
   setRoughness:     (roughness: number) => void
   setOpacity:       (opacity: number) => void
   setFontSize:      (size: number) => void
+  setFontWeight:    (weight: number) => void
 
   // ── Actions: AppState ─────────────────────────────────────────────────────
   setZoom:          (zoom: number) => void
@@ -132,6 +134,7 @@ export const useCanvasStore = create<CanvasStore>()(
         opacity:     100,
         fontSize:    20,
         fontFamily:  'hand',
+        fontWeight:  400,
 
         appState:      { ...DEFAULT_APP_STATE },
         undoStack:     [[]],
@@ -251,6 +254,7 @@ export const useCanvasStore = create<CanvasStore>()(
         setRoughness:   (roughness) => set((s) => { s.roughness   = roughness }),
         setOpacity:     (opacity)   => set((s) => { s.opacity     = opacity  }),
         setFontSize:    (size)      => set((s) => { s.fontSize    = size     }),
+        setFontWeight:  (weight)    => set((s) => { s.fontWeight  = weight   }),
 
         // ── AppState ─────────────────────────────────────────────────────────
         setZoom: (zoom) => set((s) => {

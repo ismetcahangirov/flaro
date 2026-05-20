@@ -1,6 +1,7 @@
 import {
   useRef, useEffect, useCallback
 } from 'react'
+import { flushSync } from 'react-dom'
 import rough from 'roughjs'
 import { nanoid } from 'nanoid'
 import { useCanvasStore, getGroupBoundingBox } from '@/store/canvasStore'
@@ -129,7 +130,17 @@ export function useCanvas(canvasRef: React.RefObject<HTMLCanvasElement>) {
 
     const { activeTool, elements, selectedIds, isReadOnly } = s
 
-    if (isReadOnly && activeTool !== 'hand') return
+    if (isReadOnly) {
+      // Read-only modda select aləti tam işləyir (move, resize, rotate, group ops)
+      // hand aləti pan üçün işləyir. Digər alətlər bloklanır.
+      if (activeTool === 'hand') {
+        isPanning.current = true
+        lastMouse.current = { x: e.clientX, y: e.clientY }
+        return
+      }
+      // Select aləti — aşağıdakı switch blokunda normal işlənir
+      if (activeTool !== 'select') return
+    }
 
     switch (activeTool) {
       case 'select': {
@@ -243,14 +254,20 @@ export function useCanvas(canvasRef: React.RefObject<HTMLCanvasElement>) {
         e.preventDefault()
         const hit = getElementAtPoint(elements, canvasPoint, s.appState.zoom)
         if (hit?.type === 'text') {
-          s.setEditingId(hit.id)
-          s.selectElement(hit.id)
+          // flushSync: mobil cihazlarda klaviatura açmaq üçün
+          flushSync(() => {
+            s.setEditingId(hit.id)
+            s.selectElement(hit.id)
+          })
         } else {
           const el = createElement('text', canvasPoint)
           s.saveHistory()
-          s.addElement(el)
-          s.selectElement(el.id)
-          s.setEditingId(el.id)
+          // flushSync: mobil cihazlarda klaviatura açmaq üçün
+          flushSync(() => {
+            s.addElement(el)
+            s.selectElement(el.id)
+            s.setEditingId(el.id)
+          })
         }
         break
       }
@@ -796,16 +813,16 @@ export function useCanvas(canvasRef: React.RefObject<HTMLCanvasElement>) {
         s.selectAll()
       }
 
-      // Delete
-      if (e.key === 'Delete' || e.key === 'Backspace') {
+      // Delete — read-only modda bloklanır
+      if ((e.key === 'Delete' || e.key === 'Backspace') && !s.isReadOnly) {
         if (s.selectedIds.size > 0) {
           s.saveHistory()
           s.deleteElements(Array.from(s.selectedIds))
         }
       }
 
-      // Duplicate
-      if ((e.ctrlKey || e.metaKey) && e.key === 'd') {
+      // Duplicate — read-only modda bloklanır
+      if ((e.ctrlKey || e.metaKey) && e.key === 'd' && !s.isReadOnly) {
         e.preventDefault()
         if (s.selectedIds.size > 0) {
           s.saveHistory()
@@ -819,7 +836,7 @@ export function useCanvas(canvasRef: React.RefObject<HTMLCanvasElement>) {
         s.setEditingId(null)
       }
 
-      // Tool shortcuts — yalnız modifier olmadıqda
+      // Tool shortcuts — read-only modda yalnız select (v) və hand (h)
       if (!e.ctrlKey && !e.metaKey && !e.altKey) {
         const TOOL_KEYS: Record<string, ToolType> = {
           'v': 'select', 'h': 'hand',   'r': 'rectangle',
@@ -828,7 +845,11 @@ export function useCanvas(canvasRef: React.RefObject<HTMLCanvasElement>) {
           'e': 'eraser',
         }
         const tool = TOOL_KEYS[e.key.toLowerCase()]
-        if (tool) s.setTool(tool)
+        if (tool) {
+          // Read-only modda yalnız select və hand alətlərinə icazə ver
+          if (s.isReadOnly && tool !== 'select' && tool !== 'hand') return
+          s.setTool(tool)
+        }
       }
     }
 

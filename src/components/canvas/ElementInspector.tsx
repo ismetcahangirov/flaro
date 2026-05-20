@@ -2,6 +2,17 @@ import { useState } from 'react'
 import { X, Info } from 'lucide-react'
 import { useCanvasStore } from '@/store/canvasStore'
 
+const getFontWeightLabel = (weight?: number) => {
+  switch (weight) {
+    case 300: return 'İncə (300)'
+    case 500: return 'Orta (500)'
+    case 600: return 'Yarıqalın (600)'
+    case 700: return 'Qalın (700)'
+    case 400:
+    default: return 'Normal (400)'
+  }
+}
+
 export function ElementInspector() {
   const store = useCanvasStore()
   const selectedEls = store.elements.filter(e => store.selectedIds.has(e.id))
@@ -34,11 +45,11 @@ export function ElementInspector() {
           />
         )}
         <aside className={`shrink-0 bg-white border-l border-slate-100 flex flex-col overflow-hidden z-10
-                          relative md:static
+                          relative md:relative h-[calc(100vh-56px)] md:h-[calc(100vh-64px)]
                           max-md:fixed max-md:right-0 max-md:top-0 max-md:h-full max-md:z-50
                           ${isOpen ? 'w-64 max-md:w-72' : 'w-0 md:border-l-0'}`}
                 style={{ transition: 'width 0.25s ease' }}>
-          <div className={`flex flex-col overflow-y-auto ${isOpen ? 'opacity-100' : 'opacity-0 invisible'}`}>
+          <div className={`flex flex-col flex-1 min-h-0 overflow-y-auto ${isOpen ? 'opacity-100' : 'opacity-0 invisible'}`}>
             <div className="p-3 border-b border-slate-100 bg-slate-50/20 shrink-0 flex items-center justify-between gap-2">
               <h3 className="text-[10px] font-bold text-slate-400 uppercase tracking-wider whitespace-nowrap">
                 Element Seçin
@@ -87,12 +98,12 @@ export function ElementInspector() {
       )}
 
       <aside className={`shrink-0 bg-white border-l border-slate-100 flex flex-col overflow-hidden z-10
-                        relative md:static
+                        relative md:relative h-[calc(100vh-56px)] md:h-[calc(100vh-64px)]
                         max-md:fixed max-md:right-0 max-md:top-0 max-md:h-full max-md:z-50
                         ${isOpen ? 'w-64 max-md:w-72' : 'w-0 md:border-l-0'}`}
               style={{ transition: 'width 0.25s ease' }}>
 
-        <div className={`flex flex-col overflow-y-auto ${isOpen ? 'opacity-100' : 'opacity-0 invisible'}`}>
+        <div className={`flex flex-col flex-1 min-h-0 overflow-y-auto ${isOpen ? 'opacity-100' : 'opacity-0 invisible'}`}>
           <div className="p-3 border-b border-slate-100 bg-slate-50/20 shrink-0 flex items-center justify-between gap-2">
             <h3 className="text-[10px] font-bold text-slate-400 uppercase tracking-wider whitespace-nowrap">
               {selectedEls.length > 1 ? `${selectedEls.length} element seçildi` : 'Element Xüsusiyyətləri'}
@@ -184,6 +195,10 @@ export function ElementInspector() {
                 <div>
                   <p className="text-[10px] font-semibold text-slate-400 uppercase tracking-wide mb-1">Mətn ölçüsü</p>
                   <p className="text-sm font-semibold text-slate-700">{el.fontSize}px</p>
+                </div>
+                <div>
+                  <p className="text-[10px] font-semibold text-slate-400 uppercase tracking-wide mb-1">Mətn qalınlığı</p>
+                  <p className="text-sm font-semibold text-slate-700">{getFontWeightLabel(el.fontWeight)}</p>
                 </div>
                 {el.text && (
                   <div>

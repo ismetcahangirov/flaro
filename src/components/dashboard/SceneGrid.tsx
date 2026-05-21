@@ -1,5 +1,6 @@
-import { FileQuestion, Clock, Trash2 } from 'lucide-react'
+import { FileQuestion, Trash2, Copy } from 'lucide-react'
 import { SceneCard } from './SceneCard'
+import { useI18n } from '@/i18n/I18nContext'
 import type { Scene } from '@/types/database.types'
 
 interface SceneGridProps {
@@ -21,6 +22,8 @@ export function SceneGrid({
   onRename,
   onDuplicate
 }: SceneGridProps) {
+  const { t, locale } = useI18n()
+
   if (isLoading) {
     return (
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 animate-pulse-soft">
@@ -37,11 +40,15 @@ export function SceneGrid({
         <div className="w-16 h-16 bg-slate-100 rounded-2xl flex items-center justify-center mb-4 text-slate-400">
           <FileQuestion size={32} strokeWidth={1.5} />
         </div>
-        <h3 className="text-lg font-bold text-slate-900 mb-1">Heç bir səhnə tapılmadı</h3>
-        <p className="text-sm text-slate-500 max-w-sm">Yeni bir səhnə yaradaraq fikirlərinizi çəkməyə başlayın.</p>
+        <h3 className="text-lg font-bold text-slate-900 mb-1">{t.dashboard.noScenes}</h3>
+        <p className="text-sm text-slate-500 max-w-sm">{t.dashboard.noScenesHint}</p>
       </div>
     )
   }
+
+  const nameLabel = locale === 'az' ? 'Səhnə Adı' : locale === 'tr' ? 'Sahne Adı' : locale === 'ru' ? 'Название сцены' : 'Scene Name'
+  const lastEditLabel = locale === 'az' ? 'Son Redaktə' : locale === 'tr' ? 'Son Düzenleme' : locale === 'ru' ? 'Последнее изменение' : 'Last Edited'
+  const actionsLabel = locale === 'az' ? 'Əməliyyatlar' : locale === 'tr' ? 'İşlemler' : locale === 'ru' ? 'Действия' : 'Actions'
 
   if (viewMode === 'list') {
     return (
@@ -50,9 +57,9 @@ export function SceneGrid({
           <table className="w-full text-left border-collapse">
             <thead>
               <tr className="border-b border-slate-100 bg-slate-50/50">
-                <th className="p-4 text-xs font-bold text-slate-400 uppercase tracking-wider pl-6">Səhnə Adı</th>
-                <th className="p-4 text-xs font-bold text-slate-400 uppercase tracking-wider">Son Redaktə</th>
-                <th className="p-4 text-xs font-bold text-slate-400 uppercase tracking-wider text-right pr-6">Əməliyyatlar</th>
+                <th className="p-4 text-xs font-bold text-slate-400 uppercase tracking-wider pl-6">{nameLabel}</th>
+                <th className="p-4 text-xs font-bold text-slate-400 uppercase tracking-wider">{lastEditLabel}</th>
+                <th className="p-4 text-xs font-bold text-slate-400 uppercase tracking-wider text-right pr-6">{actionsLabel}</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100">
@@ -62,21 +69,21 @@ export function SceneGrid({
                   onClick={() => onOpen(scene.id)}
                   className="hover:bg-slate-50/50 transition-colors cursor-pointer group"
                 >
-                  <td className="p-4 pl-6 font-semibold text-slate-800 text-sm truncate max-w-xs">{scene.title}</td>
-                  <td className="p-4 text-slate-500 text-xs">{new Date(scene.updated_at).toLocaleDateString('az')}</td>
+                  <td className="p-4 pl-6 font-semibold text-slate-800 text-sm truncate max-w-xs">{scene.title || t.dashboard.untitled}</td>
+                  <td className="p-4 text-slate-500 text-xs">{new Date(scene.updated_at).toLocaleDateString(locale)}</td>
                   <td className="p-4 text-right pr-6" onClick={e => e.stopPropagation()}>
                     <div className="inline-flex gap-2">
                       <button 
                         onClick={() => onDuplicate(scene.id)}
                         className="p-1.5 hover:bg-slate-100 text-slate-400 hover:text-slate-600 rounded-lg transition-all"
-                        title="Kopyala"
+                        title={t.dashboard.duplicate}
                       >
-                        <Clock size={14} />
+                        <Copy size={14} />
                       </button>
                       <button 
                         onClick={() => onDelete(scene.id)}
                         className="p-1.5 hover:bg-red-50 text-slate-400 hover:text-red-600 rounded-lg transition-all"
-                        title="Sil"
+                        title={t.dashboard.delete}
                       >
                         <Trash2 size={14} />
                       </button>

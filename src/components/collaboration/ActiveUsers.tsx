@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { useCollabStore } from '@/store/collabStore'
 import { useAuth }        from '@/hooks/useAuth'
+import { useI18n }        from '@/i18n/I18nContext'
 
 const MAX_VISIBLE = 4
 
@@ -38,7 +39,13 @@ function AvatarBubble({ name, avatar, color, isSelf = false }: AvatarBubbleProps
   )
 }
 
-function UserRow({ name, avatar, color }: AvatarBubbleProps) {
+interface UserRowProps {
+  name:   string
+  avatar: string | null | undefined
+  color:  string
+}
+
+function UserRow({ name, avatar, color }: UserRowProps) {
   return (
     <div className="flex items-center gap-2.5 py-1.5 px-1 rounded-lg hover:bg-slate-50">
       <div
@@ -58,10 +65,55 @@ function UserRow({ name, avatar, color }: AvatarBubbleProps) {
   )
 }
 
+const dict: Record<'az' | 'tr' | 'ru' | 'en', {
+  connecting: string
+  online: string
+  onlineCount: string
+  onlineUsers: string
+  you: string
+  youSuffix: string
+}> = {
+  az: {
+    connecting: 'Bağlanır...',
+    online: 'online',
+    onlineCount: 'Online — {count} nəfər',
+    onlineUsers: 'Online istifadəçilər',
+    you: 'Siz',
+    youSuffix: ' (siz)'
+  },
+  tr: {
+    connecting: 'Bağlanıyor...',
+    online: 'çevrimiçi',
+    onlineCount: 'Çevrimiçi — {count} kişi',
+    onlineUsers: 'Çevrimiçi kullanıcılar',
+    you: 'Siz',
+    youSuffix: ' (siz)'
+  },
+  ru: {
+    connecting: 'Подключение...',
+    online: 'в сети',
+    onlineCount: 'В сети — {count} чел.',
+    onlineUsers: 'Пользователи в сети',
+    you: 'Вы',
+    youSuffix: ' (вы)'
+  },
+  en: {
+    connecting: 'Connecting...',
+    online: 'online',
+    onlineCount: 'Online — {count} users',
+    onlineUsers: 'Online users',
+    you: 'You',
+    youSuffix: ' (you)'
+  }
+}
+
 export function ActiveUsers() {
   const { activeUsers, isConnected } = useCollabStore()
   const { profile }                  = useAuth()
   const [showAll, setShowAll]        = useState(false)
+  const { locale }                   = useI18n()
+
+  const currentDict = dict[locale as 'az' | 'tr' | 'ru' | 'en'] || dict['en']
 
   const users   = Array.from(activeUsers.values())
   const total   = users.length + 1  // +1 özün üçün
@@ -78,7 +130,7 @@ export function ActiveUsers() {
           }`}
         />
         <span className="text-xs text-slate-500 hidden sm:block font-medium">
-          {isConnected ? `${total} online` : 'Bağlanır...'}
+          {isConnected ? `${total} ${currentDict.online}` : currentDict.connecting}
         </span>
       </div>
 
@@ -86,11 +138,11 @@ export function ActiveUsers() {
       <div
         className="flex -space-x-2 cursor-pointer"
         onClick={() => setShowAll(v => !v)}
-        title="Online istifadəçilər"
+        title={currentDict.onlineUsers}
       >
         {/* Öz avatar-ı */}
         <AvatarBubble
-          name={profile?.full_name ?? 'Siz'}
+          name={profile?.full_name ?? currentDict.you}
           avatar={profile?.avatar_url}
           color="#F97316"
           isSelf
@@ -129,11 +181,11 @@ export function ActiveUsers() {
                        border border-slate-100 p-3 z-50 min-w-[200px] animate-slide-down"
           >
             <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-2">
-              Online — {total} nəfər
+              {currentDict.onlineCount.replace('{count}', total.toString())}
             </p>
 
             <UserRow
-              name={(profile?.full_name ?? 'Siz') + ' (siz)'}
+              name={(profile?.full_name ?? currentDict.you) + currentDict.youSuffix}
               avatar={profile?.avatar_url}
               color="#F97316"
             />

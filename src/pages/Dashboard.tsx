@@ -13,6 +13,8 @@ import { useBilling } from '@/hooks/useBilling'
 import { SceneGrid } from '@/components/dashboard/SceneGrid'
 import { NewSceneModal } from '@/components/dashboard/NewSceneModal'
 import { UpgradeBanner } from '@/components/pricing/UpgradeBanner'
+import { useI18n } from '@/i18n/I18nContext'
+import { LanguageSwitcher } from '@/components/ui/LanguageSwitcher'
 import type { Scene } from '@/types/database.types'
 
 export default function Dashboard() {
@@ -21,6 +23,7 @@ export default function Dashboard() {
   const { createScene, deleteScene, renameScene, duplicateScene } = useScene()
   const { canCreateScene, scenesUsed } = useSubscription()
   const { openBillingPortal } = useBilling()
+  const { t, locale } = useI18n()
 
   const [scenes, setScenes] = useState<Scene[]>([])
   const [isLoading, setIsLoading] = useState(true)
@@ -55,12 +58,12 @@ export default function Dashboard() {
 
     if (error) {
       console.error('[Dashboard] Error fetching scenes:', error)
-      setErrorMsg('Səhnələri yükləyərkən xəta baş verdi.')
+      setErrorMsg(t.common.error)
     } else if (data) {
       setScenes(data)
     }
     setIsLoading(false)
-  }, [user])
+  }, [user, t])
 
   // ── Scene-ləri yüklə ─────────────────────────────────────────────────────
   useEffect(() => {
@@ -94,7 +97,7 @@ export default function Dashboard() {
       if (newScene) navigate(`/editor/${newScene.id}`)
     } catch (err: any) {
       if (err.message === 'FREE_PLAN_LIMIT') {
-        alert('Free planda maksimum 3 scene yarada bilərsiniz')
+        alert(t.dashboard.freeLimit)
       }
     }
   }
@@ -102,6 +105,9 @@ export default function Dashboard() {
   const filteredScenes = scenes.filter(s =>
     s.title.toLowerCase().includes(searchQuery.toLowerCase())
   )
+
+  const homeLabel = locale === 'az' ? 'Ana səhifə' : locale === 'tr' ? 'Ana Sayfa' : locale === 'ru' ? 'Главная' : 'Home'
+  const userFallbackLabel = locale === 'az' ? 'İstifadəçi' : locale === 'tr' ? 'Kullanıcı' : locale === 'ru' ? 'Пользователь' : 'User'
 
   return (
     <div className="min-h-screen bg-slate-50 flex text-slate-800 font-sans">
@@ -136,9 +142,9 @@ export default function Dashboard() {
                        text-sm font-medium transition-colors text-slate-500 hover:bg-slate-50 hover:text-slate-800"
           >
             <Home size={17} />
-            Ana səhifə
+            {homeLabel}
           </button>
-          <SidebarItem icon={<Grid3x3 size={17} />} label="Səhnələrim" active />
+          <SidebarItem icon={<Grid3x3 size={17} />} label={t.dashboard.myScenes} active />
           {isPro && (
             <SidebarItem icon={<Crown size={17} />} label="Workspace" />
           )}
@@ -151,7 +157,7 @@ export default function Dashboard() {
             <div className="p-3 bg-orange-50 rounded-xl">
               <div className="flex items-center justify-between mb-1.5">
                 <span className="text-xs font-semibold text-orange-700">Free Plan</span>
-                <span className="text-xs text-orange-500">{scenesUsed}/3 scene</span>
+                <span className="text-xs text-orange-500">{scenesUsed}/3 {t.dashboard.scenesUsed}</span>
               </div>
               <div className="h-1.5 bg-orange-100 rounded-full overflow-hidden">
                 <div
@@ -164,7 +170,7 @@ export default function Dashboard() {
                 className="mt-2.5 w-full text-xs font-bold text-white bg-orange-500
                            py-2 rounded-lg hover:bg-orange-600 transition-colors"
               >
-                Pro-ya keç →
+                {t.dashboard.upgrade} →
               </button>
             </div>
           )}
@@ -178,7 +184,7 @@ export default function Dashboard() {
               <button
                 onClick={openBillingPortal}
                 className="text-slate-400 hover:text-slate-600 transition-colors"
-                title="Ayarlar"
+                title={t.dashboard.settings}
               >
                 <Settings size={14} />
               </button>
@@ -193,14 +199,14 @@ export default function Dashboard() {
             </div>
             <div className="flex-1 min-w-0">
               <p className="text-xs font-semibold text-slate-800 truncate">
-                {profile?.full_name ?? 'İstifadəçi'}
+                {profile?.full_name ?? userFallbackLabel}
               </p>
               <p className="text-[10px] text-slate-400 truncate">{user?.email}</p>
             </div>
             <button
               onClick={signOut}
               className="text-slate-400 hover:text-slate-600 transition-colors flex-shrink-0"
-              title="Çıxış"
+              title={t.dashboard.logout}
             >
               <LogOut size={15} />
             </button>
@@ -222,7 +228,7 @@ export default function Dashboard() {
           </button>
 
           <h1 className="text-xl font-bold text-slate-900 flex-shrink-0 hidden md:block">
-            Səhnələrim
+            {t.dashboard.myScenes}
           </h1>
 
           {/* Axtarış */}
@@ -230,7 +236,7 @@ export default function Dashboard() {
             <Search size={15} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" />
             <input
               type="text"
-              placeholder="Axtarın..."
+              placeholder={t.dashboard.search}
               value={searchQuery}
               onChange={e => setSearchQuery(e.target.value)}
               className="w-full pl-9 pr-4 py-2 bg-slate-100 border border-transparent
@@ -244,7 +250,7 @@ export default function Dashboard() {
             <div className="flex bg-slate-100 p-1 rounded-xl gap-0.5">
               <button
                 onClick={fetchScenes}
-                title="Yenilə"
+                title={t.dashboard.refresh}
                 className={`p-2 rounded-lg transition-colors text-slate-400 hover:text-slate-600 ${isLoading ? 'animate-spin' : ''}`}
               >
                 <RefreshCw size={15} />
@@ -277,9 +283,14 @@ export default function Dashboard() {
                          transition-colors shadow-md shadow-orange-100 whitespace-nowrap"
             >
               <Plus size={16} />
-              <span className="hidden sm:inline">Yeni scene</span>
-              <span className="sm:hidden">Yeni</span>
+              <span className="hidden sm:inline">{t.dashboard.newScene}</span>
+              <span className="sm:hidden">{t.common.new}</span>
             </button>
+
+            {/* Language Switcher */}
+            <div className="border-l border-slate-200 pl-2">
+              <LanguageSwitcher variant="dark" size="sm" />
+            </div>
           </div>
         </header>
 
@@ -289,7 +300,7 @@ export default function Dashboard() {
             <Search size={15} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" />
             <input
               type="text"
-              placeholder="Səhnələri axtarın..."
+              placeholder={t.dashboard.search}
               value={searchQuery}
               onChange={e => setSearchQuery(e.target.value)}
               className="w-full pl-9 pr-4 py-2.5 bg-slate-100 border border-transparent
@@ -309,8 +320,7 @@ export default function Dashboard() {
                 <Sparkles size={20} className="fill-white" />
               </div>
               <div>
-                <p className="font-extrabold text-base">Flaro Pro-ya xoş gəldiniz! 🎉</p>
-                <p className="text-sm text-orange-100">Bütün Pro xüsusiyyətlər indi aktiv. 7 günlük pulsuz sınaqdan istifadə edin.</p>
+                <p className="font-extrabold text-base">{t.dashboard.upgradeSuccess}</p>
               </div>
               <button
                 onClick={() => setShowUpgradeMsg(false)}
@@ -324,7 +334,7 @@ export default function Dashboard() {
             <div className="mb-6">
               <UpgradeBanner
                 feature="unlimited_scenes"
-                message="3 scene limitinə çatdınız. Pro planla limitsiz scene yaradın."
+                message={t.dashboard.freeLimit}
               />
             </div>
           )}
@@ -333,7 +343,7 @@ export default function Dashboard() {
           {errorMsg && (
             <div className="mb-6 p-4 bg-red-50 text-red-600 border border-red-200 rounded-xl flex items-center gap-3">
               <span className="flex-1">{errorMsg}</span>
-              <button onClick={fetchScenes} className="text-sm font-bold bg-white px-3 py-1.5 rounded-lg border border-red-200 hover:bg-red-50">Təkrar yoxla</button>
+              <button onClick={fetchScenes} className="text-sm font-bold bg-white px-3 py-1.5 rounded-lg border border-red-200 hover:bg-red-50">{t.dashboard.refresh}</button>
             </div>
           )}
 
@@ -355,7 +365,7 @@ export default function Dashboard() {
                 const copy = await duplicateScene(id)
                 if (copy) setScenes(s => [copy, ...s])
               } catch (err: any) {
-                if (err.message === 'FREE_PLAN_LIMIT') alert('Scene limiti dolub')
+                if (err.message === 'FREE_PLAN_LIMIT') alert(t.dashboard.freeLimit)
               }
             }}
           />

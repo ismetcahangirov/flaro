@@ -14,14 +14,18 @@ if (!localStorage.getItem(MIGRATION_KEY)) {
   localStorage.setItem(MIGRATION_KEY, '1')
 }
 
+import { I18nProvider } from '@/i18n/I18nContext'
+
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
     <BrowserRouter>
-      <ErrorBoundary>
-        <AuthProvider>
-          <App />
-        </AuthProvider>
-      </ErrorBoundary>
+      <I18nProvider>
+        <ErrorBoundary>
+          <AuthProvider>
+            <App />
+          </AuthProvider>
+        </ErrorBoundary>
+      </I18nProvider>
     </BrowserRouter>
   </StrictMode>
 )

@@ -4,10 +4,40 @@ import {
   ArrowRight, Star,
 } from 'lucide-react'
 import { useAuth } from '@/hooks/useAuth'
+import { useI18n } from '@/i18n/I18nContext'
+import { LanguageSwitcher } from '@/components/ui/LanguageSwitcher'
 
 export default function Landing() {
   const navigate = useNavigate()
   const { isAuthenticated } = useAuth()
+  const { t, locale } = useI18n()
+
+  const features = [
+    {
+      icon: <Pencil className="text-orange-500" size={24} />,
+      title: t.landing.feat1Title,
+      desc: t.landing.feat1Desc,
+      color: 'bg-orange-50',
+    },
+    {
+      icon: <Users className="text-blue-500" size={24} />,
+      title: t.landing.feat2Title,
+      desc: t.landing.feat2Desc,
+      color: 'bg-blue-50',
+    },
+    {
+      icon: <Zap className="text-purple-500" size={24} />,
+      title: t.landing.feat3Title,
+      desc: t.landing.feat3Desc,
+      color: 'bg-purple-50',
+    },
+    {
+      icon: <Cloud className="text-emerald-500" size={24} />,
+      title: t.landing.feat4Title,
+      desc: t.landing.feat4Desc,
+      color: 'bg-emerald-50',
+    },
+  ]
 
   return (
     <div className="min-h-screen bg-white overflow-x-hidden text-slate-800 font-sans">
@@ -26,15 +56,15 @@ export default function Landing() {
                         border border-orange-200 rounded-full text-orange-700
                         text-sm font-semibold mb-8 animate-fade-in">
           <Zap size={14} className="fill-orange-500 text-orange-500" />
-          El çizimi ilə professional diaqramlar
+          {t.landing.badge}
         </div>
 
         {/* Başlıq */}
         <h1 className="text-6xl md:text-7xl font-extrabold text-slate-900
                        tracking-tight mb-6 leading-[1.05] animate-slide-up">
-          Fikirləri{' '}
+          {t.landing.heroTitle1}{' '}
           <span className="relative inline-block">
-            <span className="text-orange-500">çəkin</span>
+            <span className="text-orange-500">{t.landing.heroHighlight}</span>
             {/* El çizimi alt xətt */}
             <svg
               className="absolute -bottom-2 left-0 w-full"
@@ -50,12 +80,11 @@ export default function Landing() {
               />
             </svg>
           </span>
-          , paylaşın, birlikdə işləyin
+          {t.landing.heroTitle2}
         </h1>
 
         <p className="text-xl text-slate-500 max-w-2xl mx-auto mb-10 leading-relaxed">
-          Flaro — el çizimi estetikası olan, real-time əməkdaşlıq imkanları ilə
-          təchiz edilmiş ağıllı diaqram yaratma platforması.
+          {t.landing.heroSubtitle}
         </p>
 
         {/* CTA düymələri */}
@@ -67,7 +96,7 @@ export default function Landing() {
                        shadow-lg shadow-orange-200 hover:shadow-xl hover:shadow-orange-200
                        hover:-translate-y-0.5 active:translate-y-0"
           >
-            Pulsuz başla
+            {t.landing.ctaStart}
             <ArrowRight size={20} />
           </button>
 
@@ -77,7 +106,7 @@ export default function Landing() {
                        font-semibold text-lg rounded-2xl border border-slate-200
                        hover:border-slate-300 hover:bg-slate-50 transition-all"
           >
-            Qiymətlər
+            {t.landing.ctaPricing}
           </button>
         </div>
 
@@ -90,7 +119,9 @@ export default function Landing() {
                   style={{ backgroundColor: c }} />
               ))}
             </div>
-            <span>10,000+ istifadəçi</span>
+            <span>
+              {locale === 'az' ? '10,000+ istifadəçi' : locale === 'tr' ? '10.000+ kullanıcı' : locale === 'ru' ? '10,000+ пользователей' : '10,000+ users'}
+            </span>
           </div>
           <div className="flex items-center gap-1">
             {[...Array(5)].map((_, i) => (
@@ -105,45 +136,29 @@ export default function Landing() {
       <section className="py-24 px-6 bg-slate-50">
         <div className="max-w-6xl mx-auto">
           <h2 className="text-4xl font-bold text-center text-slate-900 mb-4 tracking-tight">
-            Niyə Flaro?
+            {t.landing.featuresTitle}
           </h2>
           <p className="text-center text-slate-500 mb-16 max-w-xl mx-auto">
-            Professional görünüş, el çizimi ruhu
+            {t.landing.featuresSubtitle}
           </p>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            {FEATURES.map((f, i) => (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
+            {features.map((f, i) => (
               <FeatureCard key={i} {...f} />
             ))}
           </div>
         </div>
       </section>
+
+      {/* Footer */}
+      <footer className="py-8 px-6 border-t border-slate-100 text-center text-sm text-slate-400">
+        {t.landing.footerRights}
+      </footer>
     </div>
   )
 }
 
-const FEATURES = [
-  {
-    icon: <Pencil className="text-orange-500" size={24} />,
-    title: 'El çizimi estetikası',
-    desc: 'Rough.js ilə hər element canlı, üzvi görünür. Texniki diaqramlar belə insan əli tərəfindən çəkilmiş hiss verir.',
-    color: 'bg-orange-50',
-  },
-  {
-    icon: <Users className="text-blue-500" size={24} />,
-    title: 'Real-time əməkdaşlıq',
-    desc: 'Komandanızla eyni canvas üzərində işləyin. Hər kəsin kursoru, seçimi anlıq görünür.',
-    color: 'bg-blue-50',
-  },
-  {
-    icon: <Cloud className="text-emerald-500" size={24} />,
-    title: 'Avtomatik sinxronizasiya',
-    desc: 'Pro planda hər dəyişiklik buludda avtomatik saxlanılır. Heç nəyi itirməyin.',
-    color: 'bg-emerald-50',
-  },
-]
-
-function FeatureCard({ icon, title, desc, color }: typeof FEATURES[0]) {
+function FeatureCard({ icon, title, desc, color }: { icon: React.ReactNode; title: string; desc: string; color: string }) {
   return (
     <div className="bg-white rounded-3xl p-8 border border-slate-100 shadow-sm
                     hover:shadow-md transition-shadow group">
@@ -159,22 +174,23 @@ function FeatureCard({ icon, title, desc, color }: typeof FEATURES[0]) {
 function Navbar() {
   const navigate = useNavigate()
   const { isAuthenticated } = useAuth()
+  const { t } = useI18n()
 
   return (
     <nav className="fixed top-0 inset-x-0 z-50 bg-black/80 backdrop-blur-md py-2
-                    border-b border-slate-100">
+                    border-b border-slate-800">
       <div className="max-w-6xl mx-auto px-6 h-16 flex items-center justify-between">
         <div className="cursor-pointer" onClick={() => navigate('/')}>
           <img src="/flaro-logo.png" alt="Flaro" className="h-[45px] md:h-[65px] lg:h-[85px] w-auto" />
         </div>
 
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-4">
           <button
             onClick={() => navigate('/pricing')}
-            className="text-sm font-medium text-gray-300 hover:text-slate-900 px-3 py-2
-                       rounded-lg hover:bg-slate-100 transition-colors"
+            className="text-sm font-medium text-gray-300 hover:text-white px-3 py-2
+                       rounded-lg hover:bg-white/10 transition-colors"
           >
-            Qiymətlər
+            {t.nav.pricing}
           </button>
 
           {isAuthenticated ? (
@@ -183,26 +199,30 @@ function Navbar() {
               className="px-4 py-2 bg-orange-500 text-white text-sm font-semibold
                          rounded-xl hover:bg-orange-600 transition-colors hover:text-white hover:shadow-md hover:shadow-orange-500"
             >
-              Dashboard
+              {t.nav.dashboard}
             </button>
           ) : (
             <>
               <button
                 onClick={() => navigate('/login')}
-                className="text-sm font-medium text-slate-600 hover:text-slate-900 px-3 py-2
-                           rounded-lg hover:bg-slate-100 transition-colors"
+                className="text-sm font-medium text-gray-300 hover:text-white px-3 py-2
+                           rounded-lg hover:bg-white/10 transition-colors"
               >
-                Giriş
+                {t.nav.login}
               </button>
               <button
                 onClick={() => navigate('/login')}
                 className="px-4 py-2 bg-orange-500 text-white text-sm font-semibold
                            rounded-xl hover:bg-orange-600 transition-colors shadow-md shadow-orange-100"
               >
-                Başla — Pulsuz
+                {t.nav.getStarted}
               </button>
             </>
           )}
+
+          <div className="border-l border-white/15 pl-3">
+            <LanguageSwitcher variant="light" size="sm" />
+          </div>
         </div>
       </div>
     </nav>

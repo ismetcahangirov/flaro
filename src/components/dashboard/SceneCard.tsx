@@ -3,6 +3,7 @@ import {
   MoreHorizontal, Pencil, Trash2,
   Copy, ExternalLink, Clock,
 } from 'lucide-react'
+import { useI18n } from '@/i18n/I18nContext'
 import type { Scene } from '@/types/database.types'
 
 interface SceneCardProps {
@@ -20,15 +21,16 @@ export function SceneCard({
   const [isRenaming,  setIsRenaming]  = useState(false)
   const [renameValue, setRenameValue] = useState(scene.title)
   const inputRef = useRef<HTMLInputElement>(null)
+  const { t, locale } = useI18n()
 
   const formatDate = (d: string) => {
     try {
-      return new Intl.RelativeTimeFormat('az', { numeric: 'auto' }).format(
+      return new Intl.RelativeTimeFormat(locale, { numeric: 'auto' }).format(
         Math.round((new Date(d).getTime() - Date.now()) / (1000 * 60 * 60 * 24)),
         'day'
       )
     } catch {
-      return 'indi'
+      return locale === 'az' ? 'indi' : locale === 'tr' ? 'şimdi' : locale === 'ru' ? 'сейчас' : 'just now'
     }
   }
 
@@ -52,7 +54,7 @@ export function SceneCard({
         {scene.thumbnail_url ? (
           <img
             src={scene.thumbnail_url}
-            alt={scene.title}
+            alt={scene.title || t.dashboard.untitled}
             className="w-full h-full object-cover"
           />
         ) : (
@@ -67,7 +69,7 @@ export function SceneCard({
           <div className="bg-white/90 text-slate-800 px-4 py-2 rounded-xl
                           text-sm font-semibold flex items-center gap-2">
             <ExternalLink size={14} />
-            Aç
+            {t.dashboard.open}
           </div>
         </div>
       </div>
@@ -92,7 +94,7 @@ export function SceneCard({
             />
           ) : (
             <h3 className="text-sm font-semibold text-slate-900 truncate flex-1">
-              {scene.title}
+              {scene.title || t.dashboard.untitled}
             </h3>
           )}
 
@@ -115,18 +117,18 @@ export function SceneCard({
               >
                 <MenuAction
                   icon={<Pencil size={14}/>}
-                  label="Adını dəyişdir"
+                  label={t.dashboard.rename}
                   onClick={() => { setIsRenaming(true); setShowMenu(false) }}
                 />
                 <MenuAction
                   icon={<Copy size={14}/>}
-                  label="Kopyala"
+                  label={t.dashboard.duplicate}
                   onClick={() => { onDuplicate(); setShowMenu(false) }}
                 />
                 <div className="my-1 border-t border-slate-100" />
                 <MenuAction
                   icon={<Trash2 size={14}/>}
-                  label="Sil"
+                  label={t.dashboard.delete}
                   onClick={() => { onDelete(); setShowMenu(false) }}
                   danger
                 />

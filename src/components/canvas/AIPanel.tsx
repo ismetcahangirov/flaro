@@ -4,6 +4,79 @@ import { useAI } from '@/hooks/useAI'
 import { useAuth } from '@/hooks/useAuth'
 import { useNavigate } from 'react-router-dom'
 import { Button } from '@/components/ui/Button'
+import { useI18n } from '@/i18n/I18nContext'
+
+const dict: Record<'az' | 'tr' | 'ru' | 'en', {
+  aiDrawer: string
+  smartDiagramsSub: string
+  diagramType: string
+  generalDiagram: string
+  flowchart: string
+  mindmap: string
+  wireframe: string
+  describePrompt: string
+  placeholder: string
+  limitPerDay: string
+  upgradeProLimit: string
+  drawDiagram: string
+}> = {
+  az: {
+    aiDrawer: 'Flaro AI Çəkici',
+    smartDiagramsSub: 'Saniyələr içində ağıllı diaqramlar',
+    diagramType: 'Diaqram Növü',
+    generalDiagram: 'Ümumi Diaqram',
+    flowchart: 'Flowchart (Blok-Sxem)',
+    mindmap: 'Ağıl Xəritəsi (Mindmap)',
+    wireframe: 'Wireframe (Veb/Mobil)',
+    describePrompt: 'Təsvir edin',
+    placeholder: 'Məs. İstifadəçi qeydiyyat addımları, 3 mərhələli biznes planı...',
+    limitPerDay: 'gün',
+    upgradeProLimit: 'Pro-ya keç (100 limit)',
+    drawDiagram: 'Diaqram Çək'
+  },
+  tr: {
+    aiDrawer: 'Flaro Yapay Zeka Çizeri',
+    smartDiagramsSub: 'Saniyeler içinde akıllı diyagramlar',
+    diagramType: 'Diyagram Türü',
+    generalDiagram: 'Genel Diyagram',
+    flowchart: 'Akış Şeması (Flowchart)',
+    mindmap: 'Zihin Haritası (Mindmap)',
+    wireframe: 'Tel Kafes (Wireframe - Web/Mobil)',
+    describePrompt: 'Tarif edin',
+    placeholder: 'Örn. Kullanıcı kayıt adımları, 3 aşamalı iş planı...',
+    limitPerDay: 'gün',
+    upgradeProLimit: "Pro'ya geç (100 limit)",
+    drawDiagram: 'Diyagram Çiz'
+  },
+  ru: {
+    aiDrawer: 'Flaro AI Рисовальщик',
+    smartDiagramsSub: 'Умные диаграммы за секунды',
+    diagramType: 'Тип диаграммы',
+    generalDiagram: 'Общая диаграмма',
+    flowchart: 'Блок-схема (Flowchart)',
+    mindmap: 'Карта мыслей (Mindmap)',
+    wireframe: 'Вайрфрейм (Веб/Мобильный)',
+    describePrompt: 'Опишите',
+    placeholder: 'Например: шаги регистрации пользователя, 3-этапный бизнес-план...',
+    limitPerDay: 'день',
+    upgradeProLimit: 'Перейти на Pro (лимит 100)',
+    drawDiagram: 'Нарисовать диаграмму'
+  },
+  en: {
+    aiDrawer: 'Flaro AI Drawer',
+    smartDiagramsSub: 'Smart diagrams in seconds',
+    diagramType: 'Diagram Type',
+    generalDiagram: 'General Diagram',
+    flowchart: 'Flowchart',
+    mindmap: 'Mindmap',
+    wireframe: 'Wireframe (Web/Mobile)',
+    describePrompt: 'Describe it',
+    placeholder: 'e.g. User registration steps, 3-stage business plan...',
+    limitPerDay: 'day',
+    upgradeProLimit: 'Upgrade to Pro (100 limit)',
+    drawDiagram: 'Draw Diagram'
+  }
+}
 
 export function AIPanel() {
   const navigate = useNavigate()
@@ -12,6 +85,9 @@ export function AIPanel() {
   const [prompt, setPrompt] = useState('')
   const [type, setType] = useState<'diagram' | 'flowchart' | 'mindmap' | 'wireframe'>('diagram')
   const [isOpen, setIsOpen] = useState(false)
+  const { locale } = useI18n()
+
+  const currentDict = dict[locale as 'az' | 'tr' | 'ru' | 'en'] || dict['en']
 
   const handleGenerate = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -36,8 +112,8 @@ export function AIPanel() {
                 <Sparkles size={16} className="text-orange-500 fill-orange-500 animate-pulse-soft" />
               </div>
               <div>
-                <h4 className="font-extrabold text-sm text-slate-900">Flaro AI Çəkici</h4>
-                <p className="text-[10px] text-slate-400 font-medium">Saniyələr içində ağıllı diaqramlar</p>
+                <h4 className="font-extrabold text-sm text-slate-900">{currentDict.aiDrawer}</h4>
+                <p className="text-[10px] text-slate-400 font-medium">{currentDict.smartDiagramsSub}</p>
               </div>
             </div>
             
@@ -58,7 +134,7 @@ export function AIPanel() {
           <form onSubmit={handleGenerate} className="flex flex-col gap-3.5">
             <div>
               <label className="block text-[10px] font-extrabold text-slate-400 uppercase tracking-wider mb-1.5">
-                Diaqram Növü
+                {currentDict.diagramType}
               </label>
               <select
                 value={type}
@@ -67,21 +143,21 @@ export function AIPanel() {
                            text-xs font-semibold outline-none focus:bg-white focus:border-orange-500
                            transition-all text-slate-700 cursor-pointer"
               >
-                <option value="diagram">Ümumi Diaqram</option>
-                <option value="flowchart">Flowchart (Blok-Sxem)</option>
-                <option value="mindmap">Ağıl Xəritəsi (Mindmap)</option>
-                <option value="wireframe">Wireframe (Veb/Mobil)</option>
+                <option value="diagram">{currentDict.generalDiagram}</option>
+                <option value="flowchart">{currentDict.flowchart}</option>
+                <option value="mindmap">{currentDict.mindmap}</option>
+                <option value="wireframe">{currentDict.wireframe}</option>
               </select>
             </div>
 
             <div>
               <label className="block text-[10px] font-extrabold text-slate-400 uppercase tracking-wider mb-1.5">
-                Təsvir edin
+                {currentDict.describePrompt}
               </label>
               <textarea
                 value={prompt}
                 onChange={e => setPrompt(e.target.value)}
-                placeholder="Məs. İstifadəçi qeydiyyat addımları, 3 mərhələli biznes planı..."
+                placeholder={currentDict.placeholder}
                 rows={3}
                 required
                 className="w-full px-3.5 py-3 bg-slate-50 border border-slate-200/80 rounded-2xl
@@ -100,14 +176,14 @@ export function AIPanel() {
 
             {/* Limit Göstərici & Pro Keçid Bəyannaməsi */}
             <div className="flex items-center justify-between text-[10px] font-semibold text-slate-400">
-              <span>Limit: {remaining !== null ? `${remaining} / ${limit}` : `${isPro ? 100 : 10} / gün`}</span>
+              <span>Limit: {remaining !== null ? `${remaining} / ${limit}` : `${isPro ? 100 : 10} / ${currentDict.limitPerDay}`}</span>
               {!isPro && (
                 <button
                   type="button"
                   onClick={() => navigate('/pricing')}
                   className="flex items-center gap-1 text-orange-500 hover:text-orange-600 font-extrabold"
                 >
-                  <Zap size={10} className="fill-orange-500" /> Pro-ya keç (100 limit)
+                  <Zap size={10} className="fill-orange-500" /> {currentDict.upgradeProLimit}
                 </button>
               )}
             </div>
@@ -123,7 +199,7 @@ export function AIPanel() {
                          hover:shadow-xl hover:shadow-orange-200 border-none transition-all duration-300"
             >
               <Sparkles size={14} className="fill-white" />
-              Diaqram Çək
+              {currentDict.drawDiagram}
             </Button>
           </form>
         </div>

@@ -8,6 +8,8 @@ import {
 } from 'lucide-react'
 import { useBilling }   from '@/hooks/useBilling'
 import { useAuth }      from '@/hooks/useAuth'
+import { useI18n }      from '@/i18n/I18nContext'
+import { LanguageSwitcher } from '@/components/ui/LanguageSwitcher'
 
 // ── Plan məlumatları ─────────────────────────────────────────────────────────
 
@@ -19,50 +21,6 @@ interface PlanFeature {
   isNew?:   boolean
 }
 
-const FEATURES: { section: string; items: PlanFeature[] }[] = [
-  {
-    section: 'Yarat',
-    items: [
-      { label: 'Sonsuz canvas',          free: true,         pro: true,       icon: <Infinity  size={15}/> },
-      { label: 'Tam redaktə alətləri',   free: true,         pro: true,       icon: <Sparkles  size={15}/> },
-      { label: 'Limitsiz səhnələr',       free: false,        pro: true,       icon: <Cloud     size={15}/> },
-      { label: 'Avtomatik sinxronizasiya',free: false,        pro: true,       icon: <Cloud     size={15}/> },
-      { label: 'Sürətli dashboard',       free: false,        pro: true,       icon: <Zap       size={15}/> },
-      { label: 'Generativ AI',            free: 'Məhdud',     pro: 'Genişləndirilmiş', icon: <Brain size={15}/> },
-      { label: 'Təqdimatlar',             free: false,        pro: true,       icon: <Presentation size={15}/> },
-    ],
-  },
-  {
-    section: 'Əməkdaşlıq',
-    items: [
-      { label: 'Linkə dəvət',            free: true,         pro: true,       icon: <Users     size={15}/> },
-      { label: 'Yalnız görüntü rejimi',  free: false,        pro: true,       icon: <Users     size={15}/> },
-      { label: 'Səs & ekran paylaşımı',  free: false,        pro: true,       icon: <Users     size={15}/>, isNew: true },
-      { label: 'Şərhlər',                free: false,        pro: true,       icon: <MessageSquare size={15}/> },
-      { label: 'Canlı təqdimatlar',      free: false,        pro: true,       icon: <Presentation size={15}/> },
-    ],
-  },
-  {
-    section: 'Paylaş',
-    items: [
-      { label: 'PNG/SVG/JSON ixrac',     free: true,         pro: true,       icon: <FileDown  size={15}/> },
-      { label: 'Embed/Readonly linklər', free: false,        pro: true,       icon: <FileDown  size={15}/> },
-      { label: 'Slayd kimi təqdim',      free: false,        pro: true,       icon: <Presentation size={15}/> },
-      { label: 'PDF & PPTX ixrac',       free: false,        pro: true,       icon: <FileDown  size={15}/>, isNew: true },
-    ],
-  },
-  {
-    section: 'Komanda',
-    items: [
-      { label: 'İstifadəçi hesabları',   free: false,        pro: true,       icon: <Users     size={15}/> },
-      { label: 'Buludda saxla',          free: false,        pro: true,       icon: <Cloud     size={15}/> },
-      { label: 'Workspace Komandaları',  free: false,        pro: true,       icon: <Users     size={15}/> },
-      { label: 'İstifadəçi idarəetməsi', free: false,        pro: true,       icon: <Users     size={15}/> },
-      { label: 'Kolleksiyalara sırala',  free: false,        pro: true,       icon: <Sparkles  size={15}/> },
-    ],
-  },
-]
-
 // ── Pricing Komponenti ───────────────────────────────────────────────────────
 
 export default function Pricing() {
@@ -70,6 +28,7 @@ export default function Pricing() {
   const { isAuthenticated, isPro } = useAuth()
   const { upgradeToPro, isRedirecting } = useBilling()
   const [billing, setBilling] = useState<'monthly' | 'yearly'>('monthly')
+  const { t, locale } = useI18n()
 
   const monthlyPrice = 6
   const yearlyPrice  = Math.floor(monthlyPrice * 12 * 0.8)  // %20 endirim
@@ -82,6 +41,74 @@ export default function Pricing() {
     await upgradeToPro()
   }
 
+  const FEATURES: { section: string; items: PlanFeature[] }[] = [
+    {
+      section: t.pricing.sectionCreate,
+      items: [
+        { label: t.pricing.features.infiniteCanvas,   free: true,         pro: true,       icon: <Infinity  size={15}/> },
+        { label: t.pricing.features.fullTools,         free: true,         pro: true,       icon: <Sparkles  size={15}/> },
+        { label: t.pricing.features.unlimitedScenes,   free: false,        pro: true,       icon: <Cloud     size={15}/> },
+        { label: t.pricing.features.autoSync,          free: false,        pro: true,       icon: <Cloud     size={15}/> },
+        { label: t.pricing.features.fastDashboard,     free: false,        pro: true,       icon: <Zap       size={15}/> },
+        { label: t.pricing.features.generativeAI,      free: t.pricing.limited, pro: t.pricing.extended, icon: <Brain size={15}/> },
+        { label: t.pricing.features.presentations,     free: false,        pro: true,       icon: <Presentation size={15}/> },
+      ],
+    },
+    {
+      section: t.pricing.sectionCollab,
+      items: [
+        { label: t.pricing.features.inviteLink,        free: true,         pro: true,       icon: <Users     size={15}/> },
+        { label: t.pricing.features.viewOnlyMode,      free: false,        pro: true,       icon: <Users     size={15}/> },
+        { label: t.pricing.features.voiceScreen,       free: false,        pro: true,       icon: <Users     size={15}/>, isNew: true },
+        { label: t.pricing.features.comments,          free: false,        pro: true,       icon: <MessageSquare size={15}/> },
+        { label: t.pricing.features.livePresentations, free: false,        pro: true,       icon: <Presentation size={15}/> },
+      ],
+    },
+    {
+      section: t.pricing.sectionShare,
+      items: [
+        { label: t.pricing.features.pngSvgJson,        free: true,         pro: true,       icon: <FileDown  size={15}/> },
+        { label: t.pricing.features.embedLinks,        free: false,        pro: true,       icon: <FileDown  size={15}/> },
+        { label: t.pricing.features.slidePresent,      free: false,        pro: true,       icon: <Presentation size={15}/> },
+        { label: t.pricing.features.pdfPptx,           free: false,        pro: true,       icon: <FileDown  size={15}/>, isNew: true },
+      ],
+    },
+    {
+      section: t.pricing.sectionTeam,
+      items: [
+        { label: t.pricing.features.userAccounts,      free: false,        pro: true,       icon: <Users     size={15}/> },
+        { label: t.pricing.features.cloudStorage,      free: false,        pro: true,       icon: <Cloud     size={15}/> },
+        { label: t.pricing.features.workspaceTeams,    free: false,        pro: true,       icon: <Users     size={15}/> },
+        { label: t.pricing.features.userManagement,    free: false,        pro: true,       icon: <Users     size={15}/> },
+        { 
+          label: locale === 'az' ? 'Kolleksiyalara sırala' : locale === 'tr' ? 'Koleksiyonlara göre sırala' : locale === 'ru' ? 'Сортировка по коллекциям' : 'Sort into collections', 
+          free: false, 
+          pro: true, 
+          icon: <Sparkles size={15}/> 
+        },
+      ],
+    },
+  ]
+
+  const freeDesc = locale === 'az' ? 'Həmişəlik pulsuz' : locale === 'tr' ? 'Her zaman ücretsiz' : locale === 'ru' ? 'Бесплатно навсегда' : 'Free forever'
+  const proDesc = locale === 'az' ? 'Hər şeyin limitsizi' : locale === 'tr' ? 'Her şey sınırsız' : locale === 'ru' ? 'Всё без ограничений' : 'Unlimited everything'
+  const trialText = locale === 'az' ? '7 günlük pulsuz sınaq' : locale === 'tr' ? '7 günlük ücretsiz deneme' : locale === 'ru' ? '7-дневный бесплатный пробный период' : '7-day free trial'
+  const monthlyLabel = locale === 'az' ? 'Aylıq' : locale === 'tr' ? 'Aylık' : locale === 'ru' ? 'Ежемесячно' : 'Monthly'
+  const yearlyLabel = locale === 'az' ? 'İllik' : locale === 'tr' ? 'Yıllık' : locale === 'ru' ? 'Ежегодно' : 'Yearly'
+  const discountText = locale === 'az' ? '20% endirim' : locale === 'tr' ? '%20 indirim' : locale === 'ru' ? 'скидка 20%' : '20% discount'
+  const homeLabel = locale === 'az' ? 'Ana səhifə' : locale === 'tr' ? 'Ana Sayfa' : locale === 'ru' ? 'Главная' : 'Home'
+
+  const activePlanLabel = locale === 'az' ? 'Aktiv plan' : locale === 'tr' ? 'Aktif plan' : locale === 'ru' ? 'Активный тариф' : 'Active plan'
+  const redirectingLabel = locale === 'az' ? 'Yönləndirilir...' : locale === 'tr' ? 'Yönlendiriliyor...' : locale === 'ru' ? 'Перенаправление...' : 'Redirecting...'
+
+  const sceneLimitText = locale === 'az' ? '3 aktiv səhnə' : locale === 'tr' ? '3 aktif sahne' : locale === 'ru' ? '3 активные сцены' : '3 active scenes'
+  const publicLibText = locale === 'az' ? 'İctimai kitabxanalar' : locale === 'tr' ? 'Ortak kütüphaneler' : locale === 'ru' ? 'Публичные библиотеки' : 'Public libraries'
+  const guestLinkText = locale === 'az' ? 'Linki paylaş (qonaqlar üçün)' : locale === 'tr' ? 'Bağlantıyı paylaş (ziyaretçiler için)' : locale === 'ru' ? 'Поделиться ссылкой (для гостей)' : 'Share link (for guests)'
+
+  const freeEverythingText = locale === 'az' ? 'Hər şey Free-dən' : locale === 'tr' ? 'Free planındaki her şey' : locale === 'ru' ? 'Всё из бесплатного тарифа' : 'Everything in Free'
+  const commentsCollabText = locale === 'az' ? 'Şərhlər & əməkdaşlıq' : locale === 'tr' ? 'Yorumlar & işbirliği' : locale === 'ru' ? 'Комментарии и совместная работа' : 'Comments & collaboration'
+  const extendedAiText = locale === 'az' ? 'Genişləndirilmiş AI' : locale === 'tr' ? 'Gelişmiş AI' : locale === 'ru' ? 'Расширенный AI' : 'Extended AI'
+
   return (
     <div className="min-h-screen bg-gradient-to-b from-orange-50 via-white to-white font-sans text-slate-800 relative">
       {/* Ana səhifəyə qayıt */}
@@ -90,22 +117,27 @@ export default function Pricing() {
         className="absolute top-6 left-6 md:top-8 md:left-8 flex items-center gap-2 px-4 py-2 bg-white/60 hover:bg-white rounded-xl shadow-sm border border-orange-100 text-slate-600 hover:text-orange-600 transition-all font-medium backdrop-blur-sm z-10"
       >
         <Home size={18} />
-        <span className="hidden sm:inline">Ana səhifə</span>
+        <span className="hidden sm:inline">{homeLabel}</span>
       </button>
 
+      {/* Dil seçimi */}
+      <div className="absolute top-6 right-6 md:top-8 md:right-8 z-10">
+        <LanguageSwitcher variant="dark" size="sm" />
+      </div>
+
       {/* Hero */}
-      <div className="max-w-5xl mx-auto px-4 pt-20 pb-12 text-center">
+      <div className="max-w-5xl mx-auto px-4 pt-24 pb-12 text-center">
         <div className="inline-flex items-center gap-2 px-4 py-2 bg-orange-100
                         text-orange-700 rounded-full text-sm font-semibold mb-6 shadow-sm">
           <Zap size={14} className="fill-orange-500" />
-          7 günlük pulsuz sınaq
+          {trialText}
         </div>
 
         <h1 className="text-5xl font-extrabold text-slate-900 mb-4 tracking-tight md:text-6xl">
-          Sadə və şəffaf qiymət
+          {t.pricing.title}
         </h1>
         <p className="text-xl text-slate-500 max-w-xl mx-auto">
-          Həmişəlik pulsuz başlayın. Böyüdükdə yüksəlin.
+          {t.pricing.subtitle}
         </p>
 
         {/* Billing toggle */}
@@ -113,7 +145,7 @@ export default function Pricing() {
           <span className={`text-sm font-medium transition-colors ${
             billing === 'monthly' ? 'text-slate-900 font-bold' : 'text-slate-400'
           }`}>
-            Aylıq
+            {monthlyLabel}
           </span>
           <button
             onClick={() => setBilling(b => b === 'monthly' ? 'yearly' : 'monthly')}
@@ -129,12 +161,12 @@ export default function Pricing() {
           <span className={`text-sm font-medium transition-colors ${
             billing === 'yearly' ? 'text-slate-900 font-bold' : 'text-slate-400'
           }`}>
-            İllik
+            {yearlyLabel}
           </span>
           {billing === 'yearly' && (
             <span className="px-2.5 py-0.5 bg-emerald-100 text-emerald-700 text-xs
                              font-bold rounded-full animate-pulse-soft">
-              20% endirim
+              {discountText}
             </span>
           )}
         </div>
@@ -146,19 +178,19 @@ export default function Pricing() {
 
           {/* Free plan */}
           <PlanCard
-            name="Free"
+            name={t.pricing.free}
             price={0}
             period=""
-            description="Həmişəlik pulsuz"
+            description={freeDesc}
             features={[
-              'Sonsuz canvas',
-              'Tam redaktə alətləri',
-              '3 aktiv səhnə',
-              'PNG/SVG/JSON ixrac',
-              'Ictimai kitabxanalar',
-              'Linki paylaş (qonaqlar üçün)',
+              t.pricing.features.infiniteCanvas,
+              t.pricing.features.fullTools,
+              sceneLimitText,
+              t.pricing.features.pngSvgJson,
+              publicLibText,
+              guestLinkText,
             ]}
-            cta={isPro ? 'Cari plan' : (isAuthenticated ? 'Mövcud plan' : 'Başla')}
+            cta={isPro ? t.pricing.currentPlan : (isAuthenticated ? t.pricing.currentPlan : t.pricing.startFree)}
             ctaVariant="secondary"
             onCta={() => !isAuthenticated && navigate('/signup')}
             disabled={isAuthenticated && !isPro ? true : false}
@@ -166,25 +198,25 @@ export default function Pricing() {
 
           {/* Pro plan */}
           <PlanCard
-            name="Pro"
+            name={t.pricing.pro}
             price={billing === 'monthly' ? monthlyPrice : Math.round(yearlyPrice / 12)}
-            period={billing === 'monthly' ? '/ay' : '/ay (illik ödənilir)'}
-            description="Hər şeyin limitsizi"
-            badge="Ən populyar"
+            period={billing === 'monthly' ? t.pricing.perMonth : `/ay (${locale === 'az' ? 'illik ödənilir' : locale === 'tr' ? 'yıllık faturalandırılır' : locale === 'ru' ? 'оплата ежегодно' : 'billed annually'})`}
+            description={proDesc}
+            badge={t.pricing.mostPopular}
             features={[
-              'Hər şey Free-dən',
-              'Limitsiz səhnələr',
-              'Avtomatik bulud sinxronu',
-              'Şərhlər & əməkdaşlıq',
-              'Workspace komandaları',
-              'PDF & PPTX ixrac',
-              'Genişləndirilmiş AI',
-              '7 günlük pulsuz sınaq',
+              freeEverythingText,
+              t.pricing.features.unlimitedScenes,
+              t.pricing.features.autoSync,
+              commentsCollabText,
+              t.pricing.features.workspaceTeams,
+              t.pricing.features.pdfPptx,
+              extendedAiText,
+              trialText,
             ]}
             cta={
-              isPro          ? '✓ Aktiv plan' :
-              isRedirecting  ? 'Yönləndirilir...' :
-                               'Pro-ya keç'
+              isPro          ? `✓ ${activePlanLabel}` :
+              isRedirecting  ? redirectingLabel :
+                               t.pricing.upgradePro
             }
             ctaVariant="primary"
             onCta={handleUpgrade}
@@ -194,7 +226,7 @@ export default function Pricing() {
         </div>
 
         {/* Müqayisə cədvəli */}
-        <ComparisonTable />
+        <ComparisonTable features={FEATURES} />
       </div>
 
       {/* FAQ */}
@@ -294,22 +326,26 @@ function PlanCard({
 
 // ── Müqayisə Cədvəli ─────────────────────────────────────────────────────────
 
-function ComparisonTable() {
+function ComparisonTable({ features }: { features: { section: string; items: PlanFeature[] }[] }) {
+  const { t, locale } = useI18n()
+  const compTitle = locale === 'az' ? 'Xüsusiyyətlərin müqayisəsi' : locale === 'tr' ? 'Özelliklerin karşılaştırması' : locale === 'ru' ? 'Сравнение функций' : 'Compare Features'
+  const newBadgeText = locale === 'az' ? 'YENİ' : locale === 'tr' ? 'YENİ' : locale === 'ru' ? 'НОВОЕ' : 'NEW'
+
   return (
     <div className="bg-white rounded-3xl border border-slate-100 overflow-hidden shadow-xl shadow-slate-100/50 mt-12">
       {/* Başlıq */}
       <div className="grid grid-cols-3 border-b border-slate-100 bg-slate-50/50 p-6">
-        <div className="font-bold text-lg text-slate-900">Xüsusiyyətlərin müqayisəsi</div>
+        <div className="font-bold text-lg text-slate-900">{compTitle}</div>
         <div className="text-center">
-          <span className="text-sm font-extrabold text-slate-500 uppercase tracking-wider">Free</span>
+          <span className="text-sm font-extrabold text-slate-500 uppercase tracking-wider">{t.pricing.free}</span>
         </div>
         <div className="text-center">
-          <span className="text-sm font-extrabold text-orange-600 uppercase tracking-wider">Pro</span>
+          <span className="text-sm font-extrabold text-orange-600 uppercase tracking-wider">{t.pricing.pro}</span>
         </div>
       </div>
 
       {/* Xüsusiyyətlər */}
-      {FEATURES.map((section) => (
+      {features.map((section) => (
         <React.Fragment key={section.section}>
           {/* Bölmə başlığı */}
           <div className="grid grid-cols-3 bg-slate-100/60 border-y border-slate-200/60">
@@ -333,7 +369,7 @@ function ComparisonTable() {
                 {feature.isNew && (
                   <span className="px-2 py-0.5 bg-emerald-100 text-emerald-700
                                    text-[10px] font-bold rounded-full">
-                    YENİ
+                    {newBadgeText}
                   </span>
                 )}
               </div>
@@ -370,7 +406,6 @@ function FeatureValue({ value, isPro }: { value: boolean | string; isPro?: boole
     return <X size={16} className="text-slate-300" />
   }
 
-  // String dəyər (məs: "Məhdud", "Genişləndirilmiş")
   return (
     <span className={`text-xs font-bold px-2.5 py-1 rounded-lg ${
       isPro ? 'bg-orange-50 text-orange-600 border border-orange-100' : 'bg-slate-100 text-slate-600'
@@ -382,35 +417,94 @@ function FeatureValue({ value, isPro }: { value: boolean | string; isPro?: boole
 
 // ── FAQ ───────────────────────────────────────────────────────────────────────
 
-const FAQ_ITEMS = [
-  {
-    q: 'Kredit kartı olmadan sınaya bilərəm?',
-    a: 'Bəli! Pro planı 7 günlük pulsuz sınaqla başlayır. Sınaq müddətindən əvvəl ləğv edə bilərsiniz.',
-  },
-  {
-    q: 'İstənilən vaxt ləğv edə bilərəm?',
-    a: 'Əlbəttə. Billing portalından istənilən vaxt ləğv edə bilərsiniz. Cari dövrün sonuna kimi Pro plan aktiv qalır.',
-  },
-  {
-    q: 'Free planda yaratdığım fayllara nə olur?',
-    a: 'Heç nə olmur. Məlumatlarınız həmişə sizindir. Pro-dan Free-ə keçsəniz fayllarınıza brauzer vasitəsilə daxil ola bilərsiniz.',
-  },
-  {
-    q: 'Komanda üçün qiymət necədir?',
-    a: 'Hər üzv üçün $6/ay. Workspace funksiyası Pro planın bir hissəsidir.',
-  },
-] as const
+const FAQ_DICTIONARY: Record<'az' | 'tr' | 'ru' | 'en', { q: string; a: string }[]> = {
+  az: [
+    {
+      q: 'Kredit kartı olmadan sınaya bilərəm?',
+      a: 'Bəli! Pro planı 7 günlük pulsuz sınaqla başlayır. Sınaq müddətindən əvvəl ləğv edə bilərsiniz.',
+    },
+    {
+      q: 'İstənilən vaxt ləğv edə bilərəm?',
+      a: 'Əlbəttə. Billing portalından istənilən vaxt ləğv edə bilərsiniz. Cari dövrün sonuna kimi Pro plan aktiv qalır.',
+    },
+    {
+      q: 'Free planda yaratdığım fayllara nə olur?',
+      a: 'Heç nə olmur. Məlumatlarınız həmişə sizindir. Pro-dan Free-ə keçsəniz fayllarınıza brauzer vasitəsilə daxil ola bilərsiniz.',
+    },
+    {
+      q: 'Komanda üçün qiymət necədir?',
+      a: 'Hər üzv üçün $6/ay. Workspace funksiyası Pro planın bir hissəsidir.',
+    },
+  ],
+  tr: [
+    {
+      q: 'Kredi kartı olmadan deneyebilir miyim?',
+      a: 'Evet! Pro planı 7 günlük ücretsiz deneme ile başlar. Deneme süresi bitmeden iptal edebilirsiniz.',
+    },
+    {
+      q: 'İstediğim zaman iptal edebilir miyim?',
+      a: 'Tabii ki. Fatura portalından istediğiniz zaman iptal edebilirsiniz. Pro planı, cari dönemin sonuna kadar aktif kalır.',
+    },
+    {
+      q: 'Ücretsiz planda oluşturduğum dosyalara ne olur?',
+      a: 'Hiçbir şey olmaz. Verileriniz her zaman sizindir. Pro\'dan Ücretsiz plana geçseniz bile dosyalarınıza tarayıcı üzerinden erişebilirsiniz.',
+    },
+    {
+      q: 'Ekip için fiyatlandırma nasıldır?',
+      a: 'Üye başına aylık $6. Workspace özelliği Pro planın bir parçasıdır.',
+    },
+  ],
+  ru: [
+    {
+      q: 'Могу ли я попробовать без кредитной карты?',
+      a: 'Да! Тариф Pro начинается с 7-дневного бесплатного пробного периода. Вы можете отменить подписку до окончания пробного периода.',
+    },
+    {
+      q: 'Могу ли я отменить подписку в любое время?',
+      a: 'Конечно. Вы можете отменить подписку в любое время через платежный портал. Тариф Pro останется активным до конца текущего расчетного периода.',
+    },
+    {
+      q: 'Что произойдет с файлами, созданными на бесплатном тарифе?',
+      a: 'Ничего. Ваши данные всегда принадлежат вам. Если вы перейдете с тарифа Pro на бесплатный, вы все равно сможете получить доступ к своим файлам через браузер.',
+    },
+    {
+      q: 'Какова стоимость для команды?',
+      a: '$6 в месяц за каждого участника. Функция Workspace является частью тарифа Pro.',
+    },
+  ],
+  en: [
+    {
+      q: 'Can I try without a credit card?',
+      a: 'Yes! The Pro plan starts with a 7-day free trial. You can cancel before the trial period ends.',
+    },
+    {
+      q: 'Can I cancel at any time?',
+      a: 'Of course. You can cancel at any time through the billing portal. The Pro plan remains active until the end of the current period.',
+    },
+    {
+      q: 'What happens to the files I created on the Free plan?',
+      a: 'Nothing. Your data is always yours. If you downgrade from Pro to Free, you can still access your files via the browser.',
+    },
+    {
+      q: 'What is the pricing for teams?',
+      a: '$6/month per member. The Workspace feature is part of the Pro plan.',
+    },
+  ],
+}
 
 function PricingFAQ() {
   const [open, setOpen] = useState<number | null>(null)
+  const { locale } = useI18n()
+  const faqItems = FAQ_DICTIONARY[locale as 'az' | 'tr' | 'ru' | 'en'] || FAQ_DICTIONARY['en']
+  const faqTitle = locale === 'az' ? 'Tez-tez verilən suallar' : locale === 'tr' ? 'Sıkça Sorulan Sorular' : locale === 'ru' ? 'Часто задаваемые вопросы' : 'Frequently Asked Questions'
 
   return (
     <div className="max-w-3xl mx-auto px-4 pb-24 pt-16 w-full">
       <h2 className="text-3xl font-extrabold text-center text-slate-900 mb-12 tracking-tight">
-        Tez-tez verilən suallar
+        {faqTitle}
       </h2>
       <div className="space-y-4">
-        {FAQ_ITEMS.map((item, i) => (
+        {faqItems.map((item, i) => (
           <div
             key={i}
             className="bg-white rounded-2xl border border-slate-100 overflow-hidden

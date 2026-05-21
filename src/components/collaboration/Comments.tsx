@@ -6,6 +6,7 @@ import { useCanvasStore }  from '@/store/canvasStore'
 import { sanitizeComment } from '@/lib/sanitize'
 import type { Comment }    from '@/types/database.types'
 import type { Point }      from '@/types/canvas.types'
+import { useI18n }         from '@/i18n/I18nContext'
 
 interface CommentWithAuthor extends Comment {
   author: {
@@ -18,13 +19,63 @@ interface CommentsLayerProps {
   sceneId: string
 }
 
+const dict: Record<'az' | 'tr' | 'ru' | 'en', {
+  addComment: string
+  writeIdea: string
+  send: string
+  user: string
+  anonymous: string
+  resolved: string
+  localeCode: string
+}> = {
+  az: {
+    addComment: 'Şərh əlavə et',
+    writeIdea: 'Fikrinizi yazın...',
+    send: 'Göndər',
+    user: 'İstifadəçi',
+    anonymous: 'Anonim',
+    resolved: 'Həll edildi',
+    localeCode: 'az-AZ',
+  },
+  tr: {
+    addComment: 'Yorum ekle',
+    writeIdea: 'Düşüncelerinizi yazın...',
+    send: 'Gönder',
+    user: 'Kullanıcı',
+    anonymous: 'Anonim',
+    resolved: 'Çözüldü',
+    localeCode: 'tr-TR',
+  },
+  ru: {
+    addComment: 'Добавить комментарий',
+    writeIdea: 'Напишите ваше мнение...',
+    send: 'Отправить',
+    user: 'Пользователь',
+    anonymous: 'Аноним',
+    resolved: 'Решено',
+    localeCode: 'ru-RU',
+  },
+  en: {
+    addComment: 'Add comment',
+    writeIdea: 'Write your thoughts...',
+    send: 'Send',
+    user: 'User',
+    anonymous: 'Anonymous',
+    resolved: 'Resolved',
+    localeCode: 'en-US',
+  }
+}
+
 export function CommentsLayer({ sceneId }: CommentsLayerProps) {
   const { isPro, user }             = useAuth()
   const { appState }                = useCanvasStore()
+  const { locale }                  = useI18n()
   const [comments, setComments]     = useState<CommentWithAuthor[]>([])
   const [pendingPos, setPendingPos] = useState<Point | null>(null)
   const [newText, setNewText]       = useState('')
   const [isPosting, setIsPosting]   = useState(false)
+
+  const currentDict = dict[locale as 'az' | 'tr' | 'ru' | 'en'] || dict['en']
 
   useEffect(() => {
     if (!isPro) return
@@ -107,6 +158,7 @@ export function CommentsLayer({ sceneId }: CommentsLayerProps) {
             comment={comment}
             position={toScreen(comment.x ?? 0, comment.y ?? 0)}
             onResolve={() => resolveComment(comment.id)}
+            locale={locale}
           />
         ))
       }
@@ -119,13 +171,13 @@ export function CommentsLayer({ sceneId }: CommentsLayerProps) {
           style={toScreen(pendingPos.x, pendingPos.y)}
         >
           <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-2">
-            Şərh əlavə et
+            {currentDict.addComment}
           </p>
           <textarea
             className="w-full resize-none text-sm outline-none placeholder:text-slate-400
                        text-slate-800 min-h-[80px] bg-slate-50 rounded-xl p-2.5
                        border border-slate-200 focus:border-orange-400 transition-colors"
-            placeholder="Fikrinizi yazın..."
+            placeholder={currentDict.writeIdea}
             value={newText}
             onChange={e => setNewText(e.target.value)}
             autoFocus
@@ -151,7 +203,7 @@ export function CommentsLayer({ sceneId }: CommentsLayerProps) {
                          hover:bg-orange-600 disabled:opacity-50 transition-colors"
             >
               <Send size={14} />
-              Göndər
+              {currentDict.send}
             </button>
           </div>
         </div>
@@ -166,10 +218,12 @@ interface CommentPinProps {
   comment:   CommentWithAuthor
   position:  { left: number; top: number }
   onResolve: () => void
+  locale:    string
 }
 
-function CommentPin({ comment, position, onResolve }: CommentPinProps) {
+function CommentPin({ comment, position, onResolve, locale }: CommentPinProps) {
   const [expanded, setExpanded] = useState(false)
+  const currentDict = dict[locale as 'az' | 'tr' | 'ru' | 'en'] || dict['en']
 
   return (
     <div className="pointer-events-auto absolute z-40" style={position}>
@@ -178,7 +232,7 @@ function CommentPin({ comment, position, onResolve }: CommentPinProps) {
         className="w-8 h-8 rounded-full bg-orange-500 text-white flex items-center
                    justify-center shadow-md hover:bg-orange-600 transition-colors
                    border-2 border-white"
-        title={comment.author.full_name ?? 'İstifadəçi'}
+        title={comment.author.full_name ?? currentDict.user}
       >
         <MessageSquare size={14} />
       </button>
@@ -194,10 +248,10 @@ function CommentPin({ comment, position, onResolve }: CommentPinProps) {
               {comment.author.full_name?.charAt(0) ?? '?'}
             </div>
             <span className="text-xs font-bold text-slate-700">
-              {comment.author.full_name ?? 'Anonim'}
+              {comment.author.full_name ?? currentDict.anonymous}
             </span>
             <span className="text-xs text-slate-400 ml-auto">
-              {new Date(comment.created_at).toLocaleDateString('az-AZ')}
+              {new Date(comment.created_at).toLocaleDateString(currentDict.localeCode)}
             </span>
           </div>
 
@@ -213,7 +267,7 @@ function CommentPin({ comment, position, onResolve }: CommentPinProps) {
                          font-semibold rounded-xl hover:bg-emerald-100 transition-colors"
             >
               <Check size={13} />
-              Həll edildi
+              {currentDict.resolved}
             </button>
             <button
               onClick={() => setExpanded(false)}

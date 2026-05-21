@@ -2,12 +2,45 @@ import { Zap, X } from 'lucide-react'
 import { useBilling }       from '@/hooks/useBilling'
 import { useSubscription }  from '@/hooks/useSubscription'
 import type { ProFeature }  from '@/hooks/useSubscription'
+import { useI18n }          from '@/i18n/I18nContext'
 
 interface UpgradeBannerProps {
   feature?:   ProFeature
   message?:   string
   onDismiss?: () => void
   compact?:   boolean
+}
+
+const dict: Record<'az' | 'tr' | 'ru' | 'en', {
+  upgradeBtn: string
+  proRequiredTitle: string
+  redirecting: string
+  freeTrialBtn: string
+}> = {
+  az: {
+    upgradeBtn: 'Pro-ya keç →',
+    proRequiredTitle: 'Pro plan tələb olunur',
+    redirecting: 'Yönləndirilir...',
+    freeTrialBtn: '7 gün pulsuz sına →'
+  },
+  tr: {
+    upgradeBtn: "Pro'ya geç →",
+    proRequiredTitle: 'Pro planı gerekiyor',
+    redirecting: 'Yönlendiriliyor...',
+    freeTrialBtn: '7 gün ücretsiz dene →'
+  },
+  ru: {
+    upgradeBtn: 'Перейти на Pro →',
+    proRequiredTitle: 'Требуется тариф Pro',
+    redirecting: 'Перенаправление...',
+    freeTrialBtn: 'Попробовать 7 дней бесплатно →'
+  },
+  en: {
+    upgradeBtn: 'Upgrade to Pro →',
+    proRequiredTitle: 'Pro plan required',
+    redirecting: 'Redirecting...',
+    freeTrialBtn: 'Try 7 days free →'
+  }
 }
 
 export function UpgradeBanner({
@@ -18,7 +51,9 @@ export function UpgradeBanner({
 }: UpgradeBannerProps) {
   const { upgradeToPro, isRedirecting } = useBilling()
   const { canUse }                       = useSubscription()
+  const { locale }                       = useI18n()
 
+  const currentDict = dict[locale as 'az' | 'tr' | 'ru' | 'en'] || dict['en']
   const gate = canUse(feature)
   if (gate.allowed) return null
 
@@ -36,7 +71,7 @@ export function UpgradeBanner({
           className="text-xs font-bold text-orange-600 hover:text-orange-700
                      whitespace-nowrap disabled:opacity-60"
         >
-          Pro-ya keç →
+          {currentDict.upgradeBtn}
         </button>
       </div>
     )
@@ -65,7 +100,7 @@ export function UpgradeBanner({
           <Zap size={22} className="fill-white text-white" />
         </div>
         <div className="flex-1">
-          <p className="font-extrabold text-lg mb-1">Pro plan tələb olunur</p>
+          <p className="font-extrabold text-lg mb-1">{currentDict.proRequiredTitle}</p>
           <p className="text-sm text-orange-100 mb-5 leading-relaxed">
             {message ?? gate.reason}
           </p>
@@ -77,7 +112,7 @@ export function UpgradeBanner({
                        hover:bg-orange-50 transition-colors shadow-md
                        disabled:opacity-70"
           >
-            {isRedirecting ? 'Yönləndirilir...' : '7 gün pulsuz sına →'}
+            {isRedirecting ? currentDict.redirecting : currentDict.freeTrialBtn}
           </button>
         </div>
       </div>

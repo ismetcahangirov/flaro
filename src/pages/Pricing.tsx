@@ -4,12 +4,12 @@ import {
   Check, X, Zap, Sparkles,
   Infinity, Users, Cloud,
   Presentation, MessageSquare,
-  FileDown, Brain, Home,
+  FileDown, Brain,
 } from 'lucide-react'
 import { useBilling }   from '@/hooks/useBilling'
 import { useAuth }      from '@/hooks/useAuth'
 import { useI18n }      from '@/i18n/I18nContext'
-import { LanguageSwitcher } from '@/components/ui/LanguageSwitcher'
+import { Navbar }       from '@/components/ui/Navbar'
 
 // ── Plan məlumatları ─────────────────────────────────────────────────────────
 
@@ -96,7 +96,7 @@ export default function Pricing() {
   const monthlyLabel = locale === 'az' ? 'Aylıq' : locale === 'tr' ? 'Aylık' : locale === 'ru' ? 'Ежемесячно' : 'Monthly'
   const yearlyLabel = locale === 'az' ? 'İllik' : locale === 'tr' ? 'Yıllık' : locale === 'ru' ? 'Ежегодно' : 'Yearly'
   const discountText = locale === 'az' ? '20% endirim' : locale === 'tr' ? '%20 indirim' : locale === 'ru' ? 'скидка 20%' : '20% discount'
-  const homeLabel = locale === 'az' ? 'Ana səhifə' : locale === 'tr' ? 'Ana Sayfa' : locale === 'ru' ? 'Главная' : 'Home'
+
 
   const activePlanLabel = locale === 'az' ? 'Aktiv plan' : locale === 'tr' ? 'Aktif plan' : locale === 'ru' ? 'Активный тариф' : 'Active plan'
   const redirectingLabel = locale === 'az' ? 'Yönləndirilir...' : locale === 'tr' ? 'Yönlendiriliyor...' : locale === 'ru' ? 'Перенаправление...' : 'Redirecting...'
@@ -111,22 +111,10 @@ export default function Pricing() {
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-orange-50 via-white to-white font-sans text-slate-800 relative">
-      {/* Ana səhifəyə qayıt */}
-      <button 
-        onClick={() => navigate('/')}
-        className="absolute top-6 left-6 md:top-8 md:left-8 flex items-center gap-2 px-4 py-2 bg-white/60 hover:bg-white rounded-xl shadow-sm border border-orange-100 text-slate-600 hover:text-orange-600 transition-all font-medium backdrop-blur-sm z-10"
-      >
-        <Home size={18} />
-        <span className="hidden sm:inline">{homeLabel}</span>
-      </button>
-
-      {/* Dil seçimi */}
-      <div className="absolute top-6 right-6 md:top-8 md:right-8 z-10">
-        <LanguageSwitcher variant="dark" size="sm" />
-      </div>
+      <Navbar />
 
       {/* Hero */}
-      <div className="max-w-5xl mx-auto px-4 pt-24 pb-12 text-center">
+      <div className="max-w-5xl mx-auto px-4 pt-28 pb-12 text-center">
         <div className="inline-flex items-center gap-2 px-4 py-2 bg-orange-100
                         text-orange-700 rounded-full text-sm font-semibold mb-6 shadow-sm">
           <Zap size={14} className="fill-orange-500" />

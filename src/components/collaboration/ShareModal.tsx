@@ -3,6 +3,7 @@ import { Link2, Copy, Check, Globe, Lock } from 'lucide-react'
 import { supabase } from '@/lib/supabase'
 import { useAuth } from '@/hooks/useAuth'
 import type { Scene } from '@/types/database.types'
+import { useI18n } from '@/i18n/I18nContext'
 
 interface ShareModalProps {
   scene: Scene
@@ -10,11 +11,71 @@ interface ShareModalProps {
   onUpdate: (updated: Partial<Scene>) => void
 }
 
+const dict: Record<'az' | 'tr' | 'ru' | 'en', {
+  shareScene: string
+  public: string
+  private: string
+  publicDesc: string
+  privateDesc: string
+  copied: string
+  copy: string
+  embedCode: string
+  embedProLock: string
+}> = {
+  az: {
+    shareScene: 'Səhnəni Paylaş',
+    public: 'Hamıya açıq',
+    private: 'Yalnız siz',
+    publicDesc: 'Linki olan hər kəs görə bilər',
+    privateDesc: 'Paylaşım deaktivdir',
+    copied: 'Kopyalandı',
+    copy: 'Kopyala',
+    embedCode: 'Embed Kodu (Pro)',
+    embedProLock: '🔒 Embed kodu Pro plan tələb edir',
+  },
+  tr: {
+    shareScene: 'Sahneyi Paylaş',
+    public: 'Herkese açık',
+    private: 'Sadece siz',
+    publicDesc: 'Bağlantıya sahip herkes görebilir',
+    privateDesc: 'Paylaşım devre dışı',
+    copied: 'Kopyalandı',
+    copy: 'Kopyala',
+    embedCode: 'Embed Kodu (Pro)',
+    embedProLock: '🔒 Embed kodu Pro plan gerektirir',
+  },
+  ru: {
+    shareScene: 'Поделиться сценой',
+    public: 'Публичный доступ',
+    private: 'Только вы',
+    publicDesc: 'Все, у кого есть ссылка, могут просматривать',
+    privateDesc: 'Общий доступ отключен',
+    copied: 'Скопировано',
+    copy: 'Копировать',
+    embedCode: 'Код встраивания (Pro)',
+    embedProLock: '🔒 Код встраивания требует тарифа Pro',
+  },
+  en: {
+    shareScene: 'Share Scene',
+    public: 'Public',
+    private: 'Only you',
+    publicDesc: 'Anyone with the link can view',
+    privateDesc: 'Sharing is disabled',
+    copied: 'Copied',
+    copy: 'Copy',
+    embedCode: 'Embed Code (Pro)',
+    embedProLock: '🔒 Embed code requires Pro plan',
+  }
+}
+
 export function ShareModal({ scene, onClose, onUpdate }: ShareModalProps) {
   const { isPro } = useAuth()
+  const { locale } = useI18n()
   const [copied, setCopied] = useState(false)
   const [copiedEmbed, setCopiedEmbed] = useState(false)
   const [isSaving, setIsSaving] = useState(false)
+
+  const currentDict = dict[locale as 'az' | 'tr' | 'ru' | 'en'] || dict['en']
 
   const shareUrl = `${window.location.origin}/s/${scene.share_token}`
   const embedCode = `<iframe src="${shareUrl}?embed=1" width="800" height="600" frameborder="0" />`
@@ -65,7 +126,7 @@ export function ShareModal({ scene, onClose, onUpdate }: ShareModalProps) {
             <Link2 size={20} className="text-orange-500" />
           </div>
           <div>
-            <h2 className="font-bold text-slate-900">Səhnəni Paylaş</h2>
+            <h2 className="font-bold text-slate-900">{currentDict.shareScene}</h2>
             <p className="text-xs text-slate-500 truncate max-w-[220px]">{scene.title}</p>
           </div>
           <button
@@ -86,12 +147,12 @@ export function ShareModal({ scene, onClose, onUpdate }: ShareModalProps) {
             }
             <div>
               <p className="text-sm font-semibold text-slate-800">
-                {scene.is_public ? 'Hamıya açıq' : 'Yalnız siz'}
+                {scene.is_public ? currentDict.public : currentDict.private}
               </p>
               <p className="text-xs text-slate-500">
                 {scene.is_public
-                  ? 'Linki olan hər kəs görə bilər'
-                  : 'Paylaşım deaktivdir'
+                  ? currentDict.publicDesc
+                  : currentDict.privateDesc
                 }
               </p>
             </div>
@@ -129,7 +190,7 @@ export function ShareModal({ scene, onClose, onUpdate }: ShareModalProps) {
                   }`}
               >
                 {copied ? <Check size={16} /> : <Copy size={16} />}
-                {copied ? 'Kopyalandı' : 'Kopyala'}
+                {copied ? currentDict.copied : currentDict.copy}
               </button>
             </div>
 
@@ -137,7 +198,7 @@ export function ShareModal({ scene, onClose, onUpdate }: ShareModalProps) {
             {isPro ? (
               <div>
                 <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-2">
-                  Embed Kodu (Pro)
+                  {currentDict.embedCode}
                 </p>
                 <div
                   className="p-3 bg-slate-50 rounded-xl font-mono text-xs
@@ -156,7 +217,7 @@ export function ShareModal({ scene, onClose, onUpdate }: ShareModalProps) {
             ) : (
               <div className="p-3 bg-orange-50 rounded-xl border border-orange-100">
                 <p className="text-xs text-orange-700 font-medium">
-                  🔒 Embed kodu Pro plan tələb edir
+                  {currentDict.embedProLock}
                 </p>
               </div>
             )}

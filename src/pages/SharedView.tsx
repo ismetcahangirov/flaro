@@ -8,12 +8,79 @@ import { ElementInspector } from '@/components/canvas/ElementInspector'
 import { TextEditor } from '@/components/canvas/TextEditor'
 import { Sparkles, Eye, ShieldAlert } from 'lucide-react'
 import type { Scene } from '@/types/database.types'
+import { useI18n } from '@/i18n/I18nContext'
+import { LanguageSwitcher } from '@/components/ui/LanguageSwitcher'
+
+const dict: Record<'az' | 'tr' | 'ru' | 'en', {
+  notFound: string
+  notPublic: string
+  loadError: string
+  publicView: string
+  cannotView: string
+  backDashboard: string
+  readMode: string
+  createOwn: string
+  create: string
+  loading: string
+}> = {
+  az: {
+    notFound: 'Scene tapılmadı və ya ictimai paylaşım dayandırılıb.',
+    notPublic: 'Bu scene artıq ictimai deyil.',
+    loadError: 'Scene yüklənərkən xəta baş verdi.',
+    publicView: 'İctimai Baxış',
+    cannotView: 'Baxış Mümkün Deyil',
+    backDashboard: 'Dashboard-a Qayıt',
+    readMode: 'Oxuma Rejimi',
+    createOwn: 'Özün Yarat',
+    create: 'Yarat',
+    loading: 'Scene Yüklənir...',
+  },
+  tr: {
+    notFound: 'Sahne bulunamadı veya herkese açık paylaşım durduruldu.',
+    notPublic: 'Bu sahne artık herkese açık değil.',
+    loadError: 'Sahne yüklenirken bir hata oluştu.',
+    publicView: 'Herkese Açık Görünüm',
+    cannotView: 'Görüntülenemiyor',
+    backDashboard: 'Panoya Geri Dön',
+    readMode: 'Okuma Modu',
+    createOwn: 'Kendin Yarat',
+    create: 'Yarat',
+    loading: 'Sahne Yükleniyor...',
+  },
+  ru: {
+    notFound: 'Сцена не найдена или публичный доступ был прекращен.',
+    notPublic: 'Эта сцена больше не является публичной.',
+    loadError: 'Произошла ошибка при загрузке сцены.',
+    publicView: 'Публичный просмотр',
+    cannotView: 'Просмотр невозможен',
+    backDashboard: 'Вернуться на панель',
+    readMode: 'Режим чтения',
+    createOwn: 'Создать свою',
+    create: 'Создать',
+    loading: 'Загрузка сцены...',
+  },
+  en: {
+    notFound: 'Scene not found or public sharing has been disabled.',
+    notPublic: 'This scene is no longer public.',
+    loadError: 'An error occurred while loading the scene.',
+    publicView: 'Public View',
+    cannotView: 'Unable to View',
+    backDashboard: 'Back to Dashboard',
+    readMode: 'Read-only Mode',
+    createOwn: 'Create Your Own',
+    create: 'Create',
+    loading: 'Loading Scene...',
+  }
+}
 
 export default function SharedView() {
   const { shareToken } = useParams<{ shareToken: string }>()
   const navigate = useNavigate()
   const canvasRef = useRef<HTMLCanvasElement>(null)
   const store = useCanvasStore()
+  const { locale } = useI18n()
+
+  const currentDict = dict[locale as 'az' | 'tr' | 'ru' | 'en'] || dict['en']
 
   // Canvas hook-u həmişə çağır (şərti render-dan əvvəl)
   // Canvas həmişə DOM-da olur ki, render loop başlasın
@@ -37,11 +104,11 @@ export default function SharedView() {
           .single() as any)
 
         if (dbError || !data) {
-          throw new Error('Scene tapılmadı və ya ictimai paylaşım dayandırılıb.')
+          throw new Error(currentDict.notFound)
         }
 
         if (!data.is_public) {
-          throw new Error('Bu scene artıq ictimai deyil.')
+          throw new Error(currentDict.notPublic)
         }
 
         setScene(data)
@@ -59,7 +126,7 @@ export default function SharedView() {
 
       } catch (err: any) {
         console.error('[SharedView] Error:', err)
-        setError(err.message || 'Scene yüklənərkən xəta baş verdi.')
+        setError(err.message || currentDict.loadError)
       } finally {
         setIsLoading(false)
       }
@@ -70,7 +137,7 @@ export default function SharedView() {
     return () => {
       store.setReadOnly(false)
     }
-  }, [shareToken]) // eslint-disable-line react-hooks/exhaustive-deps
+  }, [shareToken, locale]) // eslint-disable-line react-hooks/exhaustive-deps
 
   // ── Xəta vəziyyəti ───────────────────────────────────────────────────────
   if (error) {
@@ -84,8 +151,9 @@ export default function SharedView() {
               className="h-[35px] md:h-[50px] w-auto cursor-pointer"
               onClick={() => navigate('/')}
             />
-            <span className="text-xs md:text-sm font-semibold text-slate-500">İctimai Baxış</span>
+            <span className="text-xs md:text-sm font-semibold text-slate-500">{currentDict.publicView}</span>
           </div>
+          <LanguageSwitcher variant="dark" size="sm" />
         </header>
         <main className="flex-1 bg-slate-50 relative flex items-center justify-center p-4">
           <div className="absolute inset-0 bg-[radial-gradient(#cbd5e1_1px,transparent_1px)] [background-size:24px_24px] opacity-60 pointer-events-none" />
@@ -94,7 +162,7 @@ export default function SharedView() {
               <ShieldAlert size={28} />
             </div>
             <h3 className="text-xl md:text-2xl font-extrabold text-slate-950 tracking-tight">
-              Baxış Mümkün Deyil
+              {currentDict.cannotView}
             </h3>
             <p className="text-slate-600 font-sans leading-relaxed text-sm">
               {error}
@@ -103,7 +171,7 @@ export default function SharedView() {
               onClick={() => navigate('/dashboard')}
               className="px-6 py-3 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs rounded-2xl transition-all"
             >
-              Dashboard-a Qayıt
+              {currentDict.backDashboard}
             </button>
           </div>
         </main>
@@ -141,16 +209,17 @@ export default function SharedView() {
         <div className="flex items-center gap-1.5 md:gap-3 flex-shrink-0">
           <div className="flex items-center gap-1 md:gap-1.5 text-[10px] md:text-xs font-bold text-slate-500 bg-slate-100 px-2 md:px-3 py-1 md:py-1.5 rounded-xl border border-slate-200/40">
             <Eye size={12} className="text-slate-400 flex-shrink-0" />
-            <span className="hidden sm:inline">Oxuma Rejimi</span>
+            <span className="hidden sm:inline">{currentDict.readMode}</span>
           </div>
+          <LanguageSwitcher variant="dark" size="sm" />
           <button
             onClick={() => navigate('/signup')}
             className="flex items-center gap-1 md:gap-1.5 px-2.5 md:px-4 py-1 md:py-1.5 bg-gradient-to-r from-orange-500 to-amber-500
                        text-white text-[10px] md:text-xs font-extrabold rounded-xl hover:shadow-lg transition-all shadow-md whitespace-nowrap"
           >
             <Sparkles size={11} className="fill-white flex-shrink-0" />
-            <span className="hidden sm:inline">Özün Yarat</span>
-            <span className="sm:hidden">Yarat</span>
+            <span className="hidden sm:inline">{currentDict.createOwn}</span>
+            <span className="sm:hidden">{currentDict.create}</span>
           </button>
         </div>
       </header>
@@ -164,7 +233,7 @@ export default function SharedView() {
             <div className="absolute inset-0 z-20 flex flex-col items-center justify-center bg-slate-50">
               <div className="flex flex-col items-center gap-3">
                 <div className="w-12 h-12 border-4 border-orange-500/20 border-t-orange-500 rounded-full animate-spin" />
-                <p className="text-sm font-bold text-slate-400 uppercase tracking-wider">Scene Yüklənir...</p>
+                <p className="text-sm font-bold text-slate-400 uppercase tracking-wider">{currentDict.loading}</p>
               </div>
             </div>
           )}

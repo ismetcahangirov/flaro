@@ -6,33 +6,106 @@ import {
 } from 'lucide-react'
 import { useCanvasStore } from '@/store/canvasStore'
 import { Tooltip } from '@/components/ui/Tooltip'
+import { useI18n } from '@/i18n/I18nContext'
 import type { ToolType } from '@/types/canvas.types'
 
 interface ToolConfig {
   type: ToolType
   icon: React.ReactNode
-  label: string
   shortcut: string
 }
 
 const TOOLS: (ToolConfig | 'separator')[] = [
-  { type: 'select', icon: <MousePointer2 size={15} />, label: 'Seç', shortcut: 'V' },
-  { type: 'hand', icon: <Hand size={15} />, label: 'Sürüşdür', shortcut: 'H' },
+  { type: 'select', icon: <MousePointer2 size={15} />, shortcut: 'V' },
+  { type: 'hand', icon: <Hand size={15} />, shortcut: 'H' },
   'separator',
-  { type: 'rectangle', icon: <Square size={15} />, label: 'Düzbucaqlı', shortcut: 'R' },
-  { type: 'ellipse', icon: <Circle size={15} />, label: 'Ellips', shortcut: 'O' },
-  { type: 'diamond', icon: <Diamond size={15} />, label: 'Romb', shortcut: 'D' },
+  { type: 'rectangle', icon: <Square size={15} />, shortcut: 'R' },
+  { type: 'ellipse', icon: <Circle size={15} />, shortcut: 'O' },
+  { type: 'diamond', icon: <Diamond size={15} />, shortcut: 'D' },
   'separator',
-  { type: 'line', icon: <Minus size={15} />, label: 'Xətt', shortcut: 'L' },
-  { type: 'arrow', icon: <ArrowRight size={15} />, label: 'Ok', shortcut: 'A' },
+  { type: 'line', icon: <Minus size={15} />, shortcut: 'L' },
+  { type: 'arrow', icon: <ArrowRight size={15} />, shortcut: 'A' },
   'separator',
-  { type: 'text', icon: <Type size={15} />, label: 'Mətn', shortcut: 'T' },
-  { type: 'freedraw', icon: <Pencil size={15} />, label: 'Qaralama', shortcut: 'P' },
-  { type: 'eraser', icon: <Eraser size={15} />, label: 'Silgi', shortcut: 'E' },
+  { type: 'text', icon: <Type size={15} />, shortcut: 'T' },
+  { type: 'freedraw', icon: <Pencil size={15} />, shortcut: 'P' },
+  { type: 'eraser', icon: <Eraser size={15} />, shortcut: 'E' },
 ]
+
+const getToolLabel = (type: ToolType, locale: string) => {
+  const dictionary: Record<ToolType, Record<string, string>> = {
+    select: {
+      az: 'Seç',
+      tr: 'Seç',
+      ru: 'Выбрать',
+      en: 'Select'
+    },
+    hand: {
+      az: 'Sürüşdür',
+      tr: 'Kaydır',
+      ru: 'Рука',
+      en: 'Hand'
+    },
+    rectangle: {
+      az: 'Düzbucaqlı',
+      tr: 'Dikdörtgen',
+      ru: 'Прямоугольник',
+      en: 'Rectangle'
+    },
+    ellipse: {
+      az: 'Ellips',
+      tr: 'Elips',
+      ru: 'Эллипс',
+      en: 'Ellipse'
+    },
+    diamond: {
+      az: 'Romb',
+      tr: 'Elmas',
+      ru: 'Ромб',
+      en: 'Diamond'
+    },
+    line: {
+      az: 'Xətt',
+      tr: 'Çizgi',
+      ru: 'Линия',
+      en: 'Line'
+    },
+    arrow: {
+      az: 'Ok',
+      tr: 'Ok',
+      ru: 'Стрелка',
+      en: 'Arrow'
+    },
+    text: {
+      az: 'Mətn',
+      tr: 'Metin',
+      ru: 'Текст',
+      en: 'Text'
+    },
+    freedraw: {
+      az: 'Qaralama',
+      tr: 'Karalama',
+      ru: 'Рисование',
+      en: 'Draw'
+    },
+    image: {
+      az: 'Şəkil',
+      tr: 'Resim',
+      ru: 'Изображение',
+      en: 'Image'
+    },
+    eraser: {
+      az: 'Silgi',
+      tr: 'Silgi',
+      ru: 'Ластик',
+      en: 'Eraser'
+    }
+  }
+  return dictionary[type]?.[locale] || dictionary[type]?.['en'] || ''
+}
 
 export function Toolbar() {
   const { activeTool, setTool } = useCanvasStore()
+  const { locale } = useI18n()
 
   return (
     <div className="z-20 bg-white rounded-xl md:rounded-2xl shadow-lg border border-slate-100
@@ -50,11 +123,12 @@ export function Toolbar() {
         }
 
         const isActive = activeTool === tool.type
+        const label = getToolLabel(tool.type, locale)
 
         return (
           <Tooltip
             key={tool.type}
-            content={`${tool.label} (${tool.shortcut})`}
+            content={`${label} (${tool.shortcut})`}
             side="right"
           >
             <button

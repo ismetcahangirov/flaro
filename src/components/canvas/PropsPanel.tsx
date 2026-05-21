@@ -3,24 +3,127 @@ import { Menu } from 'lucide-react'
 import { useCanvasStore } from '@/store/canvasStore'
 import { Modal } from '@/components/ui/Modal'
 import { measureText } from './TextEditor'
+import { useI18n } from '@/i18n/I18nContext'
 
 const STROKE_WIDTHS  = [1, 2, 3, 4, 6]
-const ROUGHNESS_VALS = [
-  { value: 0, label: 'Hamar'  },
-  { value: 1, label: 'Az'     },
-  { value: 2, label: 'Orta'   },
-  { value: 3, label: 'Çox'    },
-]
 const PRESET_COLORS  = [
   '#1e1e1e', '#ffffff', '#F97316', '#3B82F6',
   '#10B981', '#EF4444', '#8B5CF6', '#F59E0B',
 ]
+
+const dict: Record<'az' | 'tr' | 'ru' | 'en', {
+  hasSelection: (count: number) => string
+  toolProps: string
+  strokeColor: string
+  fillColor: string
+  strokeWidth: string
+  handEffect: string
+  opacity: (val: number) => string
+  textSize: (val: number) => string
+  textWeight: string
+  chooseHex: string
+  selectedColor: string
+  transparent: string
+  palette: string
+  apply: string
+}> = {
+  az: {
+    hasSelection: (count: number) => `${count} element seçildi`,
+    toolProps: 'Alət xüsusiyyətləri',
+    strokeColor: 'Xətt rəngi',
+    fillColor: 'Doldurma rəngi',
+    strokeWidth: 'Xətt qalınlığı',
+    handEffect: 'El çizimi effekti',
+    opacity: (val: number) => `Şəffaflıq — ${val}%`,
+    textSize: (val: number) => `Mətn ölçüsü — ${val}px`,
+    textWeight: 'Mətn qalınlığı',
+    chooseHex: 'HEX Rəng Seç',
+    selectedColor: 'Seçilmiş rəng',
+    transparent: 'Şəffaf',
+    palette: 'Palitra:',
+    apply: 'Tətbiq et',
+  },
+  tr: {
+    hasSelection: (count: number) => `${count} öğe seçildi`,
+    toolProps: 'Araç özellikleri',
+    strokeColor: 'Çizgi rengi',
+    fillColor: 'Dolgu rengi',
+    strokeWidth: 'Çizgi kalınlığı',
+    handEffect: 'El çizimi efekti',
+    opacity: (val: number) => `Opaklık — %${val}`,
+    textSize: (val: number) => `Metin boyutu — ${val}px`,
+    textWeight: 'Metin kalınlığı',
+    chooseHex: 'HEX Renk Seç',
+    selectedColor: 'Seçilen renk',
+    transparent: 'Şeffaf',
+    palette: 'Palet:',
+    apply: 'Uygula',
+  },
+  ru: {
+    hasSelection: (count: number) => `Выбрано элементов: ${count}`,
+    toolProps: 'Свойства инструмента',
+    strokeColor: 'Цвет линии',
+    fillColor: 'Цвет заливки',
+    strokeWidth: 'Толщина линии',
+    handEffect: 'Эффект эскиза',
+    opacity: (val: number) => `Прозрачность — ${val}%`,
+    textSize: (val: number) => `Размер текста — ${val}px`,
+    textWeight: 'Толщина текста',
+    chooseHex: 'Выбрать цвет HEX',
+    selectedColor: 'Выбранный цвет',
+    transparent: 'Прозрачный',
+    palette: 'Палитра:',
+    apply: 'Применить',
+  },
+  en: {
+    hasSelection: (count: number) => `${count} elements selected`,
+    toolProps: 'Tool properties',
+    strokeColor: 'Stroke color',
+    fillColor: 'Fill color',
+    strokeWidth: 'Stroke width',
+    handEffect: 'Sloppiness effect',
+    opacity: (val: number) => `Opacity — ${val}%`,
+    textSize: (val: number) => `Font size — ${val}px`,
+    textWeight: 'Font weight',
+    chooseHex: 'Choose HEX Color',
+    selectedColor: 'Selected color',
+    transparent: 'Transparent',
+    palette: 'Palette:',
+    apply: 'Apply',
+  }
+}
 
 export function PropsPanel() {
   const store = useCanvasStore()
   const selectedEls = store.elements.filter(e => store.selectedIds.has(e.id))
   const hasSelection = selectedEls.length > 0
   const [isOpen, setIsOpen] = useState(window.innerWidth > 768)
+  const { locale } = useI18n()
+
+  const currentDict = dict[locale as 'az' | 'tr' | 'ru' | 'en'] || dict['en']
+
+  const roughnessLabels = (locale === 'az'
+    ? ['Hamar', 'Az', 'Orta', 'Çox']
+    : locale === 'tr'
+    ? ['Pürüzsüz', 'Az', 'Orta', 'Çok']
+    : locale === 'ru'
+    ? ['Гладкий', 'Низкий', 'Средний', 'Высокий']
+    : ['Smooth', 'Low', 'Medium', 'High'])
+
+  const fontWeightOptions = [
+    { value: 300, label: locale === 'az' ? 'İncə' : locale === 'tr' ? 'İnce' : locale === 'ru' ? 'Тонкий' : 'Thin' },
+    { value: 400, label: locale === 'az' ? 'Normal' : locale === 'tr' ? 'Normal' : locale === 'ru' ? 'Обычный' : 'Normal' },
+    { value: 500, label: locale === 'az' ? 'Orta' : locale === 'tr' ? 'Orta' : locale === 'ru' ? 'Средний' : 'Medium' },
+    { value: 600, label: locale === 'az' ? 'Yarıqalın' : locale === 'tr' ? 'Yarı kalın' : locale === 'ru' ? 'Полужирный' : 'Semibold' },
+    { value: 700, label: locale === 'az' ? 'Qalın' : locale === 'tr' ? 'Kalın' : locale === 'ru' ? 'Жирный' : 'Bold' },
+  ] as const
+
+  const ROUGHNESS_VALS = [
+    { value: 0, label: roughnessLabels[0] },
+    { value: 1, label: roughnessLabels[1] },
+    { value: 2, label: roughnessLabels[2] },
+    { value: 3, label: roughnessLabels[3] },
+  ]
 
   const showTextProps = store.activeTool === 'text' || selectedEls.some(e => e.type === 'text')
 
@@ -57,7 +160,7 @@ export function PropsPanel() {
         <div className={`flex flex-col flex-1 min-h-0 overflow-y-auto ${isOpen ? 'opacity-100' : 'opacity-0 invisible'}`}>
           <div className="p-3 border-b border-slate-100 bg-slate-50/20 shrink-0 flex items-center justify-between gap-2">
             <h3 className="text-[10px] font-bold text-slate-400 uppercase tracking-wider whitespace-nowrap">
-              {hasSelection ? `${selectedEls.length} element seçildi` : 'Alət xüsusiyyətləri'}
+              {hasSelection ? currentDict.hasSelection(selectedEls.length) : currentDict.toolProps}
             </h3>
             <button
               onClick={() => setIsOpen(false)}
@@ -69,7 +172,7 @@ export function PropsPanel() {
 
         <div className="p-4 space-y-5">
         {/* Stroke rəngi */}
-        <Section title="Xətt rəngi">
+        <Section title={currentDict.strokeColor}>
           <ColorPicker
             value={store.strokeColor}
             onChange={store.setStrokeColor}
@@ -79,7 +182,7 @@ export function PropsPanel() {
         </Section>
 
         {/* Fill rəngi */}
-        <Section title="Doldurma rəngi">
+        <Section title={currentDict.fillColor}>
           <ColorPicker
             value={store.fillColor}
             onChange={store.setFillColor}
@@ -90,7 +193,7 @@ export function PropsPanel() {
         </Section>
 
         {/* Xətt qalınlığı */}
-        <Section title="Xətt qalınlığı">
+        <Section title={currentDict.strokeWidth}>
           <div className="flex gap-2">
             {STROKE_WIDTHS.map(w => (
               <button
@@ -117,7 +220,7 @@ export function PropsPanel() {
         </Section>
 
         {/* El çizimi səviyyəsi */}
-        <Section title="El çizimi effekti">
+        <Section title={currentDict.handEffect}>
           <div className="grid grid-cols-2 gap-2">
             {ROUGHNESS_VALS.map(r => (
               <button
@@ -141,7 +244,7 @@ export function PropsPanel() {
         </Section>
 
         {/* Şəffaflıq */}
-        <Section title={`Şəffaflıq — ${store.opacity}%`}>
+        <Section title={currentDict.opacity(store.opacity)}>
           <input
             type="range"
             min={10} max={100} step={5}
@@ -159,7 +262,7 @@ export function PropsPanel() {
         {/* Text Properties (Yalnız Text aləti və ya seçili text varsa görünür) */}
         {showTextProps && (
           <>
-          <Section title={`Mətn ölçüsü — ${store.fontSize}px`}>
+          <Section title={currentDict.textSize(store.fontSize)}>
             <input
               type="range"
               min={12} max={100} step={2}
@@ -184,15 +287,9 @@ export function PropsPanel() {
             />
           </Section>
 
-          <Section title="Mətn qalınlığı">
+          <Section title={currentDict.textWeight}>
             <div className="flex gap-1.5">
-              {([
-                { value: 300, label: 'İncə' },
-                { value: 400, label: 'Normal' },
-                { value: 500, label: 'Orta' },
-                { value: 600, label: 'Yarıqalın' },
-                { value: 700, label: 'Qalın' },
-              ] as const).map(fw => (
+              {fontWeightOptions.map(fw => (
                 <button
                   key={fw.value}
                   onClick={() => {
@@ -252,6 +349,9 @@ interface ColorPickerProps {
 }
 
 function ColorPicker({ value, onChange, onElementUpdate, showTransparent }: ColorPickerProps) {
+  const { locale } = useI18n()
+  const currentDict = dict[locale] || dict['en']
+
   const allColors = showTransparent ? ['transparent', ...PRESET_COLORS] : PRESET_COLORS
 
   const [hexInput, setHexInput] = useState(value === 'transparent' ? '' : value)
@@ -330,7 +430,7 @@ function ColorPicker({ value, onChange, onElementUpdate, showTransparent }: Colo
       </div>
 
       {/* HEX Modalı */}
-      <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} title="HEX Rəng Seç" size="sm">
+      <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} title={currentDict.chooseHex} size="sm">
         <div className="flex flex-col gap-4">
           {/* Rəng önizləmə */}
           <div className="flex items-center gap-3">
@@ -345,8 +445,8 @@ function ColorPicker({ value, onChange, onElementUpdate, showTransparent }: Colo
               }}
             />
             <div className="flex flex-col gap-1">
-              <span className="text-[10px] font-semibold text-slate-400 uppercase">Seçilmiş rəng</span>
-              <span className="text-xs font-semibold text-slate-700">{hexInput || 'Şəffaf'}</span>
+              <span className="text-[10px] font-semibold text-slate-400 uppercase">{currentDict.selectedColor}</span>
+              <span className="text-xs font-semibold text-slate-700">{hexInput || currentDict.transparent}</span>
             </div>
           </div>
 
@@ -372,7 +472,7 @@ function ColorPicker({ value, onChange, onElementUpdate, showTransparent }: Colo
 
           {/* Brauzer rəng seçici */}
           <div className="flex items-center gap-2">
-            <span className="text-xs font-bold text-slate-500 flex-shrink-0">Palitra:</span>
+            <span className="text-xs font-bold text-slate-500 flex-shrink-0">{currentDict.palette}</span>
             <input
               ref={colorPickerRef}
               type="color"
@@ -388,7 +488,7 @@ function ColorPicker({ value, onChange, onElementUpdate, showTransparent }: Colo
             className="w-full py-2.5 bg-orange-500 text-white text-sm font-bold rounded-xl
                        hover:bg-orange-600 transition-colors active:scale-95"
           >
-            Tətbiq et
+            {currentDict.apply}
           </button>
         </div>
       </Modal>

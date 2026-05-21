@@ -5,7 +5,7 @@ import {
 } from 'lucide-react'
 import { useAuth } from '@/hooks/useAuth'
 import { useI18n } from '@/i18n/I18nContext'
-import { LanguageSwitcher } from '@/components/ui/LanguageSwitcher'
+import { Navbar } from '@/components/ui/Navbar'
 
 export default function Landing() {
   const navigate = useNavigate()
@@ -171,60 +171,3 @@ function FeatureCard({ icon, title, desc, color }: { icon: React.ReactNode; titl
   )
 }
 
-function Navbar() {
-  const navigate = useNavigate()
-  const { isAuthenticated } = useAuth()
-  const { t } = useI18n()
-
-  return (
-    <nav className="fixed top-0 inset-x-0 z-50 bg-black/80 backdrop-blur-md py-2
-                    border-b border-slate-800">
-      <div className="max-w-6xl mx-auto px-6 h-16 flex items-center justify-between">
-        <div className="cursor-pointer" onClick={() => navigate('/')}>
-          <img src="/flaro-logo.png" alt="Flaro" className="h-[45px] md:h-[65px] lg:h-[85px] w-auto" />
-        </div>
-
-        <div className="flex items-center gap-4">
-          <button
-            onClick={() => navigate('/pricing')}
-            className="text-sm font-medium text-gray-300 hover:text-white px-3 py-2
-                       rounded-lg hover:bg-white/10 transition-colors"
-          >
-            {t.nav.pricing}
-          </button>
-
-          {isAuthenticated ? (
-            <button
-              onClick={() => navigate('/dashboard')}
-              className="px-4 py-2 bg-orange-500 text-white text-sm font-semibold
-                         rounded-xl hover:bg-orange-600 transition-colors hover:text-white hover:shadow-md hover:shadow-orange-500"
-            >
-              {t.nav.dashboard}
-            </button>
-          ) : (
-            <>
-              <button
-                onClick={() => navigate('/login')}
-                className="text-sm font-medium text-gray-300 hover:text-white px-3 py-2
-                           rounded-lg hover:bg-white/10 transition-colors"
-              >
-                {t.nav.login}
-              </button>
-              <button
-                onClick={() => navigate('/login')}
-                className="px-4 py-2 bg-orange-500 text-white text-sm font-semibold
-                           rounded-xl hover:bg-orange-600 transition-colors shadow-md shadow-orange-100"
-              >
-                {t.nav.getStarted}
-              </button>
-            </>
-          )}
-
-          <div className="border-l border-white/15 pl-3">
-            <LanguageSwitcher variant="light" size="sm" />
-          </div>
-        </div>
-      </div>
-    </nav>
-  )
-}

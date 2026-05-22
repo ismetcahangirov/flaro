@@ -19,7 +19,7 @@ export function StatsCard({ title, value, icon: Icon, loading, color = 'orange' 
     amber: { text: 'text-amber-600', iconBg: 'bg-amber-50' },
   }
 
-  const theme = colorMap[color] || colorMap.orange
+  const theme = colorMap[color] ?? colorMap.orange!
 
   return (
     <div className="bg-white p-6 rounded-2xl shadow-sm border border-slate-200/85 flex items-center justify-between transition-all hover:shadow-md">

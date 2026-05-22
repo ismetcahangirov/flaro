@@ -46,7 +46,7 @@ export default function AdminSettings() {
     try {
       await updateProfile({
         full_name: fullName,
-        avatar_url: avatarUrl || null,
+        avatar_url: avatarUrl || undefined,
       })
       setProfileSuccess(t.admin.profileSaved)
     } catch (err: any) {

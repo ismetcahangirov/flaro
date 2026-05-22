@@ -34,7 +34,7 @@ export interface Database {
           created_at:   string
           updated_at:   string
         }
-        Insert: Omit<Database['public']['Tables']['profiles']['Row'], 'created_at' | 'updated_at' | 'scenes_count' | 'is_admin'> & { is_admin?: boolean }
+        Insert: Omit<Database['public']['Tables']['profiles']['Row'], 'created_at' | 'updated_at' | 'scenes_count'>
         Update: Partial<Database['public']['Tables']['profiles']['Insert']>
       }
 
@@ -172,8 +172,26 @@ export interface Database {
           ip_address:  string | null
           created_at:  string
         }
-        Insert: Omit<Database['public']['Tables']['admin_audit_log']['Row'], 'id' | 'created_at'>
-        Update: Partial<Database['public']['Tables']['admin_audit_log']['Row']>
+        Insert: {
+          admin_id:    string
+          action:      string
+          target_id?:  string | null
+          target_type?: string | null
+          old_value?:  Json | null
+          new_value?:  Json | null
+          ip_address?: string | null
+        }
+        Update: {
+          id?:          string
+          admin_id?:    string
+          action?:      string
+          target_id?:   string | null
+          target_type?: string | null
+          old_value?:   Json | null
+          new_value?:   Json | null
+          ip_address?:  string | null
+          created_at?:  string
+        }
       }
 
       admin_login_attempts: {
@@ -184,8 +202,18 @@ export interface Database {
           success:      boolean
           attempted_at: string
         }
-        Insert: Omit<Database['public']['Tables']['admin_login_attempts']['Row'], 'id' | 'attempted_at'>
-        Update: Partial<Database['public']['Tables']['admin_login_attempts']['Row']>
+        Insert: {
+          email:       string
+          ip_address?: string | null
+          success?:    boolean
+        }
+        Update: {
+          id?:           string
+          email?:        string
+          ip_address?:   string | null
+          success?:      boolean
+          attempted_at?: string
+        }
       }
     }
 

@@ -10,12 +10,12 @@
 
 | Sahə | Dəyər |
 |---|---|
-| **Son tamamlanan tapşırıq** | Mərhələ 8 — Deploy və CI/CD |
-| **Aktiv branch** | `feature/m08-deploy` |
+| **Son tamamlanan tapşırıq** | Mərhələ 9 — Admin Panel (App.tsx routes) |
+| **Aktiv branch** | `feature/m09-admin-panel` |
 | **Növbəti branch** | Yoxdur |
-| **Növbəti tapşırıq** | Bütün layihə 100% tamamlandı! |
+| **Növbəti tapşırıq** | Lint + type-check yoxlanışları |
 | **Bloklanmış tapşırıq** | Yoxdur |
-| **Qeyd** | Flaro tətbiqi 100% tamamlandı. Supabase production qurulumu, migration-lar, Storage, Auth provider-lər, Stripe Canlı Webhook-u, Vercel Production Deploy-u (CSP header-ləri, SSL, Custom Domain), GitHub Actions CI/CD pipeline (`ci.yml`), premium ErrorBoundary, və 145/145 tapşırıq uğurla başa çatdırıldı. |
+| **Qeyd** | Admin Panel implementasiyası davam edir. DB migration (020_admin_system.sql), seed script, tip tərifləri, Zustand store, hooks, AdminRoute, AdminLayout, AdminLogin (brute-force), AdminDashboard (real stats), AdminUsers (CRUD), AdminSubscriptions, AdminSettings, i18n (4 dil), Edge Function (admin-user-delete), Session Timeout, App.tsx route-ları — hamısı yaradıldı. Son qalan: lint + type-check yoxlanışı. |
 
 ---
 

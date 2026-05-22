@@ -30,10 +30,11 @@ export interface Database {
           avatar_url:   string | null
           plan:         SubscriptionPlan
           scenes_count: number
+          is_admin:     boolean
           created_at:   string
           updated_at:   string
         }
-        Insert: Omit<Database['public']['Tables']['profiles']['Row'], 'created_at' | 'updated_at' | 'scenes_count'>
+        Insert: Omit<Database['public']['Tables']['profiles']['Row'], 'created_at' | 'updated_at' | 'scenes_count' | 'is_admin'> & { is_admin?: boolean }
         Update: Partial<Database['public']['Tables']['profiles']['Insert']>
       }
 
@@ -158,12 +159,44 @@ export interface Database {
         Insert: Omit<Database['public']['Tables']['rate_limit_buckets']['Row'], 'id'>
         Update: Partial<Pick<Database['public']['Tables']['rate_limit_buckets']['Row'], 'request_count'>>
       }
+
+      admin_audit_log: {
+        Row: {
+          id:          string
+          admin_id:    string
+          action:      string
+          target_id:   string | null
+          target_type: string | null
+          old_value:   Json | null
+          new_value:   Json | null
+          ip_address:  string | null
+          created_at:  string
+        }
+        Insert: Omit<Database['public']['Tables']['admin_audit_log']['Row'], 'id' | 'created_at'>
+        Update: Partial<Database['public']['Tables']['admin_audit_log']['Row']>
+      }
+
+      admin_login_attempts: {
+        Row: {
+          id:           string
+          email:        string
+          ip_address:   string | null
+          success:      boolean
+          attempted_at: string
+        }
+        Insert: Omit<Database['public']['Tables']['admin_login_attempts']['Row'], 'id' | 'attempted_at'>
+        Update: Partial<Database['public']['Tables']['admin_login_attempts']['Row']>
+      }
     }
 
     Functions: {
       check_rate_limit: {
         Args: { p_user_id: string; p_action: string; p_limit: number }
         Returns: boolean
+      }
+      get_admin_stats: {
+        Args: Record<string, never>
+        Returns: unknown
       }
     }
   }
@@ -178,3 +211,35 @@ export type WorkspaceMember     = Database['public']['Tables']['workspace_member
 export type SceneCollaborator   = Database['public']['Tables']['scene_collaborators']['Row']
 export type Subscription        = Database['public']['Tables']['subscriptions']['Row']
 export type Comment             = Database['public']['Tables']['comments']['Row']
+
+export interface AdminStats {
+  total_users:      number
+  pro_users:        number
+  free_users:       number
+  total_scenes:     number
+  public_scenes:    number
+  new_users_7d:     number
+  new_users_30d:    number
+  active_subs:      number
+  total_workspaces: number
+}
+
+export interface AuditLog {
+  id:          string
+  admin_id:    string
+  action:      string
+  target_id:   string | null
+  target_type: string | null
+  old_value:   Json | null
+  new_value:   Json | null
+  ip_address:  string | null
+  created_at:  string
+}
+
+export interface AdminLoginAttempt {
+  id:           string
+  email:        string
+  ip_address:   string | null
+  success:      boolean
+  attempted_at: string
+}

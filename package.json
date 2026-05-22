@@ -19,7 +19,8 @@
     "functions:serve": "supabase functions serve",
     "supabase:start": "supabase start",
     "supabase:stop": "supabase stop",
-    "supabase:status": "supabase status"
+    "supabase:status": "supabase status",
+    "seed:admin": "tsx scripts/seed-admin.ts"
   },
   "dependencies": {
     "@stripe/stripe-js": "^4.0.0",

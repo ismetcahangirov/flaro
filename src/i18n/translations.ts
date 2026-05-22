@@ -169,6 +169,71 @@ export interface Translations {
     close: string
     new: string
   }
+  // ── Admin ──────────────────────────────────────────────────────────────────────
+  admin: {
+    navDashboard:      string
+    navUsers:          string
+    navSubscriptions:  string
+    navSettings:       string
+    navLogout:         string
+
+    loginTitle:        string
+    loginSubtitle:     string
+    loginEmail:        string
+    loginPassword:     string
+    loginSubmit:       string
+    loginNotAdmin:     string
+    loginTooMany:      string
+
+    statsTotal:        string
+    statsPro:          string
+    statsFree:         string
+    statsNew7d:        string
+    statsScenes:       string
+    statsActiveSubs:   string
+    recentUsers:       string
+    recentActivity:    string
+
+    usersTitle:        string
+    searchPlaceholder: string
+    filterAll:         string
+    filterFree:         string
+    filterPro:         string
+    colName:           string
+    colEmail:          string
+    colPlan:           string
+    colScenes:         string
+    colDate:           string
+    colActions:        string
+    editUser:          string
+    deleteUser:        string
+    deleteConfirm:     string
+    planChanged:       string
+    userSaved:         string
+
+    subsTitle:         string
+    colStatus:         string
+    colStripeId:       string
+    colStart:          string
+    colEnd:            string
+    statusActive:      string
+    statusCanceled:    string
+    statusPastDue:     string
+    makeProBtn:        string
+    makeFreeBtn:       string
+
+    settingsTitle:     string
+    profileSection:    string
+    passwordSection:   string
+    currentPassword:   string
+    newPassword:       string
+    confirmPassword:   string
+    passwordChanged:   string
+    passwordMismatch:  string
+    profileSaved:      string
+    sessionSection:    string
+    lastLogin:         string
+  }
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -321,6 +386,70 @@ const az: Translations = {
     create: 'Yarat',
     close: 'Bağla',
     new: 'Yeni',
+  },
+  admin: {
+    navDashboard:      'Dashboard',
+    navUsers:          'İstifadəçilər',
+    navSubscriptions:  'Abunəliklər',
+    navSettings:       'Ayarlar',
+    navLogout:         'Çıxış',
+
+    loginTitle:        'Admin Paneli',
+    loginSubtitle:     'Yalnız admin hesabları üçün',
+    loginEmail:        'Email ünvanı',
+    loginPassword:     'Şifrə',
+    loginSubmit:       'Daxil ol',
+    loginNotAdmin:     'Bu hesab admin deyil',
+    loginTooMany:      'Çox cəhd. 15 dəqiqə gözləyin.',
+
+    statsTotal:        'Ümumi İstifadəçi',
+    statsPro:          'Pro İstifadəçi',
+    statsFree:         'Pulsuz İstifadəçi',
+    statsNew7d:        'Son 7 gündə',
+    statsScenes:       'Ümumi Scene',
+    statsActiveSubs:   'Aktiv Abunəlik',
+    recentUsers:       'Son Qeydiyyatlar',
+    recentActivity:    'Son Əməliyyatlar',
+
+    usersTitle:        'İstifadəçi İdarəetməsi',
+    searchPlaceholder: 'Email və ya ad axtar...',
+    filterAll:         'Hamısı',
+    filterFree:        'Pulsuz (Free)',
+    filterPro:         'Pro',
+    colName:           'Ad Soyad',
+    colEmail:          'Email',
+    colPlan:           'Plan',
+    colScenes:         'Səhnələr',
+    colDate:           'Qeydiyyat Tarixi',
+    colActions:        'Əməliyyatlar',
+    editUser:          'İstifadəçini Redaktə Et',
+    deleteUser:        'İstifadəçini Sil',
+    deleteConfirm:     'Bu əməliyyat geri dönməzdir. Davam etmək istəyirsiniz?',
+    planChanged:       'Plan uğurla dəyişdirildi',
+    userSaved:         'İstifadəçi məlumatları saxlanıldı',
+
+    subsTitle:         'Abunəlik İdarəetməsi',
+    colStatus:         'Status',
+    colStripeId:       'Stripe ID',
+    colStart:          'Başlama Tarixi',
+    colEnd:            'Bitmə Tarixi',
+    statusActive:      'Aktiv',
+    statusCanceled:    'Ləğv edilib',
+    statusPastDue:     'Gecikmədə',
+    makeProBtn:        'Pro Et',
+    makeFreeBtn:       'Free Et',
+
+    settingsTitle:     'Admin Ayarları',
+    profileSection:    'Profil Məlumatları',
+    passwordSection:   'Şifrə Dəyişdir',
+    currentPassword:   'Cari Şifrə',
+    newPassword:       'Yeni Şifrə (min 12 simvol)',
+    confirmPassword:   'Təkrar Şifrə',
+    passwordChanged:   'Şifrə uğurla dəyişdirildi',
+    passwordMismatch:  'Yeni şifrələr uyğun gəlmir',
+    profileSaved:      'Profil məlumatları uğurla saxlanıldı',
+    sessionSection:    'Sessiya Məlumatları',
+    lastLogin:         'Son giriş',
   },
 }
 
@@ -475,6 +604,70 @@ const en: Translations = {
     close: 'Close',
     new: 'New',
   },
+  admin: {
+    navDashboard:      'Dashboard',
+    navUsers:          'Users',
+    navSubscriptions:  'Subscriptions',
+    navSettings:       'Settings',
+    navLogout:         'Log Out',
+
+    loginTitle:        'Admin Panel',
+    loginSubtitle:     'Only for admin accounts',
+    loginEmail:        'Email Address',
+    loginPassword:     'Password',
+    loginSubmit:       'Log In',
+    loginNotAdmin:     'This account is not an admin',
+    loginTooMany:      'Too many attempts. Wait 15 minutes.',
+
+    statsTotal:        'Total Users',
+    statsPro:          'Pro Users',
+    statsFree:         'Free Users',
+    statsNew7d:        'In last 7 days',
+    statsScenes:       'Total Scenes',
+    statsActiveSubs:   'Active Subscriptions',
+    recentUsers:       'Recent Registrations',
+    recentActivity:    'Recent Actions',
+
+    usersTitle:        'User Management',
+    searchPlaceholder: 'Search email or name...',
+    filterAll:         'All',
+    filterFree:         'Free',
+    filterPro:         'Pro',
+    colName:           'Full Name',
+    colEmail:          'Email',
+    colPlan:           'Plan',
+    colScenes:         'Scenes',
+    colDate:           'Registration Date',
+    colActions:        'Actions',
+    editUser:          'Edit User',
+    deleteUser:        'Delete User',
+    deleteConfirm:     'This operation is irreversible. Do you want to continue?',
+    planChanged:       'Plan changed successfully',
+    userSaved:         'User details saved',
+
+    subsTitle:         'Subscription Management',
+    colStatus:         'Status',
+    colStripeId:       'Stripe ID',
+    colStart:          'Start Date',
+    colEnd:            'End Date',
+    statusActive:      'Active',
+    statusCanceled:    'Canceled',
+    statusPastDue:     'Past Due',
+    makeProBtn:        'Make Pro',
+    makeFreeBtn:       'Make Free',
+
+    settingsTitle:     'Admin Settings',
+    profileSection:    'Profile Information',
+    passwordSection:   'Change Password',
+    currentPassword:   'Current Password',
+    newPassword:       'New Password (min 12 chars)',
+    confirmPassword:   'Confirm Password',
+    passwordChanged:   'Password changed successfully',
+    passwordMismatch:  'New passwords do not match',
+    profileSaved:      'Profile details saved successfully',
+    sessionSection:    'Session Details',
+    lastLogin:         'Last login',
+  },
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -628,6 +821,70 @@ const ru: Translations = {
     close: 'Закрыть',
     new: 'Новый',
   },
+  admin: {
+    navDashboard:      'Панель управления',
+    navUsers:          'Пользователи',
+    navSubscriptions:  'Подписки',
+    navSettings:       'Настройки',
+    navLogout:         'Выйти',
+
+    loginTitle:        'Панель администратора',
+    loginSubtitle:     'Только для учетных записей администратора',
+    loginEmail:        'Адрес электронной почты',
+    loginPassword:     'Пароль',
+    loginSubmit:       'Войти',
+    loginNotAdmin:     'Этот аккаунт не является администратором',
+    loginTooMany:      'Слишком много попыток. Подождите 15 минут.',
+
+    statsTotal:        'Всего пользователей',
+    statsPro:          'Пользователи Pro',
+    statsFree:         'Бесплатные пользователи',
+    statsNew7d:        'За последние 7 дней',
+    statsScenes:       'Всего сцен',
+    statsActiveSubs:   'Активные подписки',
+    recentUsers:       'Последние регистрации',
+    recentActivity:    'Последние действия',
+
+    usersTitle:        'Управление пользователями',
+    searchPlaceholder: 'Поиск по email или имени...',
+    filterAll:         'Все',
+    filterFree:         'Бесплатные',
+    filterPro:         'Pro',
+    colName:           'Имя Фамилия',
+    colEmail:          'Email',
+    colPlan:           'План',
+    colScenes:         'Сцены',
+    colDate:           'Дата регистрации',
+    colActions:        'Действия',
+    editUser:          'Редактировать пользователя',
+    deleteUser:        'Удалить пользователя',
+    deleteConfirm:     'Это действие необратимо. Хотите продолжить?',
+    planChanged:       'План успешно изменен',
+    userSaved:         'Данные пользователя сохранены',
+
+    subsTitle:         'Управление подписками',
+    colStatus:         'Status',
+    colStripeId:       'Stripe ID',
+    colStart:          'Дата начала',
+    colEnd:            'Дата окончания',
+    statusActive:      'Активна',
+    statusCanceled:    'Отменена',
+    statusPastDue:     'Просрочена',
+    makeProBtn:        'Сделать Pro',
+    makeFreeBtn:       'Сделать Free',
+
+    settingsTitle:     'Настройки администратора',
+    profileSection:    'Информация профиля',
+    passwordSection:   'Изменить пароль',
+    currentPassword:   'Текущий пароль',
+    newPassword:       'Новый пароль (минимум 12 символов)',
+    confirmPassword:   'Подтвердите пароль',
+    passwordChanged:   'Пароль успешно изменен',
+    passwordMismatch:  'Новые пароли не совпадают',
+    profileSaved:      'Данные профиля успешно сохранены',
+    sessionSection:    'Информация о сеансе',
+    lastLogin:         'Последний вход',
+  },
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -780,6 +1037,70 @@ const tr: Translations = {
     create: 'Oluştur',
     close: 'Kapat',
     new: 'Yeni',
+  },
+  admin: {
+    navDashboard:      'Panel',
+    navUsers:          'Kullanıcılar',
+    navSubscriptions:  'Abonelikler',
+    navSettings:       'Ayarlar',
+    navLogout:         'Çıkış Yap',
+
+    loginTitle:        'Admin Paneli',
+    loginSubtitle:     'Sadece yönetici hesapları için',
+    loginEmail:        'E-posta Adresi',
+    loginPassword:     'Şifre',
+    loginSubmit:       'Giriş Yap',
+    loginNotAdmin:     'Bu hesap yönetici değil',
+    loginTooMany:      'Çok fazla deneme. 15 dakika bekleyin.',
+
+    statsTotal:        'Toplam Kullanıcı',
+    statsPro:          'Pro Kullanıcı',
+    statsFree:         'Ücretsiz Kullanıcı',
+    statsNew7d:        'Son 7 günde',
+    statsScenes:       'Toplam Sahne',
+    statsActiveSubs:   'Aktif Abonelikler',
+    recentUsers:       'Son Üyelikler',
+    recentActivity:    'Son İşlemler',
+
+    usersTitle:        'Kullanıcı Yönetimi',
+    searchPlaceholder: 'E-posta veya ad ara...',
+    filterAll:         'Tümü',
+    filterFree:         'Ücretsiz',
+    filterPro:         'Pro',
+    colName:           'Ad Soyad',
+    colEmail:          'E-posta',
+    colPlan:           'Plan',
+    colScenes:         'Sahneler',
+    colDate:           'Kayıt Tarihi',
+    colActions:        'İşlemler',
+    editUser:          'Kullanıcıyı Düzenle',
+    deleteUser:        'Kullanıcıyı Sil',
+    deleteConfirm:     'Bu işlem geri alınamaz. Devam etmek istiyor musunuz?',
+    planChanged:       'Plan başarıyla değiştirildi',
+    userSaved:         'Kullanıcı bilgileri kaydedildi',
+
+    subsTitle:         'Abonelik Yönetimi',
+    colStatus:         'Durum',
+    colStripeId:       'Stripe ID',
+    colStart:          'Başlangıç Tarihi',
+    colEnd:            'Bitiş Tarihi',
+    statusActive:      'Aktif',
+    statusCanceled:    'İptal Edildi',
+    statusPastDue:     'Gecikmiş',
+    makeProBtn:        'Pro Yap',
+    makeFreeBtn:       'Ücretsiz Yap',
+
+    settingsTitle:     'Yönetici Ayarları',
+    profileSection:    'Profil Bilgileri',
+    passwordSection:   'Şifre Değiştir',
+    currentPassword:   'Mevcut Şifre',
+    newPassword:       'Yeni Şifre (min 12 karakter)',
+    confirmPassword:   'Şifre Tekrarı',
+    passwordChanged:   'Şifre başarıyla değiştirildi',
+    passwordMismatch:  'Yeni şifreler eşleşmiyor',
+    profileSaved:      'Profil bilgileri başarıyla kaydedildi',
+    sessionSection:    'Oturum Bilgileri',
+    lastLogin:         'Son giriş',
   },
 }
 

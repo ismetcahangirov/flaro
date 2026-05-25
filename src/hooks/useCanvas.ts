@@ -858,11 +858,32 @@ export function useCanvas(canvasRef: React.RefObject<HTMLCanvasElement>) {
       if (e.code === 'Space') spaceDown.current = false
     }
 
+    const onBlur = () => {
+      isDrawing.current = false
+      isPanning.current = false
+      isDragging.current = false
+      resizingHandle.current = null
+      rotatingElementId.current = null
+      currentElId.current = null
+      lassoStart.current = null
+      lassoEnd.current = null
+      isGroupRotating.current = false
+      isGroupResizing.current = false
+      groupResizeHandle.current = null
+      groupResizeInitialBox.current = null
+      groupResizeInitialElements.current = null
+      showGuideXRef.current = false
+      showGuideYRef.current = false
+      spaceDown.current = false
+    }
+
     window.addEventListener('keydown', onKeyDown)
     window.addEventListener('keyup',   onKeyUp)
+    window.addEventListener('blur',    onBlur)
     return () => {
       window.removeEventListener('keydown', onKeyDown)
       window.removeEventListener('keyup',   onKeyUp)
+      window.removeEventListener('blur',    onBlur)
     }
   }, [])  // dependency yoxdur — getState() həmişə aktual dəyər verir
 

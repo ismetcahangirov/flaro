@@ -1,4 +1,4 @@
-import { useState, useCallback, useRef } from 'react'
+import { useState, useCallback, useRef, useEffect } from 'react'
 import { useNavigate }    from 'react-router-dom'
 import { supabase }       from '@/lib/supabase'
 import { useCanvasStore } from '@/store/canvasStore'
@@ -22,6 +22,15 @@ export function useScene(sceneId?: string) {
   const autoSaveTimer  = useRef<ReturnType<typeof setTimeout> | null>(null)
   const isSavingRef    = useRef(false)
 
+  // Stable refs — saveScene heç dəyişməsin deyə state yerinə ref istifadə edirik
+  const sceneIdRef = useRef(sceneId)
+  sceneIdRef.current = sceneId
+
+  const userRef = useRef(user)
+  userRef.current = user
+
+  const sceneTitleRef = useRef<string | undefined>(undefined)
+
   // ── Scene yüklə ──────────────────────────────────────────────────────────
   const loadScene = useCallback(async (id: string) => {
     setIsLoading(true)
@@ -37,6 +46,7 @@ export function useScene(sceneId?: string) {
       if (error) throw error
 
       setScene(data)
+      sceneTitleRef.current = data.title
 
       // Use getState() to avoid stale canvas reference in closure
       useCanvasStore.getState().loadScene(
@@ -56,9 +66,18 @@ export function useScene(sceneId?: string) {
     }
   }, [navigate]) // canvas dependency removed — using getState() instead
 
+  // scene dəyişdikdə title ref-i güncəllə
+  useEffect(() => {
+    if (scene) sceneTitleRef.current = scene.title
+  }, [scene])
+
   // ── Scene saxla ───────────────────────────────────────────────────────────
+  // STABLE funksiya — heç bir React state dependency yoxdur, hamısı ref ilə oxunur
   const saveScene = useCallback(async (force = false) => {
-    if (!sceneId || !user) return
+    const currentSceneId = sceneIdRef.current
+    const currentUser    = userRef.current
+
+    if (!currentSceneId || !currentUser) return
     if (isSavingRef.current && !force) return
 
     isSavingRef.current = true
@@ -69,14 +88,21 @@ export function useScene(sceneId?: string) {
       // Read current canvas state imperatively (no stale closure)
       const { elements, appState } = useCanvasStore.getState()
 
-      const { error } = await (supabase
+      const savePromise = (supabase
         .from('scenes') as any)
         .update({
           elements,
           app_state: appState,
-          title: scene?.title ?? 'Untitled',
+          title: sceneTitleRef.current ?? 'Untitled',
         })
-        .eq('id', sceneId)
+        .eq('id', currentSceneId)
+
+      const timeoutPromise = new Promise((_, reject) =>
+        setTimeout(() => reject(new Error('Save request timed out')), 8000)
+      )
+
+      const result = await Promise.race([savePromise, timeoutPromise]) as any
+      const error = result?.error
 
       if (error) throw error
 
@@ -90,20 +116,53 @@ export function useScene(sceneId?: string) {
       isSavingRef.current = false
       setIsSaving(false)
     }
-  }, [sceneId, user, scene])
+  }, []) // ← Heç bir dependency yoxdur — tam stable
 
   // ── Avtomatik saxlama ───────────────────────────────────────────────────
-  // Stable reference — uses refs to avoid recreating on every render
+  // STABLE funksiya — saveScene artıq dəyişmir
   const scheduleAutoSave = useCallback(() => {
-    const delay = AUTOSAVE_DEBOUNCE
-
     if (autoSaveTimer.current) clearTimeout(autoSaveTimer.current)
 
     autoSaveTimer.current = setTimeout(() => {
       const { isDirty } = useCanvasStore.getState()
       if (isDirty) saveScene()
-    }, delay)
-  }, [saveScene]) // canvas.isDirty removed — reads via getState()
+    }, AUTOSAVE_DEBOUNCE)
+  }, [saveScene])
+
+  // ── Tab gizlənəndə pending save-i dərhal icra et ─────────────────────────
+  useEffect(() => {
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === 'hidden') {
+        // Tab gizlənir: pending timer-i ləğv et və dərhal save et
+        if (autoSaveTimer.current) {
+          clearTimeout(autoSaveTimer.current)
+          autoSaveTimer.current = null
+        }
+        const { isDirty } = useCanvasStore.getState()
+        if (isDirty) saveScene(true) // force=true: isSavingRef-i keçir
+      } else {
+        // Tab yenidən görünür olur: save lock-u sıfırla
+        isSavingRef.current = false
+        setIsSaving(false)
+
+        // Hələ də unsaved dəyişiklik varsa save et
+        const { isDirty } = useCanvasStore.getState()
+        if (isDirty) saveScene()
+      }
+    }
+
+    document.addEventListener('visibilitychange', handleVisibilityChange)
+    return () => {
+      document.removeEventListener('visibilitychange', handleVisibilityChange)
+    }
+  }, [saveScene])
+
+  // ── Timer cleanup effect ────────────────────────────────────────────────
+  useEffect(() => {
+    return () => {
+      if (autoSaveTimer.current) clearTimeout(autoSaveTimer.current)
+    }
+  }, [])
 
   // ── Yeni scene yarat ──────────────────────────────────────────────────────
   const createScene = useCallback(async (title = 'Untitled Scene') => {
@@ -157,7 +216,10 @@ export function useScene(sceneId?: string) {
       .single())
 
     if (error) throw error
-    if (scene?.id === id) setScene(data)
+    if (scene?.id === id) {
+      setScene(data)
+      sceneTitleRef.current = data.title
+    }
     return data
   }, [scene])
 

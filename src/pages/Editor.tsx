@@ -43,13 +43,14 @@ export default function Editor() {
   }, [scene])
 
   // Canvas dəyişikliklərini izlə və autosave planlaşdır
+  // Composite selector: changeCounter VƏ isDirty hər ikisini dinlə
   useEffect(() => {
     return useCanvasStore.subscribe(
-      (state) => state.changeCounter,
-      () => {
-        const { isDirty } = useCanvasStore.getState()
+      (state) => [state.changeCounter, state.isDirty] as const,
+      ([, isDirty]) => {
         if (isDirty) scheduleAutoSave()
-      }
+      },
+      { equalityFn: (a, b) => a[0] === b[0] && a[1] === b[1] }
     )
   }, [scheduleAutoSave])
 

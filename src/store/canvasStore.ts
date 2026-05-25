@@ -200,12 +200,16 @@ export const useCanvasStore = create<CanvasStore>()(
           const targets = state.elements.filter(e =>  ids.includes(e.id))
           const rest    = state.elements.filter(e => !ids.includes(e.id))
           state.elements = [...rest, ...targets]
+          state.isDirty = true
+          state.changeCounter++
         }),
 
         sendToBack: (ids) => set((state) => {
           const targets = state.elements.filter(e =>  ids.includes(e.id))
           const rest    = state.elements.filter(e => !ids.includes(e.id))
           state.elements = [...targets, ...rest]
+          state.isDirty = true
+          state.changeCounter++
         }),
 
         setElements: (elements) => set((state) => {
@@ -269,6 +273,7 @@ export const useCanvasStore = create<CanvasStore>()(
         setBackground: (color) => set((s) => {
           s.appState.backgroundColor = color
           s.isDirty = true
+          s.changeCounter++
         }),
 
         resetView: () => set((s) => {
@@ -325,6 +330,7 @@ export const useCanvasStore = create<CanvasStore>()(
           s.elements     = s.undoStack[s.undoStack.length - 1] ?? []
           s.selectedIds  = new Set()
           s.isDirty      = true
+          s.changeCounter++
         }),
 
         redo: () => set((s) => {
@@ -335,6 +341,7 @@ export const useCanvasStore = create<CanvasStore>()(
           s.elements    = next
           s.selectedIds = new Set()
           s.isDirty     = true
+          s.changeCounter++
         }),
 
         canUndo: () => get().undoStack.length > 1,
@@ -356,6 +363,7 @@ export const useCanvasStore = create<CanvasStore>()(
           s.redoStack   = []
           s.selectedIds = new Set()
           s.isDirty     = true
+          s.changeCounter++
         }),
 
         setDirty:    (dirty)    => set((s) => { s.isDirty    = dirty    }),

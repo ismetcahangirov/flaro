@@ -8,20 +8,42 @@ if (!supabaseUrl || !supabaseKey) {
   throw new Error('Missing Supabase environment variables')
 }
 
+const memoryLocks: Record<string, Promise<void>> = {}
+
 export const supabase = createClient<Database>(supabaseUrl, supabaseKey, {
   auth: {
     autoRefreshToken:   true,
     persistSession:     true,
     detectSessionInUrl: true,
-    // 'flaro-auth' artıq Zustand tərəfindən istifadə olunur!
-    // Fərqli açar — localStorage key konflikti aradan qaldırıldı
     storageKey:         'flaro-supabase-session',
     storage:            window.localStorage,
-    // Web Locks deadlock problemini (HMR/refresh zamanı) bypass etmək üçün.
-    // HƏM development HƏM production-da bypass aktiv olmalıdır —
-    // əks halda signInWithPassword / getSession arasında lock deadlock yaranır.
-    // @ts-expect-error: Web Locks deadlock problemini bypass etmək üçün
-    lock: (name: string, acquireTimeout: number, fn: () => Promise<any>) => fn(),
+    // Web Locks deadlock problemini (HMR/refresh zamanı) bypass etmək üçün
+    // in-memory queue istifadə edirik. Boş "() => fn()" yazmaq concurrent
+    // refresh-lər zamanı (tab-a qayıtdıqda) Supabase-i sonsuz dövrə salıb dondururdu.
+    lock: async (name: string, acquireTimeout: number, fn: () => Promise<any>) => {
+      const prev = memoryLocks[name] || Promise.resolve()
+      let resolveNext!: () => void
+      memoryLocks[name] = new Promise((resolve) => { resolveNext = resolve })
+      
+      // Köhnə lock-u gözlə, amma ən çox 2 saniyə (deadlock olmasın deyə)
+      await Promise.race([
+        prev.catch(() => {}),
+        new Promise(r => setTimeout(r, 2000))
+      ])
+      
+      try {
+        // fn() adətən Supabase token refresh-dir. Əgər şəbəkə donubsa, sonsuza qədər
+        // gözləməsin deyə 5 saniyəlik timeout qoyuruq ki, xəta versin və növbəti cəhd təmiz başlasın.
+        return await Promise.race([
+          fn(),
+          new Promise((_, reject) => 
+            setTimeout(() => reject(new Error('Supabase lock fn timeout')), 5000)
+          )
+        ])
+      } finally {
+        resolveNext()
+      }
+    },
   },
   global: {
     headers: {

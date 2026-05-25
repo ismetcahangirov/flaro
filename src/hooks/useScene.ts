@@ -3,10 +3,11 @@ import { useNavigate }    from 'react-router-dom'
 import { supabase }       from '@/lib/supabase'
 import { useCanvasStore } from '@/store/canvasStore'
 import { useAuth }        from '@/hooks/useAuth'
+import { useAuthStore }   from '@/store/authStore'
 import { sanitizeTitle }  from '@/lib/sanitize'
 import type { Scene }     from '@/types/database.types'
 
-const AUTOSAVE_DEBOUNCE = 1_000   // 1s
+const AUTOSAVE_DEBOUNCE = 800   // 800ms
 
 export function useScene(sceneId?: string) {
   const navigate = useNavigate()
@@ -84,34 +85,47 @@ export function useScene(sceneId?: string) {
     setIsSaving(true)
     setSaveError(null)
 
-    try {
-      // Read current canvas state imperatively (no stale closure)
-      const { elements, appState } = useCanvasStore.getState()
+      try {
+        const { elements, appState } = useCanvasStore.getState()
+        const currentSession = useAuthStore.getState().session
+        const token = currentSession?.access_token
+        
+        if (!token) throw new Error('No valid session token available for saving')
+        const apikey = import.meta.env.VITE_SUPABASE_ANON_KEY
+        const url = `${import.meta.env.VITE_SUPABASE_URL}/rest/v1/scenes?id=eq.${currentSceneId}`
+        
+        const abortController = new AbortController()
+        const timeoutId = setTimeout(() => abortController.abort(), 15000)
 
-      const savePromise = (supabase
-        .from('scenes') as any)
-        .update({
-          elements,
-          app_state: appState,
-          title: sceneTitleRef.current ?? 'Untitled',
-        })
-        .eq('id', currentSceneId)
+        try {
+          const response = await fetch(url, {
+            method: 'PATCH',
+            headers: {
+              'apikey': apikey,
+              'Authorization': `Bearer ${token}`,
+              'Content-Type': 'application/json',
+              'Prefer': 'return=minimal'
+            },
+            body: JSON.stringify({
+              elements,
+              app_state: appState,
+              title: sceneTitleRef.current ?? 'Untitled'
+            }),
+            signal: abortController.signal
+          })
 
-      const timeoutPromise = new Promise((_, reject) =>
-        setTimeout(() => reject(new Error('Save request timed out')), 8000)
-      )
+          if (!response.ok) {
+            throw new Error(`Direct save failed: ${response.statusText}`)
+          }
+        } finally {
+          clearTimeout(timeoutId)
+        }
 
-      const result = await Promise.race([savePromise, timeoutPromise]) as any
-      const error = result?.error
-
-      if (error) throw error
-
-      useCanvasStore.getState().setDirty(false)
-      setLastSaved(new Date())
+        useCanvasStore.getState().setDirty(false)
+        setLastSaved(new Date())
 
     } catch (err: any) {
       setSaveError(err.message)
-      console.error('[Scene] Save error:', err)
     } finally {
       isSavingRef.current = false
       setIsSaving(false)
@@ -129,31 +143,47 @@ export function useScene(sceneId?: string) {
     }, AUTOSAVE_DEBOUNCE)
   }, [saveScene])
 
-  // ── Tab gizlənəndə pending save-i dərhal icra et ─────────────────────────
+  // ── Tab keçidlərini idarə et ─────────────────────────────────────────────
+  // KRİTİK: background-da Supabase auth timeout olur!
+  // Həll: arxa planda save etmə, yalnız foreground-a qayıdanda save et.
   useEffect(() => {
-    const handleVisibilityChange = () => {
-      if (document.visibilityState === 'hidden') {
-        // Tab gizlənir: pending timer-i ləğv et və dərhal save et
-        if (autoSaveTimer.current) {
-          clearTimeout(autoSaveTimer.current)
-          autoSaveTimer.current = null
-        }
-        const { isDirty } = useCanvasStore.getState()
-        if (isDirty) saveScene(true) // force=true: isSavingRef-i keçir
-      } else {
-        // Tab yenidən görünür olur: save lock-u sıfırla
-        isSavingRef.current = false
-        setIsSaving(false)
-
-        // Hələ də unsaved dəyişiklik varsa save et
-        const { isDirty } = useCanvasStore.getState()
-        if (isDirty) saveScene()
+    const cancelTimer = () => {
+      if (autoSaveTimer.current) {
+        clearTimeout(autoSaveTimer.current)
+        autoSaveTimer.current = null
       }
     }
 
+    const handleHide = () => {
+      // Arxa plana keçdikdə SAVE ETMƏ — Supabase auth background-da timeout olur!
+      // Sadəcə pending timeri ləğv et. Focus qayıdanda save edəcəyik.
+      cancelTimer()
+    }
+
+    const handleShow = () => {
+      // Ön plana qayıdanda: stuck state sıfırla, sonra save et
+      isSavingRef.current = false
+      setIsSaving(false)
+      const { isDirty } = useCanvasStore.getState()
+      if (isDirty) {
+        // 200ms gözlə ki browser/Supabase auth session stabil olsun
+        setTimeout(() => saveScene(), 200)
+      }
+    }
+
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === 'hidden') handleHide()
+      else handleShow()
+    }
+
     document.addEventListener('visibilitychange', handleVisibilityChange)
+    window.addEventListener('blur',  handleHide)
+    window.addEventListener('focus', handleShow)
+
     return () => {
       document.removeEventListener('visibilitychange', handleVisibilityChange)
+      window.removeEventListener('blur',  handleHide)
+      window.removeEventListener('focus', handleShow)
     }
   }, [saveScene])
 

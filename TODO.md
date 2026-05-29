@@ -10,12 +10,12 @@
 
 | Sahə | Dəyər |
 |---|---|
-| **Son tamamlanan tapşırıq** | Mərhələ 9 — Admin Panel (App.tsx routes) |
-| **Aktiv branch** | `feature/m09-admin-panel` |
+| **Son tamamlanan tapşırıq** | Mərhələ 9 — Admin Panel yoxlamaları (lint + type-check + build) |
+| **Aktiv branch** | `fix/tab-switch-autosave` |
 | **Növbəti branch** | Yoxdur |
-| **Növbəti tapşırıq** | Lint + type-check yoxlanışları |
+| **Növbəti tapşırıq** | PR açılması və merge gözlənilir |
 | **Bloklanmış tapşırıq** | Yoxdur |
-| **Qeyd** | Admin Panel implementasiyası davam edir. DB migration (020_admin_system.sql), seed script, tip tərifləri, Zustand store, hooks, AdminRoute, AdminLayout, AdminLogin (brute-force), AdminDashboard (real stats), AdminUsers (CRUD), AdminSubscriptions, AdminSettings, i18n (4 dil), Edge Function (admin-user-delete), Session Timeout, App.tsx route-ları — hamısı yaradıldı. Son qalan: lint + type-check yoxlanışı. |
+| **Qeyd** | Admin Panel implementasiyası və son yoxlamalar tamamlandı. DB migration (020_admin_system.sql), seed script, tip tərifləri, Zustand store, hooks, AdminRoute, AdminLayout, AdminLogin (brute-force), AdminDashboard (real stats), AdminUsers (CRUD), AdminSubscriptions, AdminSettings, i18n (4 dil), Edge Function (admin-user-delete), Session Timeout, App.tsx route-ları yaradıldı. `npm.cmd run lint`, `npm.cmd run type-check` və `npm.cmd run build` keçdi. Lint yalnız mövcud warning-lər göstərir, error yoxdur. |
 
 ---
 
